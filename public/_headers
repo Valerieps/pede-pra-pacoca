@@ -1,0 +1,8 @@
+# Cloudflare Pages response headers.
+# The Content-Security-Policy lives in index.html (meta tag, injected by the production build) so
+# it applies to the page only: as a header it would also apply to a service worker (ADR-002).
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
