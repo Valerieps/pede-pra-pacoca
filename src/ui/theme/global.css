@@ -502,6 +502,19 @@ legend {
   font-size: 0.8em;
 }
 
+.queue-controls {
+  flex-wrap: wrap;
+}
+
+.queue-controls select {
+  width: auto;
+}
+
+.queue-check {
+  width: auto;
+  align-self: center;
+}
+
 /* Statistics (docs/spec/estatisticas.md) */
 .stat-grid {
   display: grid;
