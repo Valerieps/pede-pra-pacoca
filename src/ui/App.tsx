@@ -16,6 +16,7 @@ import { MyRequests } from './screens/MyRequests';
 import { RequestDetail } from './screens/RequestDetail';
 import { Members } from './screens/Members';
 import { Petiscos } from './screens/Petiscos';
+import { Queues } from './screens/Queues';
 import { Profile } from './screens/Profile';
 import { Settings } from './screens/Settings';
 import { SignIn } from './screens/SignIn';
@@ -79,6 +80,7 @@ export function App() {
         <InboxLink />
         <Link to="/pedir">{strings.nav.ask}</Link>
         <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
+        {canAttend(me.data) && <Link to="/filas">{strings.nav.queues}</Link>}
         <Link to="/membros">{strings.nav.members}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
         <Link to="/petiscos">{strings.nav.petiscos}</Link>
@@ -106,6 +108,7 @@ function Screen({ me }: { me: MeView }) {
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
   if (path === '/petiscos') return <Petiscos />;
   if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;
+  if (path === '/filas' && canAttend(me)) return <Queues me={me} />;
   if (path === '/avisos') return <Inbox />;
   if (path === '/avisos/celular') return <PushPermission />;
   if (path === '/avisos/preferencias') return <NotificationPreferences />;

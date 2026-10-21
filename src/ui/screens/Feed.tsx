@@ -27,6 +27,12 @@ function describe(event: FeedEventView) {
           {strings.feed.coRequest(event.actor.name)} {title}
         </>
       );
+    case 'request_fulfilled':
+      return (
+        <>
+          {strings.feed.fulfilledBefore} {title} {strings.feed.fulfilledFor(event.fulfilledFor ?? [event.actor.name])}
+        </>
+      );
     default:
       // The other events arrive with their features (docs/ROADMAP.md).
       return event.actor.name;

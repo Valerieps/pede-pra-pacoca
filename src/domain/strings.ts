@@ -32,6 +32,7 @@ export const strings = {
     profile: 'Perfil',
     petiscos: 'Petiscos',
     settings: 'Ajustes',
+    queues: 'Filas',
     signOut: 'Sair',
   },
 
@@ -50,6 +51,9 @@ export const strings = {
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
     coRequest: (name: string) => `${name} também quer`,
+    // "A Paçoca buscou *Duna* para Ana e Bia".
+    fulfilledBefore: 'A Paçoca buscou',
+    fulfilledFor: (names: readonly string[]) => `para ${listNames(names)}`,
   },
 
   mediaType: { movie: 'Filme', tv: 'Série' },
@@ -132,10 +136,13 @@ export const strings = {
     decline: 'Não quero',
     offerPending: (name: string, date: string) => `A Paçoca ofereceu esse pedido a ${name}, até ${date}.`,
     history: 'Histórico',
+    reason: (text: string) => `Motivo: ${text}`,
+    fulfillmentNote: (note: string) => `Nota da Paçoca: ${note}`,
     events: {
       offered_to_co_requesters: 'A solicitante cancelou; a Paçoca ofereceu o pedido a quem também quer',
       inherited: 'Ficou com o pedido',
       nobody_inherited: 'Ninguém ficou com o pedido',
+      assigned: 'Pegou o pedido',
     } as Record<string, string>,
   },
 
@@ -244,6 +251,49 @@ export const strings = {
 
   requestConfirmed: 'Pedido entregue pra Paçoca!',
   queueEmpty: 'Fila zerada! A Paçoca foi tirar um cochilo.',
+
+  reasons: {
+    not_found: 'não encontrei',
+    bad_quality: 'qualidade ruim',
+    try_later: 'tenta mais tarde',
+    server_failure: 'o servidor falhou',
+    other: 'outro motivo',
+  },
+
+  queues: {
+    title: 'Filas',
+    tabs: { awaiting: 'Aguardando aprovação', toSend: 'A enviar', inJellyseerr: 'No Jellyseerr', manual: 'Manuais' },
+    sortLabel: 'Ordenar por',
+    sort: { date: 'Data do pedido', coRequesters: 'Quem também quer', release: 'Lançamento' },
+    groupLabel: 'Agrupar por',
+    group: { none: 'Nada', person: 'Pessoa', type: 'Tipo', assignee: 'Quem pegou' },
+    nobodyTook: 'Ninguém pegou ainda',
+    takenBy: (name: string) => `Com ${name}`,
+    alsoWant: (count: number) => (count === 1 ? '+1 também quer' : `+${count} também querem`),
+    release: (date: string) => `Lança em ${date}`,
+    select: (title: string) => `Selecionar ${title}`,
+    selected: (count: number) => (count === 1 ? '1 selecionado' : `${count} selecionados`),
+    clearSelection: 'Limpar seleção',
+    take: 'Eu pego esse',
+    takeOver: (name: string) => `Pegar de ${name}`,
+    takeOverConfirm: (name: string) => `${name} já pegou. Quer pegar pra você?`,
+    approve: 'Aprovar',
+    reject: 'Recusar',
+    openJellyseerr: 'Abrir no Jellyseerr',
+    sent: 'Enviado',
+    fulfilled: 'Atendido',
+    unavailable: 'Não foi possível',
+    reasonLabel: 'Motivo',
+    reasonText: 'Detalhe (opcional)',
+    reasonTextOther: 'Conta o motivo',
+    noteLabel: 'Nota de atendimento (opcional)',
+    confirm: 'Confirmar',
+    back: 'Voltar',
+    done: (count: number) => (count === 1 ? 'Feito!' : `Feito em ${count} pedidos!`),
+    skipped: (count: number) =>
+      count === 1 ? 'Um pedido mudou enquanto isso e ficou como estava.' : `${count} pedidos mudaram enquanto isso e ficaram como estavam.`,
+    invalid: 'Confere o motivo e a nota.',
+  },
   alreadyOnServer: 'A Paçoca já buscou esse! Pode assistir.',
   noPetiscos: 'Seus petiscos acabaram. Esse pedido vai precisar da aprovação da Paçoca.',
   fulfilled: (title: string) => `A Paçoca buscou ${title} pra você!`,

@@ -34,6 +34,7 @@ import {
   requestDetail,
   searchMedia,
 } from './requests';
+import { actOnRequests, queues } from './requests-queue';
 import { migrate } from './schema';
 import { endFinishedVacations, setVacation, vacationView } from './vacation';
 import type { Prefetched } from './tmdb';
@@ -67,6 +68,7 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   'manual.availability': manualAvailability,
   'requests.mine': (ctx, actor) => myRequests(ctx, actor),
   'request.detail': requestDetail,
+  queues: (ctx, actor) => queues(ctx, actor),
 };
 
 const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output']>> } = {
@@ -83,6 +85,7 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.cancel': cancelRequest,
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
+  'request.act': actOnRequests,
   'member.updateProfile': updateProfile,
   'petiscos.setMonthly': setMonthly,
   'petiscos.setMemberMonthly': setMemberMonthly,
@@ -146,7 +149,7 @@ export class GroupService {
     pruneOutbox(this.ctx);
     // First, so the notices below already see who is back from vacation.
     if (this.ctx.sql.transaction(() => endFinishedVacations(this.ctx))) changed.add('vacation');
-    if (this.ctx.sql.transaction(() => expireOffers(this.ctx))) ['requests', 'feed'].forEach((t) => changed.add(t as Topic));
+    if (this.ctx.sql.transaction(() => expireOffers(this.ctx))) ['requests', 'feed', 'notifications'].forEach((t) => changed.add(t as Topic));
     if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
     return [...changed];
   }

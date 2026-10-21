@@ -8,7 +8,7 @@ import type { PetiscoKind, PetiscoOperation } from '../domain/petisco/ledger';
 import type { NotificationPrefs } from '../domain/notification/preferences';
 import type { NotificationType } from '../domain/notification/types';
 import type { MediaType } from '../domain/media/media';
-import type { RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
+import type { Reason, RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
 
 export interface MemberView {
   readonly id: string;
@@ -113,6 +113,8 @@ export interface FeedEventView {
   readonly at: string;
   readonly likeCount: number;
   readonly likedByMe: boolean;
+  /** "Atendido" only: the requester and co-requesters' names, for "A Paçoca buscou X para Ana e Bia". */
+  readonly fulfilledFor?: readonly string[];
 }
 
 export type { FeedFilter };
@@ -199,6 +201,35 @@ export interface RequestView {
   readonly coRequesters: readonly MemberView[];
   readonly createdAt: string;
   readonly updatedAt: string;
+  /** Why it was Recusado or Não foi possível. */
+  readonly reason: Reason | null;
+  /** The attendant's note sent with Atendido. */
+  readonly fulfillmentNote: string | null;
+}
+
+/** The attendant's queues (docs/spec/atendente.md), oldest first; the app sorts and groups. */
+export interface QueuesView {
+  readonly awaiting: readonly RequestView[];
+  readonly toSend: readonly RequestView[];
+  readonly inJellyseerr: readonly RequestView[];
+  readonly manual: readonly RequestView[];
+  /** Set by the admin; null hides "Abrir no Jellyseerr". */
+  readonly jellyseerrBaseUrl: string | null;
+}
+
+/** A status change by an attendant, on one request or a batch. */
+export type AttendantAction =
+  | { readonly type: 'assign' }
+  | { readonly type: 'approve' }
+  | { readonly type: 'reject'; readonly reason: Reason }
+  | { readonly type: 'mark_sent' }
+  | { readonly type: 'mark_fulfilled'; readonly note?: string }
+  | { readonly type: 'mark_unavailable'; readonly reason: Reason };
+
+/** Requests that changed in the meantime are skipped, not failed. */
+export interface AttendantActionResult {
+  readonly applied: readonly string[];
+  readonly skipped: readonly string[];
 }
 
 export interface RequestTransitionView {
@@ -261,6 +292,7 @@ export interface Queries {
   'manual.availability': { input: { link: string }; output: Availability };
   'requests.mine': { input: Record<string, never>; output: RequestView[] };
   'request.detail': { input: { id: string }; output: RequestDetailView };
+  queues: { input: Record<string, never>; output: QueuesView };
   'petiscos.statement': { input: Record<string, never>; output: PetiscoStatementView };
   'petiscos.settings': { input: Record<string, never>; output: PetiscoSettingsView };
   vacation: { input: Record<string, never>; output: VacationView };
@@ -282,6 +314,8 @@ export interface Commands {
   'request.cancel': { input: { id: string }; output: null };
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
+  /** Attendants: the same action on every request in `ids` (1 to 50). */
+  'request.act': { input: { ids: string[]; action: AttendantAction }; output: AttendantActionResult };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
   'petiscos.setMonthly': { input: { petiscos: number }; output: null };
   /** `petiscos: null` goes back to the group's number. */

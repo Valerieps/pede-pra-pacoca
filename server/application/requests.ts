@@ -1,6 +1,7 @@
 // Requests (docs/spec/pedidos.md): create, "Eu também quero", cancel with the offer to the
 // co-requesters, the note, and the views. The lifecycle rules live in src/domain/request; this
-// file reads the state, asks the domain and applies the effects it returns.
+// file reads the state, asks the domain and applies the effects it returns. The attendant's
+// queues and status changes are in ./requests-queue.ts, on the helpers exported here.
 import type {
   Availability,
   InheritanceOfferView,
@@ -20,15 +21,20 @@ import {
   isActive,
   transition,
   type Effect,
+  type NotificationTrigger,
+  type Reason,
+  type ReasonCode,
   type RequestOrigin,
   type RequestState,
   type RequestStatus,
 } from '../../src/domain/request/lifecycle';
+import { reasonText } from '../../src/domain/request/reason';
 import { addDays } from '../../src/domain/time';
 import { failure, nowIso, QueryError, type CommandResult, type Context } from './context';
 import { recordFeedEvent, removeFeedEvents } from './feed';
 import { memberView, toMember, type Member, type MemberRow } from './members';
-import { monthlyQuotaOf, movementsOf } from './petiscos';
+import { notify } from './notifications';
+import { evaluateAutomaticCashback, monthlyQuotaOf, movementsOf } from './petiscos';
 import type { Prefetched } from './tmdb';
 
 export const OFFER_DAYS = 5;
@@ -37,7 +43,7 @@ const ACTIVE_SQL = ACTIVE_STATUSES.map((s) => `'${s}'`).join(', ');
 
 type Input = Record<string, unknown>;
 
-interface RequestRow {
+export interface RequestRow {
   id: string;
   origin: RequestOrigin;
   media_type: MediaType;
@@ -54,6 +60,9 @@ interface RequestRow {
   status: RequestStatus;
   assignee_id: string | null;
   petisco_lot: string | null;
+  reason_code: ReasonCode | null;
+  reason_text: string | null;
+  fulfillment_note: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,19 +76,19 @@ interface OfferRow {
 
 const isMediaType = (value: unknown): value is MediaType => value === 'movie' || value === 'tv';
 
-function findRequest(ctx: Context, id: unknown): RequestRow | null {
+export function findRequest(ctx: Context, id: unknown): RequestRow | null {
   if (typeof id !== 'string') return null;
   const [row] = ctx.sql.all<RequestRow>('SELECT * FROM requests WHERE id = ?', id);
   return row ?? null;
 }
 
-function coRequesterIds(ctx: Context, requestId: string): string[] {
+export function coRequesterIds(ctx: Context, requestId: string): string[] {
   return ctx.sql
     .all<{ member_id: string }>('SELECT member_id FROM co_requests WHERE request_id = ? ORDER BY at, member_id', requestId)
     .map((r) => r.member_id);
 }
 
-function stateOf(ctx: Context, row: RequestRow): RequestState {
+export function stateOf(ctx: Context, row: RequestRow): RequestState {
   return {
     status: row.status,
     origin: row.origin,
@@ -91,12 +100,13 @@ function stateOf(ctx: Context, row: RequestRow): RequestState {
   };
 }
 
-function openOffer(ctx: Context, requestId: string): OfferRow | null {
+export function openOffer(ctx: Context, requestId: string): OfferRow | null {
   const [row] = ctx.sql.all<OfferRow>("SELECT * FROM inheritance_offers WHERE request_id = ? AND state = 'pending'", requestId);
   return row ?? null;
 }
 
-function setStatus(ctx: Context, id: string, from: RequestStatus | null, to: RequestStatus, actorId: string, event?: string): void {
+/** Records a transition; `extra` (reason, note) goes into its detail next to the event. */
+export function setStatus(ctx: Context, id: string, from: RequestStatus | null, to: RequestStatus, actorId: string, event?: string, extra: object = {}): void {
   const at = nowIso(ctx);
   ctx.sql.run('UPDATE requests SET status = ?, updated_at = ? WHERE id = ?', to, at, id);
   ctx.sql.run(
@@ -105,7 +115,7 @@ function setStatus(ctx: Context, id: string, from: RequestStatus | null, to: Req
     from,
     to,
     actorId,
-    JSON.stringify(event ? { event } : {}),
+    JSON.stringify(event ? { event, ...extra } : extra),
     at,
   );
 }
@@ -139,12 +149,56 @@ function insertMovement(ctx: Context, m: { memberId: string; kind: PetiscoKind; 
   );
 }
 
+/** The request an effect applies to. */
+export interface EffectTarget {
+  readonly id: string;
+  readonly requesterId: string;
+  readonly title: string;
+}
+
+/** What the attendant said with the transition, for the notices. */
+export interface EffectDetail {
+  readonly reason?: Reason | null;
+  readonly note?: string | null;
+}
+
+function nameOf(ctx: Context, memberId: string): string {
+  const [row] = ctx.sql.all<{ name: string }>('SELECT name FROM members WHERE id = ?', memberId);
+  return row?.name ?? '';
+}
+
+/** The lifecycle's notification triggers, as notices (docs/spec/notificacoes.md, "Gatilhos"). */
+function notifyTrigger(ctx: Context, trigger: NotificationTrigger, request: EffectTarget, actorId: string, detail: EffectDetail): void {
+  const people = { actorId, requesterId: request.requesterId, coRequesterIds: coRequesterIds(ctx, request.id) };
+  const ref = { requestId: request.id, title: request.title };
+  const reason = reasonText(detail.reason ?? { code: 'other' });
+  switch (trigger) {
+    case 'request_new':
+      return notify(ctx, { type: 'request_new', data: { ...ref, requesterName: nameOf(ctx, request.requesterId) }, ...people });
+    case 'request_awaiting_approval':
+      return notify(ctx, { type: 'request_pending', data: { ...ref, requesterName: nameOf(ctx, request.requesterId) }, ...people });
+    case 'request_approved':
+      return notify(ctx, { type: 'request_approved', data: ref, ...people });
+    case 'request_rejected':
+      return notify(ctx, { type: 'request_closed', data: { ...ref, outcome: 'refused', reason }, ...people });
+    case 'request_unavailable':
+      return notify(ctx, { type: 'request_closed', data: { ...ref, outcome: 'unavailable', reason }, ...people });
+    case 'request_fulfilled':
+      return notify(ctx, { type: 'request_fulfilled', data: { ...ref, note: detail.note ?? null }, ...people });
+    case 'webhook_failure':
+      return notify(ctx, { type: 'webhook_failed', data: { detail: `${request.title}: ${reason}` }, actorId });
+    case 'inheritance_offer':
+      // Sent by offerToNext, which knows who is offered.
+      return;
+  }
+}
+
 /**
  * Applies what the domain returned, inside the command's transaction. A debit or refund goes to
- * whoever reserved the lot for this request, which is not always the current requester.
- * Notifications and cashback arrive with their slices (docs/ROADMAP.md).
+ * whoever reserved the lot for this request, which is not always the current requester. The
+ * cashback is evaluated after the debit, which comes first in the effects.
  */
-function applyEffects(ctx: Context, request: { id: string; requesterId: string }, effects: readonly Effect[], actorId: string): void {
+export function applyEffects(ctx: Context, request: EffectTarget, effects: readonly Effect[], actorId: string, detail: EffectDetail = {}): void {
   for (const effect of effects) {
     switch (effect.type) {
       case 'petisco': {
@@ -167,7 +221,10 @@ function applyEffects(ctx: Context, request: { id: string; requesterId: string }
         offerToNext(ctx, request.id);
         break;
       case 'notify':
+        notifyTrigger(ctx, effect.trigger, request, actorId, detail);
+        break;
       case 'evaluate_cashback':
+        evaluateAutomaticCashback(ctx, request.id);
         break;
     }
   }
@@ -232,7 +289,7 @@ function membersById(ctx: Context, ids: readonly string[]) {
   return new Map(rows.map((r) => [r.id, memberView(toMember(r))]));
 }
 
-function toViews(ctx: Context, rows: readonly RequestRow[]): RequestView[] {
+export function toViews(ctx: Context, rows: readonly RequestRow[]): RequestView[] {
   const co = new Map(rows.map((r) => [r.id, coRequesterIds(ctx, r.id)]));
   const members = membersById(ctx, rows.flatMap((r) => [r.requester_id, ...(r.assignee_id ? [r.assignee_id] : []), ...(co.get(r.id) ?? [])]));
   return rows.map((row) => ({
@@ -253,6 +310,8 @@ function toViews(ctx: Context, rows: readonly RequestRow[]): RequestView[] {
     coRequesters: (co.get(row.id) ?? []).map((id) => members.get(id)!),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    reason: row.reason_code ? (row.reason_text ? { code: row.reason_code, text: row.reason_text } : { code: row.reason_code }) : null,
+    fulfillmentNote: row.fulfillment_note,
   }));
 }
 
@@ -409,9 +468,9 @@ export function createRequest(ctx: Context, actor: Member, input: Input, prefetc
     '{}',
     at,
   );
-  applyEffects(ctx, { id, requesterId: actor.id }, start.effects, actor.id);
+  applyEffects(ctx, { id, requesterId: actor.id, title: media.title }, start.effects, actor.id);
   const [view] = toViews(ctx, [findRequest(ctx, id)!]);
-  return { ok: true, value: view, changed: ['requests', 'feed', 'me'] };
+  return { ok: true, value: view, changed: ['requests', 'feed', 'me', 'notifications'] };
 }
 
 /** "Eu também quero": on someone else's active request; never spends a petisco. */
@@ -422,7 +481,8 @@ export function joinRequest(ctx: Context, actor: Member, input: Input): CommandR
   if (!isActive(row.status) || memberJoined(ctx, row.id, actor.id)) return failure('conflict');
   ctx.sql.run('INSERT INTO co_requests (request_id, member_id, at) VALUES (?, ?, ?)', row.id, actor.id, nowIso(ctx));
   recordFeedEvent(ctx, { type: 'co_request', actorId: actor.id, requestId: row.id });
-  return { ok: true, value: null, changed: ['requests', 'feed'] };
+  notify(ctx, { type: 'co_request', data: { requestId: row.id, title: row.title, memberName: actor.name }, requesterId: row.requester_id, actorId: actor.id });
+  return { ok: true, value: null, changed: ['requests', 'feed', 'notifications'] };
 }
 
 /** Undo "Eu também quero" while the request is active; an offer made to me passes on. */
@@ -437,7 +497,7 @@ export function leaveRequest(ctx: Context, actor: Member, input: Input): Command
     ctx.sql.run("UPDATE inheritance_offers SET state = 'withdrawn' WHERE id = ?", offer.id);
     offerToNext(ctx, row.id);
   }
-  return { ok: true, value: null, changed: ['requests', 'feed'] };
+  return { ok: true, value: null, changed: ['requests', 'feed', 'notifications'] };
 }
 
 /** Only the requester, only before No Jellyseerr. With co-requesters, the request is offered on. */
@@ -450,9 +510,9 @@ export function cancelRequest(ctx: Context, actor: Member, input: Input): Comman
   const offered = result.effects.some((e) => e.type === 'offer_to_co_requesters');
   ctx.sql.run('UPDATE requests SET petisco_lot = ? WHERE id = ?', result.next.petiscoLot, row.id);
   setStatus(ctx, row.id, row.status, result.next.status, actor.id, offered ? 'offered_to_co_requesters' : undefined);
-  applyEffects(ctx, { id: row.id, requesterId: row.requester_id }, result.effects, actor.id);
+  applyEffects(ctx, { id: row.id, requesterId: row.requester_id, title: row.title }, result.effects, actor.id);
   if (result.next.status === 'canceled') removeFeedEvents(ctx, row.id);
-  return { ok: true, value: null, changed: ['requests', 'feed', 'me'] };
+  return { ok: true, value: null, changed: ['requests', 'feed', 'me', 'notifications'] };
 }
 
 /**
@@ -472,14 +532,17 @@ function offerToNext(ctx: Context, requestId: string): void {
   const next = coRequesterIds(ctx, requestId).find((id) => !asked.has(id));
   if (next) {
     const now = ctx.clock.now();
+    const expiresAt = addDays(now, OFFER_DAYS).toISOString();
     ctx.sql.run(
       "INSERT INTO inheritance_offers (id, request_id, member_id, state, offered_at, expires_at) VALUES (?, ?, ?, 'pending', ?, ?)",
       ctx.ids.next(),
       requestId,
       next,
       now.toISOString(),
-      addDays(now, OFFER_DAYS).toISOString(),
+      expiresAt,
     );
+    const { title } = findRequest(ctx, requestId)!;
+    notify(ctx, { type: 'inheritance_offer', data: { requestId, title, expiresAt }, subjectId: next });
     return;
   }
   const row = findRequest(ctx, requestId)!;
@@ -500,7 +563,7 @@ export function answerOffer(ctx: Context, actor: Member, input: Input): CommandR
   if (!input.accept) {
     ctx.sql.run("UPDATE inheritance_offers SET state = 'declined' WHERE id = ?", offer.id);
     offerToNext(ctx, row.id);
-    return { ok: true, value: null, changed: ['requests', 'feed'] };
+    return { ok: true, value: null, changed: ['requests', 'feed', 'notifications'] };
   }
 
   ctx.sql.run("UPDATE inheritance_offers SET state = 'accepted' WHERE id = ?", offer.id);
@@ -509,8 +572,8 @@ export function answerOffer(ctx: Context, actor: Member, input: Input): CommandR
   ctx.sql.run('DELETE FROM co_requests WHERE request_id = ? AND member_id = ?', row.id, actor.id);
   ctx.sql.run('UPDATE requests SET requester_id = ?, petisco_lot = ? WHERE id = ?', actor.id, isAttendant(actor) ? null : lot, row.id);
   setStatus(ctx, row.id, row.status, next.status, actor.id, 'inherited');
-  applyEffects(ctx, { id: row.id, requesterId: actor.id }, next.effects, actor.id);
-  return { ok: true, value: null, changed: ['requests', 'feed', 'me'] };
+  applyEffects(ctx, { id: row.id, requesterId: actor.id, title: row.title }, next.effects, actor.id);
+  return { ok: true, value: null, changed: ['requests', 'feed', 'me', 'notifications'] };
 }
 
 export function editNote(ctx: Context, actor: Member, input: Input): CommandResult<null> {

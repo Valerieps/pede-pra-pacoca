@@ -17,26 +17,43 @@ Nenhuma.
 | --- | --- | --- |
 | Aguardando aprovação | Pedidos sem petisco | Aprovar ou recusar com motivo |
 | A enviar | Pedidos do TMDB em Aprovado | "Abrir no Jellyseerr" e depois "Enviado" |
+| No Jellyseerr | Pedidos do TMDB em No Jellyseerr | Marcar Atendido ou Não foi possível à mão |
 | Manuais | Pedidos manuais em Aprovado | Marcar Atendido ou Não foi possível |
 
 - Posso ordenar por data do pedido, número de co-solicitantes ou data de lançamento. *(1)*
 - Posso agrupar por pessoa, por tipo ou por atendente responsável. *(1)*
 - Cada item mostra observação, link, co-solicitantes e quem pegou. *(1)*
 - Fila vazia mostra a Paçoca cochilando (`identidade.md`). *(1)*
+- A fila No Jellyseerr guarda o que eu já enviei, para eu fechar à mão enquanto o webhook não
+  existe. *(1)*
+- Em A enviar, eu também posso marcar Atendido ou Não foi possível direto, sem passar por
+  "Enviado". *(1)*
+- Enquanto a Paçoca oferece um pedido cancelado a quem também quer (`pedidos.md`), ele sai das filas
+  e eu não mexo nele; ele volta quando alguém fica com ele. *(1)*
+  Por quê: ainda não se sabe de quem é o pedido nem qual petisco ele gasta.
 
 ## Eu pego esse
 
 - O atendente assume um pedido. Os outros atendentes veem o nome dele no item e podem assumir
   explicitamente. *(1)*
+- Assumir um pedido que outro atendente pegou pede confirmação. Assumir fica no histórico do
+  pedido. *(1)*
 
 ## Atualizar status
 
 - Recusar e "Não foi possível" exigem um motivo de uma lista curta ("não encontrei", "qualidade
   ruim", "tenta mais tarde", "outro") e aceitam texto livre. *(1)*
+  - "Outro" exige o texto. O texto tem até 200 caracteres. *(1)*
+  - As solicitantes veem o motivo no pedido, e o texto vai junto: "qualidade ruim (só tem
+    câmera)". *(1)*
 - Atendido aceita uma nota de atendimento opcional, que as solicitantes recebem. *(1)*
+  - A nota tem até 500 caracteres e aparece também no pedido. *(1)*
 - Eu posso selecionar vários itens e aplicar a mesma transição. *(1)*
+  - Até 50 de uma vez. Um pedido que mudou enquanto isso fica como estava, e o app me diz quantos
+    ficaram. *(1)*
 - "Abrir no Jellyseerr" abre a página da mídia no Jellyseerr (URL base configurada pelo admin, mais
   tipo e ID do TMDB). *(1)*
+  - O botão só aparece em A enviar, e só quando a URL base existe. *(1)*
 - O atendente sempre pode marcar Atendido à mão, mesmo que o webhook não tenha chegado. *(1)*
 
 ## Petiscos
