@@ -3,6 +3,7 @@
 import type { ApiResult, CommandName, Commands, QueryName, Queries, Topic } from '../../src/application/api-contract';
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
+import { exportGroup } from './export';
 import { listFeed, listLikes, toggleLike } from './feed';
 import {
   claimDuePushes,
@@ -17,6 +18,7 @@ import {
   type DuePushes,
 } from './notifications';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
+import { giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
   answerOffer,
@@ -33,6 +35,7 @@ import {
   searchMedia,
 } from './requests';
 import { migrate } from './schema';
+import { endFinishedVacations, setVacation, vacationView } from './vacation';
 import type { Prefetched } from './tmdb';
 
 type Input = Record<string, unknown>;
@@ -51,6 +54,10 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   me: (ctx, actor) => me(ctx, actor),
   members: (ctx, actor) => listMembers(ctx, actor),
   invites: (ctx, actor) => listInvites(ctx, actor),
+  'petiscos.statement': (ctx, actor) => petiscoStatement(ctx, actor),
+  'petiscos.settings': (ctx, actor) => petiscoSettings(ctx, actor),
+  vacation: (ctx, actor) => vacationView(ctx, actor),
+  'group.export': (ctx, actor) => exportGroup(ctx, actor),
   feed: (ctx, actor, input) => listFeed(ctx, actor, input),
   'feed.likes': (ctx, _actor, input) => listLikes(ctx, input),
   'notifications.inbox': (ctx, actor) => inbox(ctx, actor),
@@ -77,6 +84,12 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
   'member.updateProfile': updateProfile,
+  'petiscos.setMonthly': setMonthly,
+  'petiscos.setMemberMonthly': setMemberMonthly,
+  'petiscos.setCashback': setCashback,
+  'petiscos.giveBonus': giveBonus,
+  'petiscos.giveCashback': giveCashback,
+  'vacation.set': setVacation,
   'feed.toggleLike': toggleLike,
 };
 
@@ -125,13 +138,17 @@ export class GroupService {
    * Runs the time-based jobs that are due (ADR-006: one cron, every few minutes; the rules decide
    * what is due in America/Sao_Paulo). Monthly petiscos need no job: they are a quota per month.
    * Push delivery is not here: the Durable Object calls `claimDuePushes` after the tick.
-   * Still to come (docs/ROADMAP.md): 7-day expiry notice. Returns the topics that changed.
+   * Returns the topics that changed, for the open apps.
    */
   tick(): Topic[] {
+    const changed = new Set<Topic>();
     this.ctx.sql.run('DELETE FROM sessions WHERE expires_at <= ?', this.ctx.clock.now().toISOString());
     pruneOutbox(this.ctx);
-    const offersMoved = this.ctx.sql.transaction(() => expireOffers(this.ctx));
-    return offersMoved ? ['requests', 'feed'] : [];
+    // First, so the notices below already see who is back from vacation.
+    if (this.ctx.sql.transaction(() => endFinishedVacations(this.ctx))) changed.add('vacation');
+    if (this.ctx.sql.transaction(() => expireOffers(this.ctx))) ['requests', 'feed'].forEach((t) => changed.add(t as Topic));
+    if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
+    return [...changed];
   }
 
   /** The pushes that are due (quiet hours, digest, grouped likes), marked sent; see notifications.ts. */

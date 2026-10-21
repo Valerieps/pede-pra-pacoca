@@ -50,5 +50,11 @@ Nenhuma.
 - O atendente liga o modo férias, com data de volta opcional. Todos veem "A Paçoca está dormindo" e
   continuam podendo pedir. *(1)*
 - Com mais de um atendente, o aviso só aparece quando todos estão de férias. *(1)*
+- A data de volta é o dia em que eu volto: as férias acabam sozinhas às 00:00 desse dia
+  (America/Sao_Paulo). A data precisa ser depois de hoje. Eu posso desligar antes. *(1)*
+- O aviso "A Paçoca está dormindo" mostra a data de volta mais próxima entre os atendentes, quando
+  algum deu uma. *(1)*
+- Só quem tem o papel de atendente tem modo férias: o admin sem esse papel não conta como atendente
+  (`grupo-e-papeis.md`). Sem nenhum atendente no grupo, o aviso não aparece. *(1)*
 - Quem está de férias não recebe notificações de pedidos novos nem o resumo diário. Quando todos os
   atendentes estão de férias, os pedidos que ficam em Aguardando aprovação ainda geram push. *(1)*

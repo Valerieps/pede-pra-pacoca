@@ -101,3 +101,11 @@ export function pickLotToReserve(balance: PetiscoBalance): { lot: string; kind: 
 export function extraPetiscoExpiry(grantedAt: Date): string {
   return addDays(grantedAt, EXTRA_PETISCO_VALIDITY_DAYS).toISOString();
 }
+
+export const EXPIRY_NOTICE_DAYS = 7;
+
+/** Bonus and cashback still available that expire within the notice window (docs/spec/notificacoes.md). */
+export function expiringSoon(balance: PetiscoBalance, now: Date): ExtraLot[] {
+  const limit = addDays(now, EXPIRY_NOTICE_DAYS).getTime();
+  return balance.extras.filter((e) => new Date(e.expiresAt).getTime() <= limit);
+}

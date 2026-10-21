@@ -2,7 +2,7 @@
 
 Quem está no grupo, como entra e o que cada papel pode fazer.
 
-- **Entra aqui:** convites, membros, os três papéis e o que cada um permite.
+- **Entra aqui:** convites, membros, os três papéis, o que cada um permite e baixar os dados do grupo.
 - **Não entra aqui:** as filas e ações do atendente (`atendente.md`), a configuração do Jellyseerr
   (`jellyseerr.md`) e o login (`app-e-instalacao.md`).
 
@@ -23,7 +23,7 @@ Nenhuma.
 | --- | --- |
 | Solicitante | Pedir, "Eu também quero", curtir, cancelar os próprios pedidos, dar retorno, ver feed, fila, histórico e estatísticas |
 | Atendente | Tudo da solicitante; aprovar e recusar pedidos; "Eu pego esse"; marcar status; conceder cashback e petiscos bônus; configurar regras de petiscos; ativar o modo férias |
-| Admin | Tudo do atendente; convidar e remover membros; dar e tirar o papel de atendente e de admin; configurar a integração com o Jellyseerr |
+| Admin | Tudo do atendente; convidar e remover membros; dar e tirar o papel de atendente e de admin; configurar a integração com o Jellyseerr; baixar os dados do grupo |
 
 - Pode haver mais de um atendente. *(1)*
 - Só o admin dá ou tira o papel de atendente. *(1)*
@@ -34,6 +34,12 @@ Nenhuma.
   Por quê: hoje a Vesper é admin e não atende; o Cesar é admin e atendente.
 - Os primeiros admins entram sem convite, pelos e-mails configurados no servidor, só enquanto o
   grupo não tem nenhum admin. *(1)*
+
+## Dados do grupo
+
+- O admin baixa todos os dados do grupo num arquivo JSON, para guardar ou conferir. As sessões de
+  login, as chaves de push e os segredos ficam de fora. *(1)*
+  Por quê: o banco do grupo não tem painel para ver os dados (ADR-006).
 
 ## Membros
 

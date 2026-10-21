@@ -31,6 +31,8 @@ aprovado automaticamente; sem petisco, espera o atendente.
   reservados em pedidos em andamento e os já debitados. *(1)*
 - O número de petiscos mensais é global (padrão 3). O atendente pode definir, para uma pessoa, um
   número fixo no lugar do global. *(1)*
+- O número mensal, o global e o de uma pessoa, vai de 0 a 99. Apagar o número fixo de uma pessoa a
+  devolve ao número do grupo. *(1)*
 
 ## Gastar
 
@@ -58,11 +60,21 @@ aprovado automaticamente; sem petisco, espera o atendente.
 - O atendente pode dar cashback à mão em qualquer pedido Atendido que debitou petisco, com motivo
   opcional, respeitando o limite de 1 por pedido. *(1)*
 - O atendente pode dar petiscos bônus a qualquer pessoa, com motivo opcional. *(1)*
+- Cada vez, o atendente dá de 1 a 10 petiscos bônus. Cada um é um petisco à parte, com os mesmos 90
+  dias. O motivo tem até 200 caracteres. *(1)*
+- O bônus não aparece no feed; o cashback aparece (`feed.md`). *(1)*
+- O limiar de co-solicitantes vai de 1 a 20. *(1)*
+- Para o cashback à mão, o atendente vê os 50 pedidos Atendidos mais recentes que debitaram petisco e
+  ainda não ganharam cashback. *(1)*
 - Curtida não conta para o cashback. *(1)*
 
 ## O que eu vejo
 
 - Meus petiscos mensais restantes, a data da próxima renovação e cada bônus ou cashback com a
   validade. *(1)*
-- O extrato dos movimentos, com data, tipo e pedido. *(1)*
+- O extrato dos movimentos, com data, tipo e pedido, do mais novo ao mais antigo. Cada um vê só o
+  próprio extrato. *(1)*
 - Aviso 7 dias antes de um petisco vencer (`notificacoes.md`). *(1)*
+- O aviso vale para bônus e cashback ainda não usados, e sai uma vez só por petisco. Quando vários
+  vencem na mesma semana, chega um aviso só, com quantos são e a validade mais próxima. *(1)*
+  Por quê: o petisco mensal não precisa de aviso, ele renova todo dia 1.

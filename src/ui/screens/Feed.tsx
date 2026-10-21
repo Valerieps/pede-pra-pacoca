@@ -13,6 +13,8 @@ function describe(event: FeedEventView) {
   switch (event.type) {
     case 'member_joined':
       return strings.feed.memberJoined(event.actor.name);
+    case 'cashback':
+      return strings.feed.cashback(event.actor.name);
     case 'request_created':
       return (
         <>
