@@ -8,6 +8,7 @@ Um termo, um sentido. Estes nomes valem para os textos da interface e para as do
 
 - **Admin:** papel que convida e remove membros, dá o papel de atendente e configura o Jellyseerr. (`spec/grupo-e-papeis.md`)
 - **Atendente:** papel que aprova pedidos, muda status e cuida dos petiscos. Hoje é o Cesar. (`spec/grupo-e-papeis.md`, `spec/atendente.md`)
+- **Bombonière:** a identidade visual do app: fundo branco, vinho-cereja, cereja e caramelo. (`spec/identidade.md`)
 - **Cashback:** um petisco devolvido à solicitante por critério automático ou por um atendente. (`spec/petiscos.md`)
 - **Co-solicitante:** quem clicou "Eu também quero" num pedido de outra pessoa. (`spec/pedidos.md`)
 - **Convite:** autorização para um e-mail entrar no grupo. Não expira; o admin derruba. (`spec/grupo-e-papeis.md`)
