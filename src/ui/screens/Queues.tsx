@@ -6,6 +6,7 @@ import { ATTENDANT_REASONS, MAX_FULFILLMENT_NOTE, MAX_REASON_TEXT, parseReason }
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
 import { EmptyState } from '../components/EmptyState';
+import { SkeletonCards } from '../components/Skeleton';
 import { Poster } from '../components/Poster';
 import { formatDate, formatDateKey } from '../format';
 import { Link } from '../router';
@@ -48,7 +49,7 @@ export function Queues({ me }: { me: MeView }) {
   const [busy, setBusy] = useState(false);
 
   if (!queues.data) {
-    return queues.error ? <p className="notice">{strings.genericError}</p> : null;
+    return queues.error ? <p className="notice">{strings.genericError}</p> : <SkeletonCards />;
   }
   const items = queues.data[queue];
   // A request that left the queue (live update) drops out of the selection.

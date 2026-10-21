@@ -1,6 +1,7 @@
 import type { InboxItemView } from '../../application/api-contract';
 import { GROUP_TIME_ZONE } from '../../domain/time';
 import { strings } from '../../domain/strings';
+import { SkeletonCards } from '../components/Skeleton';
 import { useServices } from '../backend-context';
 import { usePushDevice } from '../push-context';
 import { Link, navigate } from '../router';
@@ -33,6 +34,7 @@ export function Inbox() {
         )}
       </div>
       {inbox.error && !inbox.data && <p className="notice">{strings.genericError}</p>}
+      {!inbox.data && !inbox.error && <SkeletonCards poster={false} />}
       {inbox.data?.items.length === 0 && <p className="muted">{t.empty}</p>}
       <ul className="list">
         {inbox.data?.items.map((item) => (

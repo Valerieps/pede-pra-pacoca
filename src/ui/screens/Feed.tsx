@@ -7,6 +7,7 @@ import { Poster } from '../components/Poster';
 import { Link } from '../router';
 import { EmptyState } from '../components/EmptyState';
 import { PawLike } from '../components/PawLike';
+import { SkeletonCards } from '../components/Skeleton';
 import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
@@ -94,6 +95,7 @@ function FeedPage({ filter, cursor, isLast, onMore }: { filter: FeedFilter; curs
   return (
     <>
       {feed.error && !events && <p className="notice">{strings.genericError}</p>}
+      {cursor === null && !events && !feed.error && <SkeletonCards />}
       {cursor === null && events?.length === 0 && <EmptyState text={filter === 'all' ? strings.feed.empty : strings.feed.emptyFiltered} />}
       <ul className="list feed-page">
         {events?.map((event) => <FeedItem key={event.id} event={event} onChanged={feed.reload} />)}

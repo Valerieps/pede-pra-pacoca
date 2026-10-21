@@ -28,9 +28,11 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - Conexão com o Jellyseerr (webhook e a tela da URL base) — a dona deixou para depois; até lá, o atendente marca os status à mão. "Abrir no Jellyseerr" já aparece nas filas quando a chave `jellyseerrBaseUrl` existe em `config`.
 - Login com Apple — exige conta paga de desenvolvedor; fica fora enquanto o app não estiver nas lojas.
 - App offline — o app só funciona com internet.
+- Cards de carregamento nas outras telas — hoje só o feed, Meus pedidos, a caixa de entrada, as filas e o detalhe do pedido têm; Petiscos, números, membros, convites e ajustes ficam em branco até carregar.
 
 ## Revisar as lacunas que o agente decidiu
 
+- [ ] `spec/identidade.md`: o petisco cai no contador só no cashback; bônus e a renovação do mês não têm animação.
 - [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Atendidos mais recentes elegíveis. (troque 10)
 
 

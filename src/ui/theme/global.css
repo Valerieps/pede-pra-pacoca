@@ -827,3 +827,82 @@ legend {
   align-items: center;
   gap: var(--space-3);
 }
+
+/* Loading: cards shaped like the content, with a slow brand-tinted shimmer passing over them */
+.skeleton-card {
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: var(--color-surface);
+}
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--color-border) 0%, var(--color-shimmer) 50%, var(--color-border) 100%) 0 0 / 200% 100%;
+  animation: skeleton-shimmer var(--shimmer-duration) linear infinite;
+}
+
+.skeleton-poster {
+  flex: none;
+  width: var(--poster-width-small);
+  aspect-ratio: 2 / 3;
+}
+
+.skeleton-lines {
+  display: grid;
+  gap: var(--space-2);
+  flex: 1;
+  padding-top: var(--space-1);
+}
+
+.skeleton-line {
+  height: var(--font-size-base);
+}
+
+.skeleton-line-short {
+  width: 60%;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* On a cashback, a petisco drops into the header counter with a short bounce */
+.petisco-slot,
+.petisco-drop {
+  display: inline-flex;
+}
+
+.petisco-drop {
+  animation: petisco-drop var(--petisco-drop-duration) ease-out;
+}
+
+@keyframes petisco-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--petisco-drop-height)));
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    transform: translateY(calc(-0.25 * var(--petisco-drop-height)));
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion: the skeleton stays still and the petisco just appears in the count. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .petisco-drop {
+    animation: none;
+  }
+}

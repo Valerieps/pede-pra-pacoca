@@ -40,7 +40,12 @@ Nenhuma.
   animação fica no topo da tela. *(1)*
   Por quê: solta no meio da tela larga, a Paçoca se perde; o cartão mantém o tamanho pensado para
   o celular.
-- Com a opção do celular de reduzir movimento ligada, a Paçoca aparece parada. *(1)*
+- Quando recebo um cashback com o app aberto, um petisco cai no contador do topo. Bônus e a
+  renovação do mês não têm animação. *(1)*
+- Enquanto uma lista carrega, aparecem cards vazios no formato do conteúdo, com um brilho
+  passando, no lugar de um spinner. *(1)*
+- Com a opção do celular de reduzir movimento ligada, a Paçoca aparece parada, o petisco não cai e
+  os cards de carregamento não brilham. *(1)*
 - Ilustrações da Paçoca ocupam os estados vazios e o card do pedido manual. *(1)*
 - Os arquivos de ilustração e animação chegam depois. Até lá, o app usa placeholders. *(1)*
 
