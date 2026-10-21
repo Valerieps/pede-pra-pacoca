@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { ALLOWED_ORIGINS, LOCAL_ONLY } from './network-policy.ts';
+import { ALLOWED_ORIGINS, IMAGE_ORIGINS } from './network-policy.ts';
 
 // Strict CSP (docs/SEGURANCA.md, ADR-002). Injected only in production builds: the dev server
 // needs a websocket for hot reload, which a closed `connect-src` would block. It is a meta tag
@@ -10,8 +10,8 @@ export const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  LOCAL_ONLY ? "connect-src 'none'" : `connect-src ${ALLOWED_ORIGINS.join(' ')}`,
-  "img-src 'self' data:",
+  ["connect-src 'self'", ...ALLOWED_ORIGINS].join(' '),
+  ["img-src 'self' data:", ...IMAGE_ORIGINS].join(' '),
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
@@ -38,10 +38,11 @@ function contentSecurityPolicy(): Plugin {
 const port = process.env.PORT ? Number(process.env.PORT) : undefined;
 
 export default defineConfig({
-  server: { port },
-  preview: { port },
-  // Relative base so the build works from any path (Cloudflare Pages, a subfolder, preview).
-  base: './',
+  // In development the API runs apart (`npm run dev:api`, wrangler on 8787); Vite forwards /api
+  // to it, the live WebSocket included, and keeps the Host so cookies and origins match.
+  server: { port, proxy: { '/api': { target: 'http://localhost:8787', ws: true } } },
+  // Absolute base: the Worker serves the app at the root and deep links like /pedido/123 need it.
+  base: '/',
   plugins: [react(), contentSecurityPolicy()],
   build: {
     // Keep everything as files under 'self'; never inline assets as scripts.

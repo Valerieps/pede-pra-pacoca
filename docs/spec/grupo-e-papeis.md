@@ -28,6 +28,12 @@ Nenhuma.
 - Pode haver mais de um atendente. *(1)*
 - Só o admin dá ou tira o papel de atendente. *(1)*
 - Pode haver mais de um admin. O app não deixa remover o último. *(1)*
+- Um admin pode fazer tudo o que o atendente faz, mas só conta como atendente quem tem esse papel:
+  o pedido de um admin sem o papel de atendente reserva petisco, e ele não recebe os avisos nem o
+  resumo dos atendentes. *(1)*
+  Por quê: hoje a Vesper é admin e não atende; o Cesar é admin e atendente.
+- Os primeiros admins entram sem convite, pelos e-mails configurados no servidor, só enquanto o
+  grupo não tem nenhum admin. *(1)*
 
 ## Convites
 
@@ -45,4 +51,4 @@ Nenhuma.
   (com estorno do petisco e a oferta às co-solicitantes de `pedidos.md`). *(1)*
 - O histórico dele (pedidos atendidos, eventos do feed) permanece. *(1)*
 - O membro removido perde o acesso na hora. Se o admin convidar o mesmo e-mail de novo, a pessoa
-  volta com o histórico. *(1)*
+  volta com o histórico e com os petiscos bônus e cashback que ainda estão na validade. *(1)*

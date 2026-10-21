@@ -6,10 +6,14 @@ Web app para um grupo de amigos pedirem filmes e séries ao Cesar, com petiscos,
 
 ```bash
 npm ci
-npm run dev
+npm run build
+cp .dev.vars.example .dev.vars   # e preencha com o cliente OAuth do Google
+npm run dev:api                  # o Worker (API e banco), na porta 8787
+npm run dev                      # o app, que repassa /api para o Worker
 ```
 
-`npm test` roda os testes, `npm run build` gera o build de produção em `dist/`.
+`npm test` roda os testes, `npm run build` gera o build de produção em `dist/` e confere o Worker.
+`npm run preview` serve o app e o Worker juntos, como em produção.
 
 ## Onde está cada coisa
 
