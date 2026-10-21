@@ -1,5 +1,5 @@
-import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import type { MeView } from '../application/api-contract';
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
+import type { MeView, PetiscoBalanceView } from '../application/api-contract';
 import { canAttend, canManageGroup } from '../domain/group/roles';
 import { askDraftVersion, submitAskDraft, subscribeAskDraft } from './ask-draft';
 import { strings } from '../domain/strings';
@@ -10,6 +10,7 @@ import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
 import { StatusChip } from './components/StatusChip';
 import { activeTab, inProgress, tabsFor } from './navigation';
+import { cashbackArrived } from './petisco-drop';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
@@ -145,11 +146,21 @@ function Navigation({ me }: { me: MeView }) {
   );
 }
 
-/** The petisco counter in the header; it opens Petiscos. */
+/** The petisco counter in the header; it opens Petiscos. On a cashback a petisco drops into it. */
 function PetiscoChip({ me }: { me: MeView }) {
+  const previous = useRef<PetiscoBalanceView>(undefined);
+  const [drops, setDrops] = useState(0);
+  useEffect(() => {
+    if (cashbackArrived(previous.current, me.petiscos)) setDrops((n) => n + 1);
+    previous.current = me.petiscos;
+  }, [me.petiscos]);
+
   return (
     <Link to="/petiscos" className="petisco-chip" aria-label={strings.petiscos.balance(me.petiscos.total)}>
-      <PetiscoIcon />
+      {/* A new key restarts the drop animation for each cashback */}
+      <span key={drops} className={drops > 0 ? 'petisco-drop' : 'petisco-slot'}>
+        <PetiscoIcon />
+      </span>
       <span aria-hidden="true">{me.petiscos.total}</span>
     </Link>
   );

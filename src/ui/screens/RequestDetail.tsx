@@ -7,6 +7,7 @@ import { useServices } from '../backend-context';
 import { browserCelebrationStore, celebratesFulfilled, firstCelebration } from '../../infrastructure/celebrations';
 import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
+import { SkeletonCards } from '../components/Skeleton';
 import { StatusChip } from '../components/StatusChip';
 import { useQuery } from '../use-query';
 
@@ -16,7 +17,7 @@ export function RequestDetail({ id }: { id: string }) {
   const detail = useQuery('request.detail', { id }, ['requests']);
 
   if (!detail.data) {
-    if (!detail.error) return null;
+    if (!detail.error) return <SkeletonCards count={1} />;
     return <p className="notice">{detail.error === 'not_found' ? strings.request.notFound : strings.genericError}</p>;
   }
   return <Detail request={detail.data} />;

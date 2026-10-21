@@ -116,6 +116,13 @@
   --petisco-size-large: 32px;
   --color-petisco: #d9a35a;
   --color-petisco-crumb: #8a5716;
+  /* On a cashback: a petisco drops into the header counter */
+  --petisco-drop-duration: 400ms;
+  --petisco-drop-height: 16px;
+
+  /* Loading skeletons: a slow brand-tinted shimmer over --color-border */
+  --color-shimmer: #f3dbe3;
+  --shimmer-duration: 1.2s;
 
   --poster-width: 128px;
   --poster-width-small: 48px;
@@ -166,5 +173,6 @@
     --color-celebration: #e6b572;
     --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
     --color-backdrop: rgb(0 0 0 / 0.6);
+    --color-shimmer: #4a2836;
   }
 }

@@ -2,6 +2,7 @@ import type { RequestView } from '../../application/api-contract';
 import { isActive } from '../../domain/request/lifecycle';
 import { strings } from '../../domain/strings';
 import { Poster } from '../components/Poster';
+import { SkeletonCards } from '../components/Skeleton';
 import { StatusChip } from '../components/StatusChip';
 import { Link } from '../router';
 import { useQuery } from '../use-query';
@@ -15,6 +16,7 @@ export function MyRequests({ meId }: { meId: string }) {
     <section>
       <h1>{strings.myRequests.title}</h1>
       {mine.error && !mine.data && <p className="notice">{strings.genericError}</p>}
+      {!mine.data && !mine.error && <SkeletonCards />}
       {mine.data?.length === 0 && <p className="muted">{strings.myRequests.empty}</p>}
       {active.length > 0 && <RequestList title={strings.myRequests.active} requests={active} meId={meId} />}
       {past.length > 0 && <RequestList title={strings.myRequests.past} requests={past} meId={meId} />}
