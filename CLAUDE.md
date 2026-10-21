@@ -1,7 +1,7 @@
-# <Nome do app> - Claude Code Context & Instructions
+# Pede pra Paçoca - Claude Code Context & Instructions
 
 <!-- BOOTSTRAP.md fills this paragraph: what the app is, for whom, and its core loop. -->
-<One paragraph: what the app does, who uses it, the loop a user repeats every day.>
+Mobile-first installable web app where a small group of friends asks one attendant (Cesar) for movies and series. Members share an IMDb/TMDB link (or search), get an approved or pending request depending on their monthly credits ("petiscos"), follow the status, like each other's requests and say "Eu também quero". The attendant's Jellyseerr at home reports back through a webhook. Paçoca, the attendant's dog, is the mascot and voice of the app.
 
 ## Docs
 
@@ -21,7 +21,9 @@ The owner edits docs between messages: re-read a doc before editing it and prese
 | Reviewing or reorganizing the docs | All of them |
 
 Hard rules from `docs/SEGURANCA.md`, valid for every change:
-- <BOOTSTRAP.md writes 3 to 5 rules here, e.g. "No outbound network calls; `connect-src 'none'`".>
+- The app talks only to the origins in `network-policy.ts` (Firebase); the TMDB key and the webhook secret live only in Cloud Functions, never in the bundle.
+- Roles, petisco movements and request status change only through Cloud Functions; Firestore rules deny those writes to clients.
+- Only invited e-mails get in; Google is the only sign-in.
 - Never insert user text as HTML; links open with `target="_blank" rel="noopener noreferrer"`.
 - Minimize dependencies; pin exact versions; bundle them, never load from a CDN.
 - `network-policy.ts` is the only place that says which servers the app may talk to.
@@ -65,7 +67,7 @@ Product docs are written in Brazilian Portuguese; ADRs, code and this file in En
 
 ## Architecture Overview
 - Clean Architecture + Domain Driven Design (DDD).
-- <BOOTSTRAP.md: where data lives (e.g. IndexedDB, local-only) and what talks to what.>
+- Web app (Vite + React) on Cloudflare Pages; backend on Firebase (Auth, Firestore, Functions, Scheduler, FCM); the home Jellyseerr only sends a webhook to a Function. See `docs/ARQUITETURA.md`, ADR-004 and ADR-005.
 
 ## Project Layout
 - `src/domain` - entities and rules. Pure TypeScript, no framework imports.

@@ -1,0 +1,48 @@
+# Grupo e papéis
+
+Quem está no grupo, como entra e o que cada papel pode fazer.
+
+- **Entra aqui:** convites, membros, os três papéis e o que cada um permite.
+- **Não entra aqui:** as filas e ações do atendente (`atendente.md`), a configuração do Jellyseerr
+  (`jellyseerr.md`) e o login (`app-e-instalacao.md`).
+
+## Em aberto
+
+- [ ] A Vesper também é admin, ou só solicitante com o papel de atendente quando o Cesar der?
+
+## O grupo
+
+- Existe um único grupo. Todos os pedidos, o feed e os históricos são visíveis para todos os
+  membros. *(1)*
+- Hoje o Cesar é admin e o único atendente. A Vesper e os amigos são solicitantes. O Cesar pode dar
+  o papel de atendente a alguém de vez em quando e tirar depois. *(1)*
+
+## Papéis
+
+| Papel | O que pode |
+| --- | --- |
+| Solicitante | Pedir, "Eu também quero", curtir, cancelar os próprios pedidos, dar retorno, ver feed, fila, histórico e estatísticas |
+| Atendente | Tudo da solicitante; aprovar e recusar pedidos; "Eu pego esse"; marcar status; conceder cashback e petiscos bônus; configurar regras de petiscos; ativar o modo férias |
+| Admin | Tudo do atendente; convidar e remover membros; dar e tirar o papel de atendente e de admin; configurar a integração com o Jellyseerr |
+
+- Pode haver mais de um atendente. *(1)*
+- Só o admin dá ou tira o papel de atendente. *(1)*
+- Pode haver mais de um admin. O app não deixa remover o último. *(1)*
+
+## Convites
+
+- O admin convida uma pessoa pelo e-mail dela. O convite fica ligado a esse e-mail e só vale para
+  quem entra com a conta Google dele. *(1)*
+- O convite não expira. Ele deixa de valer só quando o admin o derruba. *(1)*
+- O admin vê a lista de convites com os pendentes e os aceitos (quem, e-mail e data) e pode revogar
+  um pendente. *(1)*
+- Sem convite válido, não há acesso. *(1)*
+- Quando alguém aceita o convite, o feed mostra "Carla entrou no grupo". *(1)*
+
+## Remover membro
+
+- O admin remove um membro. Os pedidos ativos dele são tratados como cancelados pela solicitante
+  (com estorno do petisco e a oferta às co-solicitantes de `pedidos.md`). *(1)*
+- O histórico dele (pedidos atendidos, eventos do feed) permanece. *(1)*
+- O membro removido perde o acesso na hora. Se o admin convidar o mesmo e-mail de novo, a pessoa
+  volta com o histórico. *(1)*

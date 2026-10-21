@@ -7,20 +7,36 @@ O que ainda não está pronto.
 - **Não entra aqui:** o que já está pronto (quando uma linha fica pronta, ela sai daqui; o git e as
   issues fechadas guardam o histórico), bugs e débito técnico (issues do GitHub) e as regras (`spec/`).
 
+A ordem de construção da fase 1 ainda será definida, depois que a spec estiver fechada.
+
 ## Falta construir
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| <feature> | 1 | `spec/<arquivo>.md` | |
+| App instalável, login Google, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | |
+| Convites, membros e papéis | 1 | `spec/grupo-e-papeis.md` | |
+| Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
+| Petiscos e cashback | 1 | `spec/petiscos.md` | |
+| Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
+| Feed e curtidas | 1 | `spec/feed.md` | |
+| Notificações | 1 | `spec/notificacoes.md` | |
+| Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Depende do Cesar (payload e segredo) |
+| Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
+| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Ilustrações chegam depois; usar placeholders |
+| Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
 
-- <regra do spec> — <o que o código faz hoje>.
+Nenhum código de produto foi escrito ainda.
 
 ## Adiado
 
-- <o que foi adiado> — <por quê e até quando>.
+- Login com Apple — exige conta paga de desenvolvedor; fica fora enquanto o app não estiver nas lojas.
+- App offline — o app só funciona com internet.
 
 ## Revisar as lacunas que o agente decidiu
 
-- [ ] <regra que o agente escreveu em `spec/` sem perguntar, com o arquivo>.
+- [ ] `spec/grupo-e-papeis.md`: quem volta ao grupo por novo convite recupera o histórico.
+- [ ] `spec/pedidos.md`: se quem herda um pedido cancelado não tem petisco, o pedido vai para Aguardando aprovação.
+- [ ] `spec/atendente.md`: com todos os atendentes de férias, só os pedidos em Aguardando aprovação geram push.
+- [ ] `spec/notificacoes.md`: acrescentei os avisos de falha do webhook e da oferta de herdar pedido.
