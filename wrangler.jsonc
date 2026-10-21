@@ -21,7 +21,7 @@
   // One cron for every time-based job; the rules decide what is due in America/Sao_Paulo.
   "triggers": { "crons": ["*/5 * * * *"] },
   "vars": {
-    "GOOGLE_CLIENT_ID": ""
+    "GOOGLE_CLIENT_ID": "625557632408-gnlmrs1vh8ahpcvhae138en02r7qbhe0.apps.googleusercontent.com"
   },
   "observability": { "enabled": true },
   // No Wrangler usage telemetry from builds or CI (docs/SEGURANCA.md).
