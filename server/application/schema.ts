@@ -176,6 +176,13 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
       notified_at TEXT NOT NULL
     )`,
   ],
+  // 4: the statistics read requests by attendant, and likes and movements by request or author.
+  [
+    `CREATE INDEX requests_assignee ON requests(assignee_id, created_at)`,
+    `CREATE INDEX feed_events_request ON feed_events(request_id)`,
+    `CREATE INDEX feed_events_actor ON feed_events(actor_id)`,
+    `CREATE INDEX petisco_movements_request ON petisco_movements(request_id)`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

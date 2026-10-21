@@ -8,6 +8,8 @@ import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
+import { GroupStats } from './screens/GroupStats';
+import { MemberStats } from './screens/MemberStats';
 import { Inbox } from './screens/Inbox';
 import { Invites } from './screens/Invites';
 import { NotificationPreferences } from './screens/NotificationPreferences';
@@ -80,6 +82,7 @@ export function App() {
         <Link to="/pedir">{strings.nav.ask}</Link>
         <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
         <Link to="/membros">{strings.nav.members}</Link>
+        <Link to="/numeros">{strings.nav.stats}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
         <Link to="/petiscos">{strings.nav.petiscos}</Link>
         {canAttend(me.data) && <Link to="/ajustes">{strings.nav.settings}</Link>}
@@ -103,6 +106,9 @@ function Screen({ me }: { me: MeView }) {
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
   if (path === '/membros') return <Members me={me} />;
+  const member = /^\/membro\/([\w-]+)$/.exec(path);
+  if (member) return <MemberStats key={member[1]} memberId={member[1]} />;
+  if (path === '/numeros') return <GroupStats />;
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
   if (path === '/petiscos') return <Petiscos />;
   if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;

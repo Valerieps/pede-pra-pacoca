@@ -4,6 +4,7 @@ import { NAME_MAX_LENGTH, normalizeName, type PhotoChoice } from '../../domain/g
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { useServices } from '../backend-context';
+import { Link } from '../router';
 
 /** Name and photo: the first-access screen, and later the Perfil screen. */
 export function Profile({ me, firstAccess = false }: { me: MeView; firstAccess?: boolean }) {
@@ -31,6 +32,11 @@ export function Profile({ me, firstAccess = false }: { me: MeView; firstAccess?:
     <section>
       <h1>{firstAccess ? strings.profile.firstAccessTitle : strings.profile.title}</h1>
       {firstAccess && <p>{strings.profile.firstAccessIntro}</p>}
+      {!firstAccess && (
+        <p>
+          <Link to={`/membro/${me.id}`}>{strings.stats.myNumbers}</Link>
+        </p>
+      )}
       <form className="stack" onSubmit={submit}>
         <label>
           <span className="muted">{strings.profile.nameLabel}</span>
