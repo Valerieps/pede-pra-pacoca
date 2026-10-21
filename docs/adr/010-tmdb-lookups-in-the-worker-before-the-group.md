@@ -1,4 +1,4 @@
-# ADR-009: TMDB lookups run in the Worker, before the Group
+# ADR-010: TMDB lookups run in the Worker, before the Group
 
 **Status:** Accepted
 **Date:** 2026-10-21

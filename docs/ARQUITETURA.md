@@ -15,7 +15,7 @@ O desenho técnico que o código não mostra sozinho.
 - **Login:** Google, pelo fluxo de código OAuth no Worker, com cookie de sessão. Ver ADR-007.
 - **Jellyseerr:** só envia webhook para o Worker. O app nunca fala com a casa do Cesar.
 - **TMDB:** a chave fica no Worker; o app pede busca e detalhes à API. O Worker consulta o TMDB antes
-  de chamar o `Group`. Ver ADR-009.
+  de chamar o `Group`. Ver ADR-010.
 
 ```
 app (celular) ──POST /api/query|command──► Worker ──RPC──► Group (Durable Object, SQLite)
@@ -87,7 +87,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
   `outbox` na mesma transação → avisa os apps abertos dos tópicos que mudaram.
 - **Com TMDB** (busca, prévia e pedido do TMDB): o Worker confere a sessão → consulta o TMDB → passa
   o resultado ao `Group` num argumento à parte, que o app não consegue preencher. O `Group` nunca
-  grava dados de mídia vindos do app (ADR-009).
+  grava dados de mídia vindos do app (ADR-010).
 - **Oferta de herança:** quando a solicitante cancela um pedido com co-solicitantes, o petisco dela
   volta e o pedido segue no mesmo estado; `inheritance_offers` guarda uma oferta pendente por vez,
   da co-solicitante mais antiga para a seguinte. Aceitar troca `requester_id` e reserva o petisco da

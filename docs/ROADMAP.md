@@ -13,7 +13,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-009 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
+| Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
 | App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto) e a explicação da instalação estão prontos. Falta: `share_target` no manifest, service worker |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
 | Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
@@ -51,6 +51,6 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
   oferta passa à seguinte.
 - [ ] `spec/pedidos.md`: Meus pedidos mostra também os encerrados e aqueles em que cliquei "Eu
   também quero".
-- [ ] ADR-009: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
+- [ ] ADR-010: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
   Brasil.
 - [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.

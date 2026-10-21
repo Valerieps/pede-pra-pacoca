@@ -1,10 +1,11 @@
 // The Worker: serves the app's files, the API under /api, the live connection and the cron
 // (ADR-006). Everything about the group is delegated to the Group Durable Object.
 import type { ApiError, ApiResult } from '../../src/application/api-contract';
-import { SESSION_DAYS } from '../application/members';
+import { SESSION_DAYS, type GoogleProfile } from '../application/members';
 import { clearCookie, LOGIN_COOKIE, readCookie, SESSION_COOKIE, setCookie } from '../infrastructure/cookies';
 import { lookup, needsTmdb, type Prefetched } from '../application/tmdb';
 import { randomToken, sha256 } from '../infrastructure/crypto';
+import { devProfile, devSignInAllowed } from '../infrastructure/dev-sign-in';
 import {
   authorizationUrl,
   decodePendingLogin,
@@ -66,6 +67,23 @@ async function login(env: Env, url: URL): Promise<Response> {
   return redirect(target, [setCookie(LOGIN_COOKIE, encodePendingLogin(pending), 600)]);
 }
 
+/** Signs the profile in through the invite rules; the session cookie, or null without invite. */
+async function startSession(env: Env, profile: GoogleProfile): Promise<string | null> {
+  const token = randomToken();
+  const bootstrap = (env.BOOTSTRAP_ADMIN_EMAILS ?? '').split(',').filter(Boolean);
+  const result = await group(env).signIn(profile, await sha256(token), bootstrap);
+  return result.ok ? setCookie(SESSION_COOKIE, token, SESSION_DAYS * 24 * 60 * 60) : null;
+}
+
+/** Starts a session for an e-mail without Google, through the same invite rules (ADR-009). */
+async function devSignIn(request: Request, env: Env): Promise<Response> {
+  const body = (await request.json().catch(() => null)) as { email?: unknown; name?: unknown } | null;
+  const profile = body && devProfile(body);
+  if (!profile) return json({ error: 'invalid' }, 400);
+  const cookie = await startSession(env, profile);
+  return cookie ? json({ value: null }, 200, { 'Set-Cookie': cookie }) : json({ error: 'forbidden' }, 403);
+}
+
 async function callback(request: Request, env: Env, url: URL): Promise<Response> {
   const pending = decodePendingLogin(readCookie(request.headers.get('Cookie'), LOGIN_COOKIE));
   const code = url.searchParams.get('code');
@@ -81,12 +99,9 @@ async function callback(request: Request, env: Env, url: URL): Promise<Response>
   });
   const profile = idToken ? profileFromIdToken(idToken, env.GOOGLE_CLIENT_ID, pending.nonce, new Date()) : null;
   if (!profile) return failed;
-
-  const token = randomToken();
-  const bootstrap = (env.BOOTSTRAP_ADMIN_EMAILS ?? '').split(',').filter(Boolean);
-  const result = await group(env).signIn(profile, await sha256(token), bootstrap);
-  if (!result.ok) return redirect('/?erro=sem-convite', [clearCookie(LOGIN_COOKIE)]);
-  return redirect('/', [clearCookie(LOGIN_COOKIE), setCookie(SESSION_COOKIE, token, SESSION_DAYS * 24 * 60 * 60)]);
+  const cookie = await startSession(env, profile);
+  if (!cookie) return redirect('/?erro=sem-convite', [clearCookie(LOGIN_COOKIE)]);
+  return redirect('/', [clearCookie(LOGIN_COOKIE), cookie]);
 }
 
 async function api(request: Request, env: Env, url: URL): Promise<Response> {
@@ -112,6 +127,8 @@ async function api(request: Request, env: Env, url: URL): Promise<Response> {
     if (hash) await group(env).signOut(hash);
     return json({ ok: true }, 200, { 'Set-Cookie': clearCookie(SESSION_COOKIE) });
   }
+
+  if (path === '/api/auth/dev' && devSignInAllowed(env.DEV_SIGN_IN, url)) return devSignIn(request, env);
 
   const match = /^\/api\/(query|command)\/([a-zA-Z.]+)$/.exec(path);
   if (!match) return json({ error: 'not_found' }, 404);
