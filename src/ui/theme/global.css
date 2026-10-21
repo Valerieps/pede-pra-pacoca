@@ -350,6 +350,64 @@ button.media-card {
   font-size: var(--placeholder-glyph-size);
 }
 
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+button.chip {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+button.chip[aria-pressed='true'] {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  border-color: var(--color-brand);
+}
+
+.feed-page + .feed-page {
+  margin-top: var(--space-2);
+}
+
+.feed-item {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.feed-line,
+.feed-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.feed-actions {
+  justify-content: flex-start;
+}
+
+button.link.muted {
+  color: var(--color-text-muted);
+}
+
+.likers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.feed-more {
+  display: block;
+  margin: var(--space-4) auto 0;
+}
+
 .dev-sign-in {
   max-width: 320px;
   margin: var(--space-8) auto 0;

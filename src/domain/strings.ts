@@ -37,6 +37,13 @@ export const strings = {
     title: 'Feed',
     empty: 'Nada por aqui ainda. A Paçoca está de orelha em pé.',
     memberJoined: (name: string) => `${name} entrou no grupo`,
+    filters: { all: 'Tudo', requests: 'Pedidos', fulfilled: 'Atendidos', mine: 'Meus' },
+    emptyFiltered: 'Nada com esse filtro por enquanto. A Paçoca segue farejando.',
+    like: 'Curtir',
+    unlike: 'Descurtir',
+    likeCount: (count: number) => (count === 1 ? '1 curtida' : `${count} curtidas`),
+    likedBy: 'Quem curtiu',
+    loadMore: 'Ver mais',
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
     coRequest: (name: string) => `${name} também quer`,

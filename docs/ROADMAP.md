@@ -20,8 +20,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca"; a animação da Paçoca ao confirmar. As notificações dos pedidos entram com Notificações; as mudanças de status do atendente, com as filas |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
-| Feed e curtidas | 1 | `spec/feed.md` | |
-| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base está pronta (caixa de entrada, preferências, silêncio, resumo diário, curtidas agrupadas, Web Push). Falta cada feature chamar `notify` no seu comando: pedidos (novo, aguardando aprovação, aprovado, recusado ou não foi possível, atendido, eu também quero, oferta de herança), curtidas no feed, petiscos (cashback ou bônus, vence em 7 dias, renovados), Obrigada e falha do webhook. Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
+| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base está pronta (caixa de entrada, preferências, silêncio, resumo diário, curtidas agrupadas, Web Push). Falta cada feature chamar `notify` no seu comando: pedidos (novo, aguardando aprovação, aprovado, recusado ou não foi possível, atendido, eu também quero, oferta de herança), petiscos (cashback ou bônus, vence em 7 dias, renovados), Obrigada e falha do webhook. Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios usam um placeholder (`EmptyState`). Falta: as ilustrações e as animações |
@@ -57,3 +56,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] ADR-010: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
   Brasil.
 - [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.
+- [ ] `spec/feed.md`: curtir fica no próprio item do feed (não só no detalhe do pedido).
+- [ ] `spec/feed.md`: posso curtir o meu próprio evento, sem gerar notificação para mim.
+- [ ] `spec/feed.md`: Pedidos = pedidos criados e "Eu também quero"; Meus = o que eu fiz e tudo dos
+  pedidos que eu pedi ou também quero.
+- [ ] `spec/feed.md`: o feed carrega 30 eventos de cada vez, com "Ver mais".
