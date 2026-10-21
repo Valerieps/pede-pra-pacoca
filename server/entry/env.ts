@@ -8,6 +8,8 @@ export interface Env {
   readonly GOOGLE_CLIENT_SECRET: string;
   /** Comma-separated. Only used while the group has no admin at all. */
   readonly BOOTSTRAP_ADMIN_EMAILS: string;
+  /** TMDB v3 API key or v4 read access token. Secret: never reaches the app. */
+  readonly TMDB_API_KEY: string;
   /** "1" turns on the test sign-in on localhost (ADR-009). Only ever set in `.dev.vars`. */
   readonly DEV_SIGN_IN?: string;
 }

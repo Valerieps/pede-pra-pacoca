@@ -5,6 +5,7 @@ import { DurableObject } from 'cloudflare:workers';
 import type { LiveMessage, Topic } from '../../src/application/api-contract';
 import { GroupService } from '../application/group-service';
 import type { GoogleProfile, SignInResult } from '../application/members';
+import type { Prefetched } from '../application/tmdb';
 import { durableObjectSql } from '../infrastructure/durable-object-sql';
 import type { Env } from './env';
 
@@ -27,18 +28,24 @@ export class Group extends DurableObject<Env> {
     this.service.signOut(sessionHash);
   }
 
-  query(sessionHash: string, name: string, input: unknown) {
-    return this.service.query(sessionHash, name, input);
+  /** Lets the Worker refuse a TMDB lookup before spending it on someone signed out. */
+  isSignedIn(sessionHash: string): boolean {
+    return this.service.memberForSession(sessionHash) !== null;
   }
 
-  command(sessionHash: string, name: string, input: unknown) {
-    const result = this.service.command(sessionHash, name, input);
+  query(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
+    return this.service.query(sessionHash, name, input, prefetched);
+  }
+
+  command(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
+    const result = this.service.command(sessionHash, name, input, prefetched);
     if (result.ok && result.changed.length > 0) this.broadcast(result.changed);
     return result;
   }
 
   tick(): void {
-    this.service.tick();
+    const changed = this.service.tick();
+    if (changed.length > 0) this.broadcast(changed);
   }
 
   /** Live connection: the Worker already checked the origin and passes the session hash. */
