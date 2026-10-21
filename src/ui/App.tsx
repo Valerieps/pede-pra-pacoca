@@ -8,6 +8,8 @@ import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
+import { GroupStats } from './screens/GroupStats';
+import { MemberStats } from './screens/MemberStats';
 import { Inbox } from './screens/Inbox';
 import { Invites } from './screens/Invites';
 import { NotificationPreferences } from './screens/NotificationPreferences';
@@ -16,6 +18,7 @@ import { MyRequests } from './screens/MyRequests';
 import { RequestDetail } from './screens/RequestDetail';
 import { Members } from './screens/Members';
 import { Petiscos } from './screens/Petiscos';
+import { Queues } from './screens/Queues';
 import { Profile } from './screens/Profile';
 import { Settings } from './screens/Settings';
 import { SignIn } from './screens/SignIn';
@@ -92,7 +95,9 @@ export function App() {
         <InboxLink />
         <Link to="/pedir">{strings.nav.ask}</Link>
         <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
+        {canAttend(me.data) && <Link to="/filas">{strings.nav.queues}</Link>}
         <Link to="/membros">{strings.nav.members}</Link>
+        <Link to="/numeros">{strings.nav.stats}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
         <Link to="/petiscos">{strings.nav.petiscos}</Link>
         {canAttend(me.data) && <Link to="/ajustes">{strings.nav.settings}</Link>}
@@ -116,9 +121,13 @@ function Screen({ me }: { me: MeView }) {
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
   if (path === '/membros') return <Members me={me} />;
+  const member = /^\/membro\/([\w-]+)$/.exec(path);
+  if (member) return <MemberStats key={member[1]} memberId={member[1]} />;
+  if (path === '/numeros') return <GroupStats />;
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
   if (path === '/petiscos') return <Petiscos />;
   if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;
+  if (path === '/filas' && canAttend(me)) return <Queues me={me} />;
   if (path === '/avisos') return <Inbox />;
   if (path === '/avisos/celular') return <PushPermission />;
   if (path === '/avisos/preferencias') return <NotificationPreferences />;

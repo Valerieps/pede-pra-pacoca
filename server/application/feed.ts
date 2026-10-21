@@ -55,7 +55,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
     bindings.push(actor.id, actor.id, actor.id);
   }
 
-  return ctx.sql
+  const events = ctx.sql
     .all<FeedRow>(
       `SELECT members.*, e.id AS event_id, e.type, e.request_id, requests.title AS request_title,
               e.like_count, e.at,
@@ -77,6 +77,21 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,
     }));
+  return events.map((e) => (e.type === 'request_fulfilled' && e.requestId ? { ...e, fulfilledFor: requesterNames(ctx, e.requestId) } : e));
+}
+
+/** The requester, then the co-requesters in the order they joined. */
+function requesterNames(ctx: Context, requestId: string): string[] {
+  return ctx.sql
+    .all<{ name: string }>(
+      `SELECT members.name FROM requests JOIN members ON members.id = requests.requester_id WHERE requests.id = ?
+       UNION ALL
+       SELECT * FROM (SELECT members.name FROM co_requests JOIN members ON members.id = co_requests.member_id
+                      WHERE co_requests.request_id = ? ORDER BY co_requests.at, members.id)`,
+      requestId,
+      requestId,
+    )
+    .map((r) => r.name);
 }
 
 /** One like per person per event; liking again undoes it. Likes never subscribe anyone to a request. */

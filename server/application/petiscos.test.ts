@@ -4,6 +4,7 @@ import { fixedClock, memorySql, sequentialIds } from '../testing/node-sql';
 import type { Sql } from './ports';
 import { GroupService } from './group-service';
 import { evaluateAutomaticCashback } from './petiscos';
+import { MIGRATIONS } from './schema';
 
 const cesar = { sub: 'g-cesar', email: 'cesar@example.com', name: 'Cesar', picture: null };
 const carla = { sub: 'g-carla', email: 'carla@example.com', name: 'Carla', picture: null };
@@ -271,7 +272,7 @@ describe('export', () => {
   it('gives an admin every table except sessions, push keys and secrets', () => {
     sql.run("INSERT INTO config (key, value) VALUES ('webhookSecret', '\"s3cr3t\"'), ('jellyseerrBaseUrl', '\"https://j\"')");
     const data = value<GroupExport>(service.query('s-cesar', 'group.export', {}));
-    expect(data.schemaVersion).toBe(3);
+    expect(data.schemaVersion).toBe(MIGRATIONS.length);
     expect(Object.keys(data.tables)).toEqual(expect.arrayContaining(['members', 'requests', 'petisco_movements', 'feed_events', 'invites', 'config']));
     expect(Object.keys(data.tables)).not.toContain('sessions');
     expect(Object.keys(data.tables)).not.toContain('push_subscriptions');

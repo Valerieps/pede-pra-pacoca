@@ -8,7 +8,8 @@ import type { PetiscoKind, PetiscoOperation } from '../domain/petisco/ledger';
 import type { NotificationPrefs } from '../domain/notification/preferences';
 import type { NotificationType } from '../domain/notification/types';
 import type { MediaType } from '../domain/media/media';
-import type { RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
+import type { Reason, RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
+import type { StatsFilter, StatsGroupBy, StatsSort } from '../domain/stats/stats';
 
 export interface MemberView {
   readonly id: string;
@@ -113,6 +114,8 @@ export interface FeedEventView {
   readonly at: string;
   readonly likeCount: number;
   readonly likedByMe: boolean;
+  /** "Atendido" only: the requester and co-requesters' names, for "A Paçoca buscou X para Ana e Bia". */
+  readonly fulfilledFor?: readonly string[];
 }
 
 export type { FeedFilter };
@@ -199,6 +202,35 @@ export interface RequestView {
   readonly coRequesters: readonly MemberView[];
   readonly createdAt: string;
   readonly updatedAt: string;
+  /** Why it was Recusado or Não foi possível. */
+  readonly reason: Reason | null;
+  /** The attendant's note sent with Atendido. */
+  readonly fulfillmentNote: string | null;
+}
+
+/** The attendant's queues (docs/spec/atendente.md), oldest first; the app sorts and groups. */
+export interface QueuesView {
+  readonly awaiting: readonly RequestView[];
+  readonly toSend: readonly RequestView[];
+  readonly inJellyseerr: readonly RequestView[];
+  readonly manual: readonly RequestView[];
+  /** Set by the admin; null hides "Abrir no Jellyseerr". */
+  readonly jellyseerrBaseUrl: string | null;
+}
+
+/** A status change by an attendant, on one request or a batch. */
+export type AttendantAction =
+  | { readonly type: 'assign' }
+  | { readonly type: 'approve' }
+  | { readonly type: 'reject'; readonly reason: Reason }
+  | { readonly type: 'mark_sent' }
+  | { readonly type: 'mark_fulfilled'; readonly note?: string }
+  | { readonly type: 'mark_unavailable'; readonly reason: Reason };
+
+/** Requests that changed in the meantime are skipped, not failed. */
+export interface AttendantActionResult {
+  readonly applied: readonly string[];
+  readonly skipped: readonly string[];
 }
 
 export interface RequestTransitionView {
@@ -248,6 +280,74 @@ export type CreateRequestInput =
       readonly again?: boolean;
     };
 
+export type { StatsFilter, StatsGroupBy, StatsSort };
+
+/** A member's profile numbers (docs/spec/estatisticas.md). Canceled requests do not count. */
+export interface ProfileStatsView {
+  readonly member: MemberView;
+  readonly totalRequests: number;
+  readonly fulfilled: number;
+  /** From the request to the first Atendido, in milliseconds; null with nothing fulfilled. */
+  readonly averageMsToFulfilled: number | null;
+  readonly topGenres: readonly { readonly genre: string; readonly count: number }[];
+  /** The last 12 months, oldest first, "YYYY-MM" in the group's calendar, zeros included. */
+  readonly perMonth: readonly { readonly month: string; readonly count: number }[];
+  readonly cashbacks: number;
+  /** Likes on the member's feed events, other people's only. */
+  readonly likesReceived: number;
+}
+
+export interface HistoryRequestView {
+  readonly id: string;
+  readonly title: string;
+  readonly mediaType: MediaType;
+  readonly origin: RequestOrigin;
+  readonly status: RequestStatus;
+  readonly genres: readonly string[];
+  readonly posterPath: string | null;
+  readonly requester: MemberView;
+  readonly assignee: MemberView | null;
+  readonly createdAt: string;
+  readonly likes: number;
+}
+
+/** One group of the history. `key` is a member id, "YYYY-MM", a type, genre, status or origin; "" for none. */
+export interface HistoryGroupView {
+  readonly key: string;
+  /** For person and attendant groups. */
+  readonly member: MemberView | null;
+  /** Every request of the group, even those past the history limit. */
+  readonly count: number;
+  readonly requests: readonly HistoryRequestView[];
+}
+
+export interface GroupStatsInput {
+  readonly filter?: StatsFilter;
+  readonly sort?: StatsSort;
+  readonly groupBy?: StatsGroupBy;
+}
+
+export interface GroupStatsView {
+  readonly total: number;
+  /** True when the history shows only the first requests (HISTORY_LIMIT). */
+  readonly truncated: boolean;
+  readonly groups: readonly HistoryGroupView[];
+  readonly metrics: {
+    readonly perPerson: readonly { readonly member: MemberView; readonly count: number }[];
+    readonly perAttendant: readonly { readonly member: MemberView; readonly count: number }[];
+    readonly averageMsToFulfilled: number | null;
+    /** Não foi possível among Atendido + Não foi possível; null when none closed. */
+    readonly unavailableRate: number | null;
+    /** Petiscos debited by these requests. */
+    readonly petiscosConsumed: number;
+    /** Cashbacks given for these requests. */
+    readonly petiscosReturned: number;
+    readonly mostLiked: readonly { readonly requestId: string; readonly title: string; readonly likes: number }[];
+  };
+  /** Every genre and attendant ever seen, for the filter pickers. */
+  readonly options: { readonly genres: readonly string[]; readonly attendants: readonly MemberView[] };
+}
+
 export interface Queries {
   me: { input: Record<string, never>; output: MeView };
   members: { input: Record<string, never>; output: MemberListItem[] };
@@ -261,10 +361,13 @@ export interface Queries {
   'manual.availability': { input: { link: string }; output: Availability };
   'requests.mine': { input: Record<string, never>; output: RequestView[] };
   'request.detail': { input: { id: string }; output: RequestDetailView };
+  queues: { input: Record<string, never>; output: QueuesView };
   'petiscos.statement': { input: Record<string, never>; output: PetiscoStatementView };
   'petiscos.settings': { input: Record<string, never>; output: PetiscoSettingsView };
   vacation: { input: Record<string, never>; output: VacationView };
   'group.export': { input: Record<string, never>; output: GroupExport };
+  'stats.profile': { input: { memberId: string }; output: ProfileStatsView };
+  'stats.group': { input: GroupStatsInput; output: GroupStatsView };
 }
 
 export interface Commands {
@@ -282,6 +385,8 @@ export interface Commands {
   'request.cancel': { input: { id: string }; output: null };
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
+  /** Attendants: the same action on every request in `ids` (1 to 50). */
+  'request.act': { input: { ids: string[]; action: AttendantAction }; output: AttendantActionResult };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
   'petiscos.setMonthly': { input: { petiscos: number }; output: null };
   /** `petiscos: null` goes back to the group's number. */

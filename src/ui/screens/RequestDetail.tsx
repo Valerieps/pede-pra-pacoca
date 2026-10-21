@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CommandName, Commands, RequestDetailView } from '../../application/api-contract';
 import { isUnreleased } from '../../domain/media/media';
+import { reasonText } from '../../domain/request/reason';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
 import { browserCelebrationStore, celebratesFulfilled, firstCelebration } from '../../infrastructure/celebrations';
@@ -63,6 +64,9 @@ function Detail({ request }: { request: RequestDetailView }) {
           <p className="status">{strings.requestStatus[request.status]}</p>
         </div>
       </div>
+
+      {request.reason && <p className="notice">{strings.request.reason(reasonText(request.reason))}</p>}
+      {request.fulfillmentNote && <p className="notice">{strings.request.fulfillmentNote(request.fulfillmentNote)}</p>}
 
       <p>
         {strings.request.requestedBy(request.requester.name)}

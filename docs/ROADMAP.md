@@ -15,24 +15,21 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | --- | --- | --- | --- |
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
-| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca". As notificações dos pedidos entram com Notificações; as mudanças de status do atendente, com as filas |
-| Petiscos e cashback | 1 | `spec/petiscos.md` | Ajustes, bônus, cashback à mão, extrato e o job do aviso de 7 dias prontos. Falta: debitar ao virar Atendido e chamar `evaluateAutomaticCashback` (`server/application/petiscos.ts`) no efeito `evaluate_cashback` dos pedidos (vêm com as filas) |
-| Filas e ações do atendente | 1 | `spec/atendente.md` | O modo férias está pronto. Falta: as filas, "Eu pego esse", os status e as ações em lote |
-| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base está pronta (caixa de entrada, preferências, silêncio, resumo diário, curtidas agrupadas, Web Push). Falta cada feature chamar `notify` no seu comando: pedidos (novo, aguardando aprovação, aprovado, recusado ou não foi possível, atendido, eu também quero, oferta de herança), petiscos renovados, Obrigada e falha do webhook. Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
+| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca" |
+| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base e os avisos de pedidos, curtidas e petiscos estão prontos. Falta chamar `notify` para petiscos renovados, "Obrigada, Paçoca" (com Dar retorno) e falha do webhook (com o Jellyseerr). Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
-| Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que a dona vai mandar |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
 
-- O feed mostra "entrou no grupo", "pediu" e "também quer"; os outros eventos chegam com as features
-  deles. Curtir ainda não existe no detalhe do pedido.
+- O feed mostra "entrou no grupo", "pediu", "também quer", "Atendido" e o cashback; "Assisti" e
+  "Obrigada" chegam com Dar retorno. Curtir ainda não existe no detalhe do pedido.
 - Sem conexão, o app mostra o que já estava na tela, mas não guarda nada entre aberturas.
 
 ## Adiado
 
-- Conexão com o Jellyseerr (webhook, URL base, "Abrir no Jellyseerr") — a dona deixou para depois; até lá, o atendente marca os status à mão.
+- Conexão com o Jellyseerr (webhook e a tela da URL base) — a dona deixou para depois; até lá, o atendente marca os status à mão. "Abrir no Jellyseerr" já aparece nas filas quando a chave `jellyseerrBaseUrl` existe em `config`.
 - Login com Apple — exige conta paga de desenvolvedor; fica fora enquanto o app não estiver nas lojas.
 - App offline — o app só funciona com internet.
 
@@ -72,3 +69,15 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/identidade.md`: a animação do Atendido aparece ao abrir o pedido Atendido (meu ou em
   que cliquei "Eu também quero"), uma vez por pedido em cada celular; com "reduzir movimento", a
   Paçoca fica parada.
+- [ ] `spec/estatisticas.md`: cancelado não conta nos números; tempo até Atendido vai do pedido à
+  primeira vez Atendido; 5 gêneros e 12 meses no perfil; minha própria curtida não conta.
+- [ ] `spec/estatisticas.md`: período por dia da data do pedido; pessoa = solicitante; atendente =
+  responsável; agrupando por gênero o pedido aparece em cada gênero; histórico mostra até 200 pedidos.
+- [ ] `spec/estatisticas.md`: taxa de Não foi possível = Não foi possível ÷ (Atendido + Não foi
+  possível); devolvidos = cashbacks (estorno de reserva não conta); 5 pedidos mais curtidos; tela "Números" para todos.
+- [ ] `spec/atendente.md`: uma quarta fila, No Jellyseerr, para fechar à mão o que já foi enviado; em
+  A enviar também dá para marcar Atendido ou Não foi possível direto.
+- [ ] `spec/atendente.md`: o pedido oferecido a quem também quer sai das filas até alguém ficar com ele.
+- [ ] `spec/atendente.md`: "outro" exige o texto; o texto do motivo tem até 200 caracteres e a nota de
+  atendimento até 500; o lote vai até 50 pedidos e pula os que mudaram enquanto isso.
+- [ ] `spec/atendente.md`: assumir o pedido de outro atendente pede confirmação e fica no histórico.

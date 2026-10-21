@@ -5,6 +5,7 @@ import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { EmptyState } from '../components/EmptyState';
 import { useServices } from '../backend-context';
+import { Link } from '../router';
 import { useQuery } from '../use-query';
 
 function errorText(error: ApiError): string {
@@ -50,7 +51,7 @@ export function Members({ me }: { me: MeView }) {
           <li key={member.id} className="card">
             <Avatar name={member.name} photoUrl={member.photoUrl} />
             <span className="grow">
-              {member.name} {member.id === me.id && <span className="muted">{strings.members.you}</span>}
+              <Link to={`/membro/${member.id}`}>{member.name}</Link> {member.id === me.id && <span className="muted">{strings.members.you}</span>}
               <br />
               <span className="muted">{rolesLabel(member.roles)}</span>
               {member.email && (

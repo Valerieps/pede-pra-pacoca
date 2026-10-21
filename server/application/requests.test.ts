@@ -177,7 +177,7 @@ describe('duplicates', () => {
 describe('Eu também quero', () => {
   it('joins without spending, shows on the feed, and can be undone', () => {
     const request = create('s-ana');
-    expect(service.command('s-bia', 'request.join', { id: request.id })).toMatchObject({ ok: true, changed: ['requests', 'feed'] });
+    expect(service.command('s-bia', 'request.join', { id: request.id })).toMatchObject({ ok: true, changed: ['requests', 'feed', 'notifications'] });
     expect(petiscos('s-bia')).toBe(3);
     expect(detail('s-bia', request.id)).toMatchObject({ coRequesters: [{ name: 'bia' }], viewer: { isCoRequester: true, canLeave: true, canJoin: false } });
     expect(feedTypes('s-bia')).toContain('co_request');
@@ -288,7 +288,7 @@ describe('the offer to co-requesters', () => {
 
   it('an offer nobody answers in 5 days expires on the cron', () => {
     clock.set('2026-10-26T16:00:00Z');
-    expect(service.tick()).toEqual(['requests', 'feed']);
+    expect(service.tick()).toEqual(['requests', 'feed', 'notifications']);
     expect(detail('s-dani', request.id).offer).toMatchObject({ member: { name: 'dani' } });
     clock.set('2026-10-31T16:00:00Z');
     service.tick();
@@ -296,7 +296,7 @@ describe('the offer to co-requesters', () => {
     expect(service.tick()).toEqual([]);
   });
 
-  it('the attendant may move it meanwhile; past Aprovado nobody accepting does not cancel it', () => {
+  it('past Aprovado, nobody accepting does not cancel it', () => {
     sql.run("UPDATE requests SET status = 'in_jellyseerr' WHERE id = ?", request.id);
     service.command('s-bia', 'request.answerOffer', { id: request.id, accept: false });
     service.command('s-dani', 'request.answerOffer', { id: request.id, accept: false });
