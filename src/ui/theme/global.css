@@ -592,3 +592,29 @@ legend {
   height: 100%;
   background: var(--color-brand);
 }
+
+/* The petisco (docs/spec/identidade.md) */
+.petisco-icon {
+  flex: none;
+  width: var(--petisco-size);
+  height: var(--petisco-size);
+}
+
+.petisco-icon-large {
+  width: var(--petisco-size-large);
+  height: var(--petisco-size-large);
+}
+
+.petisco-body {
+  fill: var(--color-petisco);
+}
+
+.petisco-crumb {
+  fill: var(--color-petisco-crumb);
+}
+
+.petisco-balance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

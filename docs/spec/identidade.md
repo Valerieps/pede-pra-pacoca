@@ -2,7 +2,7 @@
 
 A voz e a cara do app.
 
-- **Entra aqui:** o tom dos textos, os textos-chave, as animações e as ilustrações.
+- **Entra aqui:** o tom dos textos, os textos-chave, as animações, as ilustrações e os ícones.
 - **Não entra aqui:** as regras que disparam cada texto (ficam nos outros arquivos de `spec/`).
 
 ## Em aberto
@@ -36,3 +36,10 @@ Nenhuma.
 - Com a opção do celular de reduzir movimento ligada, a Paçoca aparece parada. *(1)*
 - Ilustrações da Paçoca ocupam os estados vazios e o card do pedido manual. *(1)*
 - Os arquivos de ilustração e animação chegam depois. Até lá, o app usa placeholders. *(1)*
+
+## Ícones
+
+- O petisco tem um ícone: um quadradinho arredondado cor de caramelo, com uns farelinhos. Ele
+  aparece no chip de petiscos do cabeçalho, no card de petiscos do computador e na tela de
+  Petiscos. *(1)*
+  Por quê: o caramelo é só da Paçoca e dos petiscos, então o ícone já diz do que se trata.

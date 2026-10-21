@@ -7,6 +7,7 @@ import { useLiveStatus, useServices } from './backend-context';
 import { Avatar } from './components/Avatar';
 import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
+import { PetiscoIcon } from './components/PetiscoIcon';
 import { activeTab, inProgress, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
@@ -146,8 +147,9 @@ function Navigation({ me }: { me: MeView }) {
 /** The petisco counter in the header; it opens Petiscos. */
 function PetiscoChip({ me }: { me: MeView }) {
   return (
-    <Link to="/petiscos" className="petisco-chip">
-      {strings.petiscos.balance(me.petiscos.total)}
+    <Link to="/petiscos" className="petisco-chip" aria-label={strings.petiscos.balance(me.petiscos.total)}>
+      <PetiscoIcon />
+      <span aria-hidden="true">{me.petiscos.total}</span>
     </Link>
   );
 }
@@ -168,7 +170,8 @@ function SideColumn({ me }: { me: MeView }) {
   return (
     <aside className="side-column">
       <Link to="/petiscos" className="card petisco-card">
-        <span>
+        <PetiscoIcon large />
+        <span className="grow">
           <strong>{strings.petiscos.balance(me.petiscos.total)}</strong>
           <br />
           <span className="muted">{strings.petiscos.monthly(me.petiscos.monthlyAvailable, me.petiscos.monthlyQuota)}</span>
