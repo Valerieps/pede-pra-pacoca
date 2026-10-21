@@ -34,6 +34,11 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
   Por quê: Cancelado é informação da pessoa, não do grupo.
 - Cada transição registra a data e o autor. Quando aplicável, ela gera um evento no feed
   (`feed.md`). *(1)*
+- Onde o status aparece, ele é um chip com uma bolinha e sempre com o nome do status: Aguardando
+  aprovação só com contorno, apagado; Aprovado em vinho claro; No Jellyseerr em vinho cheio;
+  Atendido em verde; Recusado e Não foi possível em laranja-tijolo; Cancelado apagado e riscado.
+  *(1)*
+  Por quê: a cor ajuda a bater o olho, mas o nome escrito garante que ninguém depende só da cor.
 
 ## Pedir por link compartilhado
 

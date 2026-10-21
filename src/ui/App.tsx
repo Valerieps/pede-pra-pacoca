@@ -8,6 +8,7 @@ import { Avatar } from './components/Avatar';
 import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
+import { StatusChip } from './components/StatusChip';
 import { activeTab, inProgress, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
@@ -195,7 +196,7 @@ function SideColumn({ me }: { me: MeView }) {
                   <span className="grow">
                     <strong>{r.title}</strong>
                     <br />
-                    <span className="status">{strings.requestStatus[r.status]}</span>
+                    <StatusChip status={r.status} />
                   </span>
                 </Link>
               </li>

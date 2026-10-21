@@ -104,6 +104,8 @@
   --font-size-tiny: 11px;
   --shadow-raised: 0 4px 12px rgb(122 31 61 / 0.3);
 
+  --status-dot-size: 6px;
+
   /* Curtir: the paw's pop on tap */
   --paw-pop-duration: 250ms;
   --paw-pop-scale: 1.35;

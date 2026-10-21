@@ -7,6 +7,7 @@ import { useServices } from '../backend-context';
 import { browserCelebrationStore, celebratesFulfilled, firstCelebration } from '../../infrastructure/celebrations';
 import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
+import { StatusChip } from '../components/StatusChip';
 import { useQuery } from '../use-query';
 
 const date = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
@@ -61,7 +62,9 @@ function Detail({ request }: { request: RequestDetailView }) {
           <h1>{request.title}</h1>
           <p className="muted">{[request.year, strings.mediaType[request.mediaType]].filter(Boolean).join(' · ')}</p>
           {isUnreleased(request.releaseDate, new Date()) && <span className="badge">{strings.confirm.unreleased}</span>}
-          <p className="status">{strings.requestStatus[request.status]}</p>
+          <p>
+            <StatusChip status={request.status} />
+          </p>
         </div>
       </div>
 
