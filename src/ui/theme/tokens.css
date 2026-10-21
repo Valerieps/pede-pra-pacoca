@@ -104,6 +104,12 @@
   --font-size-tiny: 11px;
   --shadow-raised: 0 4px 12px rgb(122 31 61 / 0.3);
 
+  /* The petisco icon: a caramel square with darker crumbs, the same in both themes */
+  --petisco-size: 16px;
+  --petisco-size-large: 32px;
+  --color-petisco: #d9a35a;
+  --color-petisco-crumb: #8a5716;
+
   --poster-width: 128px;
   --poster-width-small: 48px;
 

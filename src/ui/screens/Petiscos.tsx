@@ -1,6 +1,7 @@
 import type { PetiscoMovementView } from '../../application/api-contract';
 import { strings } from '../../domain/strings';
 import { EmptyState } from '../components/EmptyState';
+import { PetiscoIcon } from '../components/PetiscoIcon';
 import { formatDate } from '../format';
 import { useQuery } from '../use-query';
 
@@ -21,10 +22,13 @@ export function Petiscos() {
       {statement.error && !data && <p className="notice">{strings.genericError}</p>}
       {data && (
         <>
-          <div className="notice">
-            <strong>{t.monthly(data.balance.monthlyAvailable, data.balance.monthlyQuota)}</strong>
-            <br />
-            <span className="muted">{t.renewsOn(formatDate(data.balance.renewsAt))}</span>
+          <div className="notice petisco-balance">
+            <PetiscoIcon large />
+            <span>
+              <strong>{t.monthly(data.balance.monthlyAvailable, data.balance.monthlyQuota)}</strong>
+              <br />
+              <span className="muted">{t.renewsOn(formatDate(data.balance.renewsAt))}</span>
+            </span>
           </div>
 
           <div>
