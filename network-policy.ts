@@ -11,11 +11,20 @@ export const ALLOWED_ORIGINS: readonly string[] = [];
 export const IMAGE_ORIGINS: readonly string[] = ['https://image.tmdb.org', 'https://lh3.googleusercontent.com'];
 
 /**
- * The only servers the Worker (server/) calls. Push services join this list with notifications,
- * and the push sender refuses any subscription endpoint outside it.
+ * The Web Push services of the phones' browsers (ADR-011): Chrome and Android (FCM), Safari on
+ * iPhone and Mac (Apple), Firefox (Mozilla). A push subscription whose endpoint is anywhere else
+ * is refused, so the Worker never sends a request to an address a member made up.
  */
+export const PUSH_SERVICE_ORIGINS: readonly string[] = [
+  'https://fcm.googleapis.com',
+  'https://web.push.apple.com',
+  'https://updates.push.services.mozilla.com',
+];
+
+/** The only servers the Worker (server/) calls: Google sign-in, TMDB and the push services. */
 export const SERVER_ORIGINS: readonly string[] = [
   'https://accounts.google.com',
   'https://oauth2.googleapis.com',
   'https://api.themoviedb.org',
+  ...PUSH_SERVICE_ORIGINS,
 ];

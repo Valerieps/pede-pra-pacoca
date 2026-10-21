@@ -3,3 +3,7 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 # Comma-separated e-mails that may enter as admin while the group has no admin.
 BOOTSTRAP_ADMIN_EMAILS=
+# Web Push (ADR-011): run `npm run vapid:keys` once. The subject is a mailto: the push services may use.
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=

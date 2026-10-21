@@ -14,14 +14,14 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth) e endereço do app | 1 | ADR-006, ADR-007 | Depende da dona. Sem isso o login não funciona fora dos testes |
-| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google está pronto. Falta: explicar a instalação, `share_target` no manifest, service worker, confirmar nome e foto na primeira vez |
+| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google e o service worker (só para os avisos) estão prontos. Falta: explicar a instalação, `share_target` no manifest, confirmar nome e foto e oferecer os avisos na primeira vez |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites e o comando de papéis estão prontos. Falta: remover membro (cancelar os pedidos ativos dele), tela de membros e papéis |
 | Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
 | Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
 | Feed e curtidas | 1 | `spec/feed.md` | |
-| Notificações | 1 | `spec/notificacoes.md` | |
+| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base está pronta (caixa de entrada, preferências, silêncio, resumo diário, curtidas agrupadas, Web Push). Falta cada feature chamar `notify` no seu comando: pedidos (novo, aguardando aprovação, aprovado, recusado ou não foi possível, atendido, eu também quero, oferta de herança), curtidas no feed, petiscos (cashback ou bônus, vence em 7 dias, renovados), Obrigada e falha do webhook. Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Ilustrações chegam depois; usar placeholders |
@@ -44,5 +44,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/pedidos.md`: se quem herda um pedido cancelado não tem petisco, o pedido vai para Aguardando aprovação.
 - [ ] `spec/atendente.md`: com todos os atendentes de férias, só os pedidos em Aguardando aprovação geram push.
 - [ ] `spec/notificacoes.md`: acrescentei os avisos de falha do webhook e da oferta de herdar pedido.
+- [ ] `spec/notificacoes.md`: na caixa de entrada, as curtidas de um evento ficam num item só; o
+  silêncio pode ser desligado, e mudar o silêncio vale para os avisos que ainda estão esperando.
+- [ ] `spec/notificacoes.md`: o push ligado vale por celular, e posso desligar só num deles.
 - [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
   conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.
