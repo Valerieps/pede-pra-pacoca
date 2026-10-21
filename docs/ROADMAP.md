@@ -47,12 +47,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/notificacoes.md`: acrescentei os avisos de falha do webhook e da oferta de herdar pedido.
 - [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
   conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.
-- [ ] `spec/pedidos.md`: um pedido Cancelado sai do feed; desfazer "Eu também quero" tira o evento do
-  feed. (Perguntado à dona; implementado como proposto até a resposta.)
-- [ ] `spec/pedidos.md`: na oferta de herança, quem aceita com petisco leva o pedido a Aprovado; quem
-  cancelou sai do pedido; desfazer "Eu também quero" com a oferta passa a oferta adiante; o atendente
-  segue com o pedido durante a oferta, e passado de Aprovado ele não vira Cancelado. (Perguntado à
-  dona; implementado como proposto até a resposta.)
+- [ ] `spec/pedidos.md`: se a co-solicitante com a oferta de herança desfaz "Eu também quero", a
+  oferta passa à seguinte.
 - [ ] `spec/pedidos.md`: Meus pedidos mostra também os encerrados e aqueles em que cliquei "Eu
   também quero".
 - [ ] ADR-009: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
