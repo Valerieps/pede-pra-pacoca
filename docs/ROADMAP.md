@@ -14,17 +14,14 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
-| Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
-| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca" |
-| Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base e os avisos de pedidos, curtidas e petiscos estão prontos. Falta chamar `notify` para petiscos renovados, "Obrigada, Paçoca" (com Dar retorno) e falha do webhook (com o Jellyseerr). Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
+| Notificações: falha do webhook e chaves VAPID | 1 | `spec/notificacoes.md` | Todos os outros gatilhos estão ligados. Falta chamar `notify` para a falha do webhook (com o Jellyseerr) e pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`), que depende da dona |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que a dona vai mandar |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
 
-- O feed mostra "entrou no grupo", "pediu", "também quer", "Atendido" e o cashback; "Assisti" e
-  "Obrigada" chegam com Dar retorno. Curtir ainda não existe no detalhe do pedido.
+- Curtir ainda não existe no detalhe do pedido (o feed já tem todos os eventos).
 - Sem conexão, o app mostra o que já estava na tela, mas não guarda nada entre aberturas.
 
 ## Adiado
@@ -81,3 +78,11 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/atendente.md`: "outro" exige o texto; o texto do motivo tem até 200 caracteres e a nota de
   atendimento até 500; o lote vai até 50 pedidos e pula os que mudaram enquanto isso.
 - [ ] `spec/atendente.md`: assumir o pedido de outro atendente pede confirmação e fica no histórico.
+- [ ] `spec/grupo-e-papeis.md`: o admin não remove a si mesmo; o removido sai dos pedidos em que
+  clicou "Eu também quero"; os pedidos que ele tinha pegado voltam para a fila sem responsável; o
+  pedido dele já No Jellyseerr segue sem petisco de ninguém.
+- [ ] `spec/pedidos.md`: "Assisti" e nota geram um evento só por pessoa, que mostra a nota mais
+  recente; a nota é opcional; "Obrigada" uma vez por pessoa; pedido que foi direto para Atendido
+  agradece a quem marcou Atendido.
+- [ ] `spec/notificacoes.md`: o aviso de petiscos renovados sai no dia 1, com o número de cada um, e
+  não vai para atendente nem para quem tem 0 petisco por mês.

@@ -5,6 +5,8 @@ import { failure, QueryError, type CommandResult, type Context } from './context
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { exportGroup } from './export';
 import { listFeed, listLikes, toggleLike } from './feed';
+import { markWatched, thank } from './feedback';
+import { removeMember } from './member-removal';
 import {
   claimDuePushes,
   inbox,
@@ -18,7 +20,7 @@ import {
   type DuePushes,
 } from './notifications';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
-import { giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
+import { announceMonthlyPetiscos, giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
   answerOffer,
@@ -78,6 +80,7 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'invite.create': createInvite,
   'invite.revoke': revokeInvite,
   'member.setRoles': setRoles,
+  'member.remove': removeMember,
   'push.subscribe': subscribePush,
   'push.unsubscribe': unsubscribePush,
   'notifications.markRead': markRead,
@@ -88,6 +91,8 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.cancel': cancelRequest,
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
+  'request.watched': markWatched,
+  'request.thank': thank,
   'request.act': actOnRequests,
   'member.updateProfile': updateProfile,
   'petiscos.setMonthly': setMonthly,
@@ -142,7 +147,8 @@ export class GroupService {
 
   /**
    * Runs the time-based jobs that are due (ADR-006: one cron, every few minutes; the rules decide
-   * what is due in America/Sao_Paulo). Monthly petiscos need no job: they are a quota per month.
+   * what is due in America/Sao_Paulo). Monthly petiscos need no ledger job: they are a quota per
+   * month; only their renewal notice goes out on day 1.
    * Push delivery is not here: the Durable Object calls `claimDuePushes` after the tick.
    * Returns the topics that changed, for the open apps.
    */
@@ -154,6 +160,7 @@ export class GroupService {
     if (this.ctx.sql.transaction(() => endFinishedVacations(this.ctx))) changed.add('vacation');
     if (this.ctx.sql.transaction(() => expireOffers(this.ctx))) ['requests', 'feed', 'notifications'].forEach((t) => changed.add(t as Topic));
     if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
+    if (this.ctx.sql.transaction(() => announceMonthlyPetiscos(this.ctx))) changed.add('notifications');
     return [...changed];
   }
 

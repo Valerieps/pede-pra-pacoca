@@ -36,6 +36,14 @@ export function Members({ me }: { me: MeView }) {
     setError(result.ok ? null : errorText(result.error));
   }
 
+  async function remove(member: MemberListItem) {
+    if (!window.confirm(strings.members.removeConfirm(member.name))) return;
+    setBusy(member.id);
+    const result = await backend.command('member.remove', { memberId: member.id });
+    setBusy(null);
+    setError(result.ok ? null : errorText(result.error));
+  }
+
   return (
     <section>
       <h1>{strings.members.title}</h1>
@@ -75,6 +83,17 @@ export function Members({ me }: { me: MeView }) {
                     {role === 'admin' ? strings.members.admin : strings.members.attendant}
                   </button>
                 ))}
+                {member.id !== me.id && (
+                  <button
+                    type="button"
+                    className="toggle danger"
+                    aria-label={strings.members.removeOf(member.name)}
+                    disabled={busy === member.id}
+                    onClick={() => void remove(member)}
+                  >
+                    {strings.members.remove}
+                  </button>
+                )}
               </span>
             )}
           </li>

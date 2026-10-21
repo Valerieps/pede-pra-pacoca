@@ -116,6 +116,8 @@ export interface FeedEventView {
   readonly likedByMe: boolean;
   /** "Atendido" only: the requester and co-requesters' names, for "A Paçoca buscou X para Ana e Bia". */
   readonly fulfilledFor?: readonly string[];
+  /** "Assisti" only: the rating from 1 to 5, or null when the member gave none. */
+  readonly rating?: number | null;
 }
 
 export type { FeedFilter };
@@ -247,6 +249,13 @@ export interface InheritanceOfferView {
   readonly expiresAt: string;
 }
 
+/** What I said about an Atendido request ("Dar retorno"). */
+export interface FeedbackView {
+  readonly watched: boolean;
+  readonly rating: number | null;
+  readonly thanked: boolean;
+}
+
 export interface RequestDetailView extends RequestView {
   readonly transitions: readonly RequestTransitionView[];
   /** The co-requester currently offered the request its requester cancelled. */
@@ -259,6 +268,9 @@ export interface RequestDetailView extends RequestView {
     readonly canJoin: boolean;
     readonly canLeave: boolean;
     readonly hasOffer: boolean;
+    /** "Dar retorno": only on Atendido requests, open to every member. */
+    readonly canGiveFeedback: boolean;
+    readonly feedback: FeedbackView;
   };
 }
 
@@ -374,6 +386,8 @@ export interface Commands {
   'invite.create': { input: { email: string }; output: InviteView };
   'invite.revoke': { input: { email: string }; output: null };
   'member.setRoles': { input: { memberId: string; roles: Role[] }; output: MemberView };
+  /** Admins; never oneself, so the last admin stays. */
+  'member.remove': { input: { memberId: string }; output: null };
   'push.subscribe': { input: PushSubscriptionInput; output: null };
   'push.unsubscribe': { input: { endpoint: string }; output: null };
   /** No ids: mark everything read. */
@@ -385,6 +399,10 @@ export interface Commands {
   'request.cancel': { input: { id: string }; output: null };
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
+  /** "Assisti"; `rating` 1-5 or null, left out keeps the one already given. */
+  'request.watched': { input: { id: string; rating?: number | null }; output: FeedbackView };
+  /** "Obrigada, Paçoca". */
+  'request.thank': { input: { id: string }; output: FeedbackView };
   /** Attendants: the same action on every request in `ids` (1 to 50). */
   'request.act': { input: { ids: string[]; action: AttendantAction }; output: AttendantActionResult };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };

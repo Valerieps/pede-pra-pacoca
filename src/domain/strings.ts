@@ -55,6 +55,10 @@ export const strings = {
     // "A Paçoca buscou *Duna* para Ana e Bia".
     fulfilledBefore: 'A Paçoca buscou',
     fulfilledFor: (names: readonly string[]) => `para ${listNames(names)}`,
+    // "Ana assistiu *Duna* e deu 4 de 5".
+    watched: (name: string) => `${name} assistiu`,
+    rated: (rating: number) => `e deu ${rating} de 5`,
+    thanked: (name: string) => `${name} agradeceu à Paçoca`,
   },
 
   mediaType: { movie: 'Filme', tv: 'Série' },
@@ -145,7 +149,15 @@ export const strings = {
       inherited: 'Ficou com o pedido',
       nobody_inherited: 'Ninguém ficou com o pedido',
       assigned: 'Pegou o pedido',
+      requester_removed: 'A solicitante saiu do grupo',
     } as Record<string, string>,
+    feedbackTitle: 'Dar retorno',
+    watched: 'Assisti',
+    youWatched: 'Você assistiu',
+    ratingLabel: 'Sua nota',
+    ratingOption: (n: number) => `${n} de 5`,
+    thank: 'Obrigada, Paçoca',
+    thanked: 'Você agradeceu. A Paçoca abanou o rabo!'
   },
 
   invites: {
@@ -260,6 +272,10 @@ export const strings = {
     requester: 'Solicitante',
     rolesOf: (name: string) => `Papéis de ${name}`,
     lastAdmin: 'O grupo precisa de pelo menos um admin. Dá o papel a outra pessoa antes.',
+    remove: 'Remover',
+    removeOf: (name: string) => `Remover ${name} do grupo`,
+    removeConfirm: (name: string) =>
+      `Remover ${name} do grupo? Os pedidos em andamento dessa pessoa são cancelados (o petisco volta, e quem também quer pode ficar com eles). O histórico fica. Pra voltar, é só convidar de novo.`,
     empty: 'Só a Paçoca por aqui. Convida alguém!',
   },
 

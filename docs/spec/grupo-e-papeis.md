@@ -68,8 +68,15 @@ Nenhuma.
 
 ## Remover membro
 
-- O admin remove um membro. Os pedidos ativos dele são tratados como cancelados pela solicitante
-  (com estorno do petisco e a oferta às co-solicitantes de `pedidos.md`). *(1)*
+- O admin remove um membro, na tela de membros, depois de confirmar. Ele não remove a si mesmo: outro
+  admin faz isso. Assim sempre sobra um admin. *(1)*
+- Os pedidos ativos dele são tratados como cancelados pela solicitante (com estorno do petisco e a
+  oferta às co-solicitantes de `pedidos.md`). *(1)*
+  - Se o pedido já está No Jellyseerr e ninguém fica com ele, ele segue sem petisco de ninguém,
+    como na oferta de `pedidos.md`. *(1)*
+- Ele sai dos pedidos ativos em que clicou "Eu também quero"; se a oferta de herdar um pedido
+  estava com ele, ela passa à seguinte. *(1)*
+- Os pedidos ativos que ele tinha pegado ("Eu pego esse") voltam para a fila sem responsável. *(1)*
 - O histórico dele (pedidos atendidos, eventos do feed) permanece. *(1)*
-- O membro removido perde o acesso na hora. Se o admin convidar o mesmo e-mail de novo, a pessoa
+- O membro removido perde o acesso na hora, em todos os celulares, e para de receber avisos. Se o admin convidar o mesmo e-mail de novo, a pessoa
   volta com o histórico e com os petiscos bônus e cashback que ainda estão na validade. *(1)*

@@ -56,6 +56,8 @@ export class Group extends DurableObject<Env> {
   command(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
     const result = this.service.command(sessionHash, name, input, prefetched);
     if (result.ok && result.changed.length > 0) this.broadcast(result.changed);
+    // A removed member's open apps lose the live connection now; their sessions are already gone.
+    if (result.ok) for (const memberId of result.disconnect ?? []) this.disconnect(memberId);
     // A command that notified someone: send what is due now instead of waiting for the cron.
     if (result.ok && result.changed.includes('notifications')) this.ctx.waitUntil(this.deliver(PUSHES_AFTER_COMMAND));
     return result;
@@ -96,6 +98,16 @@ export class Group extends DurableObject<Env> {
 
   override webSocketClose(ws: WebSocket, code: number): void {
     ws.close(code === 1005 ? 1000 : code);
+  }
+
+  private disconnect(memberId: string): void {
+    for (const ws of this.ctx.getWebSockets(memberId)) {
+      try {
+        ws.close(4401, 'removed');
+      } catch {
+        // Already closing.
+      }
+    }
   }
 
   private broadcast(topics: readonly Topic[]): void {

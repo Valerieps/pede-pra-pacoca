@@ -6,10 +6,9 @@ import type { NotificationType } from './types';
  * - requester: whoever made the request
  * - requesters: the requester and the co-requesters
  * - subject: the one person the notice is about (event author, petisco owner, thanked attendant,
- *   co-requester offered the inheritance)
- * - everyone: every active member
+ *   co-requester offered the inheritance, member whose monthly petiscos renewed)
  */
-export type Audience = 'attendants' | 'requester' | 'requesters' | 'subject' | 'everyone';
+export type Audience = 'attendants' | 'requester' | 'requesters' | 'subject';
 
 export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   request_new: 'attendants',
@@ -21,7 +20,8 @@ export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   likes: 'subject',
   petisco_received: 'subject',
   petisco_expiring: 'subject',
-  monthly_renewed: 'everyone',
+  // One notice per member, each with her own number of petiscos.
+  monthly_renewed: 'subject',
   thanked: 'subject',
   webhook_failed: 'attendants',
   inheritance_offer: 'subject',
@@ -70,9 +70,6 @@ export function recipients(type: NotificationType, facts: AudienceFacts): string
       break;
     case 'subject':
       ids = facts.subjectId ? [facts.subjectId] : [];
-      break;
-    case 'everyone':
-      ids = [...facts.activeMemberIds];
       break;
   }
   return [...new Set(ids)].filter((id) => active.has(id) && id !== facts.actorId);

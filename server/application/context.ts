@@ -8,9 +8,12 @@ export interface Context {
   readonly ids: IdGenerator;
 }
 
-/** A command's result: on success, the topics whose open screens must refetch. */
+/**
+ * A command's result: on success, the topics whose open screens must refetch, and the members
+ * whose live connections must close now because they lost access.
+ */
 export type CommandResult<T> =
-  | { readonly ok: true; readonly value: T; readonly changed: readonly Topic[] }
+  | { readonly ok: true; readonly value: T; readonly changed: readonly Topic[]; readonly disconnect?: readonly string[] }
   | { readonly ok: false; readonly error: ApiError };
 
 export const failure = (error: ApiError) => ({ ok: false, error }) as const;

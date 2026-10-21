@@ -67,7 +67,7 @@ export function findMember(ctx: Context, id: string): Member | null {
   return row ? toMember(row) : null;
 }
 
-function activeAdminIds(ctx: Context): string[] {
+export function activeAdminIds(ctx: Context): string[] {
   return ctx.sql
     .all<MemberRow>('SELECT * FROM members WHERE active = 1')
     .map(toMember)

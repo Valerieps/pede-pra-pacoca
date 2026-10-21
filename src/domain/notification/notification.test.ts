@@ -97,7 +97,7 @@ describe('audience', () => {
   it('reaches the requester and co-requesters, once each, active only', () => {
     expect(recipients('request_fulfilled', facts)).toEqual(['ana', 'bia']);
     expect(recipients('request_approved', facts)).toEqual(['ana']);
-    expect(recipients('monthly_renewed', facts)).toEqual(['cesar', 'dani', 'ana', 'bia', 'caio']);
+    expect(recipients('monthly_renewed', { ...facts, subjectId: 'bia' })).toEqual(['bia']);
   });
 
   it('never notifies whoever caused it', () => {
