@@ -1,5 +1,6 @@
 // Asks for push permission, after explaining it; on iPhone, first explains that push needs the
-// app installed on the home screen (docs/spec/app-e-instalacao.md).
+// app installed on the home screen (docs/spec/app-e-instalacao.md). At first access it is
+// offered once, with `onDone` to move on to the app.
 import { useEffect, useState } from 'react';
 import type { PushState } from '../../application/ports';
 import { strings } from '../../domain/strings';
@@ -10,7 +11,7 @@ import { useQuery } from '../use-query';
 
 const t = strings.notifications.permission;
 
-export function PushPermission() {
+export function PushPermission({ onDone }: { onDone?: () => void } = {}) {
   const { backend } = useServices();
   const push = usePushDevice();
   const settings = useQuery('notifications.settings', {}, ['notifications']);
@@ -33,7 +34,9 @@ export function PushPermission() {
     setBusy(false);
     setState(push.state());
     setSubscribed(subscription !== null);
-    setError(push.state() === 'granted' && !saved?.ok);
+    const failed = push.state() === 'granted' && !saved?.ok;
+    setError(failed);
+    if (onDone && subscription && !failed) onDone();
   }
 
   async function disable() {
@@ -68,10 +71,15 @@ export function PushPermission() {
             <button type="button" disabled={busy || !settings.data} onClick={() => void enable()}>
               {t.ask}
             </button>
-            <button type="button" className="secondary" onClick={() => navigate('/avisos')}>
+            <button type="button" className="secondary" onClick={() => (onDone ? onDone() : navigate('/avisos'))}>
               {t.later}
             </button>
           </>
+        )}
+        {onDone && !(state === 'prompt' || (state === 'granted' && !active)) && (
+          <button type="button" onClick={onDone}>
+            {t.continue}
+          </button>
         )}
         {active && (
           <button type="button" className="secondary" disabled={busy} onClick={() => void disable()}>

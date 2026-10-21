@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { MeView } from '../application/api-contract';
 import { canAttend, canManageGroup } from '../domain/group/roles';
 import { strings } from '../domain/strings';
@@ -21,6 +21,8 @@ import { Petiscos } from './screens/Petiscos';
 import { Profile } from './screens/Profile';
 import { Settings } from './screens/Settings';
 import { SignIn } from './screens/SignIn';
+import { offersPushAtFirstAccess } from '../infrastructure/push-device';
+import { ASK_PATH, browserShareEnvironment, pendingShare } from '../infrastructure/share-target';
 import { formatDateKey } from './format';
 import { useQuery } from './use-query';
 
@@ -28,6 +30,9 @@ export function App() {
   const { backend, live } = useServices();
   const me = useQuery('me', {}, ['me']);
   const signedIn = me.data !== undefined && me.error !== 'unauthenticated';
+  const push = usePushDevice();
+  // Right after the first-access profile, the app offers push once (docs/spec/app-e-instalacao.md).
+  const [offerPush, setOfferPush] = useState(false);
 
   useEffect(() => {
     if (!signedIn) return;
@@ -36,6 +41,7 @@ export function App() {
   }, [live, signedIn]);
 
   usePushSync(signedIn);
+  useSharedLinkRoute(signedIn && me.data?.profileConfirmed === true && !offerPush);
 
   if (me.loading && !me.data) return null;
   if (!me.data && me.error && me.error !== 'unauthenticated') {
@@ -54,7 +60,14 @@ export function App() {
   if (!me.data.profileConfirmed) {
     return (
       <main className="app">
-        <Profile me={me.data} firstAccess />
+        <Profile me={me.data} firstAccess onConfirmed={() => setOfferPush(offersPushAtFirstAccess(push.state()))} />
+      </main>
+    );
+  }
+  if (offerPush) {
+    return (
+      <main className="app">
+        <PushPermission onDone={() => setOfferPush(false)} />
       </main>
     );
   }
@@ -144,6 +157,18 @@ function InboxLink() {
   const inbox = useQuery('notifications.inbox', {}, ['notifications']);
   const unread = inbox.data?.unread ?? 0;
   return <Link to="/avisos">{unread > 0 ? strings.notifications.navUnread(unread) : strings.notifications.nav}</Link>;
+}
+
+/**
+ * A link shared while signed out waits through the sign-in (and the first access), which come
+ * back to the home screen; once the app is ready, it opens Pedir, where the link is taken.
+ */
+function useSharedLinkRoute(ready: boolean) {
+  useEffect(() => {
+    if (ready && pendingShare(browserShareEnvironment()) !== null && window.location.pathname !== ASK_PATH) {
+      navigate(ASK_PATH, { replace: true });
+    }
+  }, [ready]);
 }
 
 /**

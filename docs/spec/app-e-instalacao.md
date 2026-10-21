@@ -37,6 +37,10 @@ Nenhuma.
   e-mail, o app avisa que não há convite e não cria a conta. *(1)*
 - Na primeira vez eu confirmo nome e foto (ver "Perfil" em `grupo-e-papeis.md`) e escolho se
   permito notificações. *(1)*
+- Logo depois de confirmar nome e foto, o app me oferece os avisos uma vez, na tela que explica
+  os avisos (`notificacoes.md`). Eu posso dizer "Agora não" e ligar depois em Avisos. Se eu já
+  respondi ao navegador, ou se o navegador não recebe avisos, essa tela não aparece; no iPhone fora
+  da tela de início ela aparece, para explicar a instalação. *(1)*
 
 ## Compartilhar para o app
 
@@ -47,3 +51,9 @@ Nenhuma.
 - O campo de colar o link existe também no Android. *(1)*
 - Link que o app não reconhece: mensagem amigável com atalho para a busca ou para o pedido manual.
   *(1)*
+- Se o que eu compartilhei traz algum link, o pedido manual aberto por esse atalho já vem com ele
+  no campo do link. *(1)*
+- Se eu compartilho sem estar logada, o link espera o login e o primeiro acesso; depois o app abre
+  o Pedir com ele. *(1)*
+- O link compartilhado sai da barra de endereço assim que o app o lê, e só é usado uma vez: voltar
+  ou abrir o Pedir de novo começa vazio. *(1)*

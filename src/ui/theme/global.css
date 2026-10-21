@@ -317,9 +317,50 @@ button.media-card {
   justify-content: center;
 }
 
-.done-pacoca {
-  font-size: var(--font-size-hero);
+.celebration {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  text-align: center;
+}
+
+.celebration-pacoca {
+  width: var(--celebration-size);
+  height: var(--celebration-size);
+  border-color: var(--color-celebration);
+  background: var(--color-accent-surface);
+  font-size: var(--celebration-glyph-size);
+  animation: pacoca-hop var(--celebration-duration) ease-in-out var(--celebration-hops);
+}
+
+.celebration-text {
   margin: 0;
+  font-size: var(--font-size-heading);
+  font-weight: 600;
+  color: var(--color-accent-text);
+}
+
+@keyframes pacoca-hop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(calc(-1 * var(--celebration-hop-height))) rotate(-8deg);
+  }
+  60% {
+    transform: translateY(0) rotate(6deg);
+  }
+}
+
+/* Reduced motion: the Paçoca stands still; the text says the same thing. */
+@media (prefers-reduced-motion: reduce) {
+  .celebration-pacoca {
+    animation: none;
+  }
+}
+
 .install-guide {
   margin-bottom: var(--space-4);
 }
