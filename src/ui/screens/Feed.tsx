@@ -1,5 +1,6 @@
 import type { FeedEventView } from '../../application/api-contract';
 import { strings } from '../../domain/strings';
+import { EmptyState } from '../components/EmptyState';
 import { useQuery } from '../use-query';
 
 function describe(event: FeedEventView): string {
@@ -19,7 +20,7 @@ export function Feed() {
     <section>
       <h1>{strings.feed.title}</h1>
       {feed.error && !feed.data && <p className="notice">{strings.genericError}</p>}
-      {feed.data?.length === 0 && <p className="muted">{strings.feed.empty}</p>}
+      {feed.data?.length === 0 && <EmptyState text={strings.feed.empty} />}
       <ul className="list">
         {feed.data?.map((event) => (
           <li key={event.id} className="card">

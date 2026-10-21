@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import type { ApiError, InviteState } from '../../application/api-contract';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
+import { EmptyState } from '../components/EmptyState';
 import { useQuery } from '../use-query';
 
 const STATE_LABEL: Record<InviteState, string> = {
@@ -59,6 +60,7 @@ export function Invites() {
           {error}
         </p>
       )}
+      {invites.data?.length === 0 && <EmptyState text={strings.invites.empty} />}
       <ul className="list">
         {invites.data?.map((invite) => (
           <li key={invite.email} className="card">
