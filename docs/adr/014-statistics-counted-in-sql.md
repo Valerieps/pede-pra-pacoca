@@ -1,4 +1,4 @@
-# ADR-012: Statistics counted in SQL, months on a fixed São Paulo offset
+# ADR-014: Statistics counted in SQL, months on a fixed São Paulo offset
 
 **Status:** Accepted
 **Date:** 2026-10-21
