@@ -111,6 +111,8 @@ export interface FeedEventView {
   readonly requestId: string | null;
   /** The request's title, for "Ana pediu *Duna*". */
   readonly requestTitle: string | null;
+  /** The request's TMDB poster; null for manual requests, which show the Paçoca card. */
+  readonly requestPosterPath: string | null;
   readonly at: string;
   readonly likeCount: number;
   readonly likedByMe: boolean;

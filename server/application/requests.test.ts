@@ -324,9 +324,9 @@ describe('request detail', () => {
     expect(service.query('s-dani', 'request.detail', { id: 'nope' })).toEqual({ ok: false, error: 'not_found' });
   });
 
-  it('the feed shows the title', () => {
+  it('the feed shows the title and the poster', () => {
     create('s-ana');
     const feed = service.query('s-ana', 'feed', {});
-    expect(feed.ok && (feed.value as { type: string }[]).find((e) => e.type === 'request_created')).toMatchObject({ requestTitle: 'Duna: Parte Dois' });
+    expect(feed.ok && (feed.value as { type: string }[]).find((e) => e.type === 'request_created')).toMatchObject({ requestTitle: 'Duna: Parte Dois', requestPosterPath: '/dune.jpg' });
   });
 });
