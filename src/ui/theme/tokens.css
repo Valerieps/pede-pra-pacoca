@@ -1,23 +1,82 @@
 /*
  * Design tokens: every color, font and spacing value used by the UI lives here.
  * Change the look of the app by editing this file only. The dark theme, below, redefines every color.
+ *
+ * Palette "Bombonière": wine-cherry brand (cinema curtain, candy wrapper); cherry "pop" only for
+ * social signals (likes, unread counts), never for buttons or errors; peanut caramel (celebration,
+ * accent) only for the Paçoca and the petiscos.
  */
+
+/*
+ * Fredoka (SIL Open Font License, public/fonts/OFL.txt), self-hosted: the app loads nothing from a
+ * CDN (docs/SEGURANCA.md). The files live in public/ so Vite never inlines them as data: URIs,
+ * which the CSP would block.
+ */
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('/fonts/fredoka-latin-ext-500-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('/fonts/fredoka-latin-500-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('/fonts/fredoka-latin-ext-600-normal.woff2') format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('/fonts/fredoka-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
 :root {
   color-scheme: light;
 
-  --color-bg: #f4f2ed;
-  --color-surface: #ffffff;
-  --color-text: #1f1f1f;
-  /* 5:1 on --color-bg, above WCAG AA's 4.5:1 for small text */
-  --color-text-muted: #6b675f;
-  --color-border: #e4e0d8;
-  --color-brand: #4b3fb3;
+  --color-bg: #ffffff;
+  --color-surface: #f8f4f5;
+  --color-text: #24121a;
+  /* 5.8:1 on --color-surface, above WCAG AA's 4.5:1 for small text */
+  --color-text-muted: #6e5a62;
+  --color-border: #ece3e6;
+  /* 10:1 on --color-bg */
+  --color-brand: #7a1f3d;
+  --color-brand-soft: #f8e9ee;
   --color-on-brand: #ffffff;
-  --color-danger: #b3261e;
-  --color-accent-surface: #f6e7c8;
-  --color-accent-text: #5c4110;
+  /* Likes and unread counts only; never buttons or errors */
+  --color-pop: #d93a5e;
+  --color-pop-soft: #fde8ec;
+  --color-pop-text: #b8204a;
+  /* Brick orange, so an error never looks like the wine brand */
+  --color-danger: #b4471c;
+  --color-danger-soft: #fbeee6;
+  --color-success: #1e7a4c;
+  --color-success-soft: #e3f4ea;
+  /* Caramel: the Paçoca and the petiscos only */
+  --color-accent-surface: #fbf0de;
+  --color-accent-text: #8a5716;
 
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* The app name, screen titles, media titles and the Paçoca's lines */
+  --font-display: 'Fredoka', ui-rounded, system-ui, sans-serif;
   --font-size-base: 15px;
   --font-size-small: 13px;
   --font-size-heading: 20px;
@@ -30,7 +89,8 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  --radius: 8px;
+  --radius: 10px;
+  --radius-card: 16px;
   --radius-pill: 999px;
 
   --poster-width: 128px;
@@ -41,7 +101,7 @@
   --placeholder-glyph-size: 40px;
 
   /* The Paçoca animation (PacocaCelebration) */
-  --color-celebration: #c9902e;
+  --color-celebration: #d9a35a;
   --celebration-size: 128px;
   --celebration-glyph-size: var(--font-size-hero);
   --celebration-hop-height: 16px;
@@ -53,16 +113,24 @@
   :root {
     color-scheme: dark;
 
-    --color-bg: #17161a;
-    --color-surface: #211f25;
-    --color-text: #ecebef;
-    --color-text-muted: #a3a0aa;
-    --color-border: #34313a;
-    --color-brand: #a59cf0;
-    --color-on-brand: #17161a;
-    --color-danger: #f2b8b5;
-    --color-accent-surface: #3a3020;
-    --color-accent-text: #f2d9a6;
-    --color-celebration: #e0b25c;
+    /* "Sala de cinema": a dark wine room, not black */
+    --color-bg: #1a0f14;
+    --color-surface: #26161d;
+    --color-text: #f3eaee;
+    --color-text-muted: #bfa9b3;
+    --color-border: #3d2530;
+    --color-brand: #f2a7bd;
+    --color-brand-soft: #3a1a26;
+    --color-on-brand: #1a0f14;
+    --color-pop: #ff8fa8;
+    --color-pop-soft: #3a1828;
+    --color-pop-text: #ff8fa8;
+    --color-danger: #f5b99a;
+    --color-danger-soft: #3a2016;
+    --color-success: #7fd6a6;
+    --color-success-soft: #13342a;
+    --color-accent-surface: #2e2618;
+    --color-accent-text: #e6b572;
+    --color-celebration: #e6b572;
   }
 }
