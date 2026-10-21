@@ -5,6 +5,8 @@ import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
 import type { CashbackSettings } from '../domain/petisco/cashback';
 import type { PetiscoKind, PetiscoOperation } from '../domain/petisco/ledger';
+import type { NotificationPrefs } from '../domain/notification/preferences';
+import type { NotificationType } from '../domain/notification/types';
 import type { MediaType } from '../domain/media/media';
 import type { RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
 
@@ -120,6 +122,36 @@ export interface LikeToggleView {
   readonly likeCount: number;
 }
 
+export interface InboxItemView {
+  readonly id: string;
+  readonly type: NotificationType;
+  readonly title: string;
+  readonly body: string;
+  /** A path in the app to open. */
+  readonly url: string;
+  readonly read: boolean;
+  readonly at: string;
+}
+
+export interface InboxView {
+  readonly items: readonly InboxItemView[];
+  readonly unread: number;
+}
+
+export interface NotificationSettingsView {
+  readonly prefs: NotificationPrefs;
+  /** The VAPID public key the browser subscribes with; null while push is not configured. */
+  readonly pushPublicKey: string | null;
+  /** Whether the attendant-only types apply to me. */
+  readonly attendant: boolean;
+}
+
+/** A browser's push subscription, keys in base64url (PushSubscription.getKey). */
+export interface PushSubscriptionInput {
+  readonly endpoint: string;
+  readonly p256dh: string;
+  readonly auth: string;
+}
 /** A movie or series as TMDB describes it. Posters are paths on image.tmdb.org. */
 export interface MediaView {
   readonly type: MediaType;
@@ -222,6 +254,8 @@ export interface Queries {
   invites: { input: Record<string, never>; output: InviteView[] };
   feed: { input: { before?: string; beforeId?: string; filter?: FeedFilter }; output: FeedEventView[] };
   'feed.likes': { input: { eventId: string }; output: MemberView[] };
+  'notifications.inbox': { input: Record<string, never>; output: InboxView };
+  'notifications.settings': { input: Record<string, never>; output: NotificationSettingsView };
   'media.search': { input: { query: string; type: SearchType }; output: MediaCardView[] };
   'media.preview': { input: PreviewInput; output: MediaCardView };
   'manual.availability': { input: { link: string }; output: Availability };
@@ -237,6 +271,11 @@ export interface Commands {
   'invite.create': { input: { email: string }; output: InviteView };
   'invite.revoke': { input: { email: string }; output: null };
   'member.setRoles': { input: { memberId: string; roles: Role[] }; output: MemberView };
+  'push.subscribe': { input: PushSubscriptionInput; output: null };
+  'push.unsubscribe': { input: { endpoint: string }; output: null };
+  /** No ids: mark everything read. */
+  'notifications.markRead': { input: { ids?: string[] }; output: null };
+  'notifications.setPrefs': { input: Partial<NotificationPrefs>; output: NotificationPrefs };
   'request.create': { input: CreateRequestInput; output: RequestView };
   'request.join': { input: { id: string }; output: null };
   'request.leave': { input: { id: string }; output: null };
@@ -259,7 +298,7 @@ export type QueryName = keyof Queries;
 export type CommandName = keyof Commands;
 
 /** What changed, pushed to every open app over the live connection so it refetches. */
-export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'requests' | 'petiscos' | 'vacation';
+export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'requests' | 'notifications' | 'petiscos' | 'vacation';
 
 export interface LiveMessage {
   readonly type: 'changed';

@@ -17,6 +17,7 @@ import { readConfig, writeConfig } from './config';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import { recordFeedEvent } from './feed';
 import { findMember, memberView, toMember, type Member, type MemberRow } from './members';
+import { notify } from './notifications';
 
 interface MovementRow {
   id: string;
@@ -167,8 +168,8 @@ export function giveBonus(ctx: Context, actor: Member, input: { memberId?: unkno
   const target = findMember(ctx, input.memberId);
   if (!target || !target.active) return failure('not_found');
   for (let i = 0; i < input.amount; i++) creditExtra(ctx, { memberId: target.id, kind: 'bonus', requestId: null, reason, actorId: actor.id });
-  notifyPetiscoReceived(ctx, { memberId: target.id, kind: 'bonus', amount: input.amount });
-  return { ok: true, value: null, changed: BALANCE_TOPICS };
+  notify(ctx, { type: 'petisco_received', subjectId: target.id, actorId: actor.id, data: { kind: 'bonus', amount: input.amount } });
+  return { ok: true, value: null, changed: [...BALANCE_TOPICS, 'notifications'] };
 }
 
 /** Manual cashback on a fulfilled request that debited a petisco, at most one per request. */
@@ -183,7 +184,7 @@ export function giveCashback(ctx: Context, actor: Member, input: { requestId?: u
   if (!request) return failure('not_found');
   if (request.status !== 'fulfilled' || !canGiveManualCashback(cashbackContextOf(ctx, request.id))) return failure('conflict');
   grantCashback(ctx, { requestId: request.id, memberId: request.requester_id, reason, actorId: actor.id });
-  return { ok: true, value: null, changed: [...BALANCE_TOPICS, 'feed'] };
+  return { ok: true, value: null, changed: [...BALANCE_TOPICS, 'feed', 'notifications'] };
 }
 
 function cashbackContextOf(ctx: Context, requestId: string): CashbackContext {
@@ -192,10 +193,11 @@ function cashbackContextOf(ctx: Context, requestId: string): CashbackContext {
   return { coRequesterCount: count, debitedPetisco: has("operation = 'debit'"), alreadyGotCashback: has("kind = 'cashback' AND operation = 'credit'") };
 }
 
+/** `actorId` is the attendant, or "pacoca" for the automatic cashback. */
 function grantCashback(ctx: Context, input: { requestId: string; memberId: string; reason: string | null; actorId: string }): void {
   creditExtra(ctx, { memberId: input.memberId, kind: 'cashback', requestId: input.requestId, reason: input.reason, actorId: input.actorId });
   recordFeedEvent(ctx, { type: 'cashback', actorId: input.memberId, requestId: input.requestId });
-  notifyPetiscoReceived(ctx, { memberId: input.memberId, kind: 'cashback', amount: 1 });
+  notify(ctx, { type: 'petisco_received', subjectId: input.memberId, actorId: input.actorId, data: { kind: 'cashback', amount: 1 } });
 }
 
 /**
@@ -214,8 +216,10 @@ export function evaluateAutomaticCashback(ctx: Context, requestId: string): bool
 /**
  * Job for `tick()`: warns each owner, once per lot, of the bonus and cashback still available that
  * expire within 7 days. One notice per member and run, with how many and the soonest expiry.
+ * Returns whether anyone was warned.
  */
-export function warnExpiringPetiscos(ctx: Context): void {
+export function warnExpiringPetiscos(ctx: Context): boolean {
+  let warnedAnyone = false;
   const now = ctx.clock.now();
   const owners = ctx.sql.all<MemberRow>(
     `SELECT DISTINCT members.* FROM petisco_movements JOIN members ON members.id = petisco_movements.member_id
@@ -233,18 +237,8 @@ export function warnExpiringPetiscos(ctx: Context): void {
     for (const lot of lots) {
       ctx.sql.run('INSERT INTO petisco_expiry_notices (lot, member_id, notified_at) VALUES (?, ?, ?)', lot.lot, owner.id, now.toISOString());
     }
-    notifyPetiscoExpiring(ctx, { memberId: owner.id, amount: lots.length, expiresAt: lots[0].expiresAt });
+    notify(ctx, { type: 'petisco_expiring', subjectId: owner.id, data: { amount: lots.length, expiresAt: lots[0].expiresAt } });
+    warnedAnyone = true;
   }
-}
-
-// Notification call sites. The notification slice (outbox, inbox, Web Push) is not in main yet:
-// when it lands, these call its `notify` with the triggers "petisco_received" and
-// "petisco_expiring" (docs/spec/notificacoes.md; the gap is listed in docs/ROADMAP.md).
-
-function notifyPetiscoReceived(_ctx: Context, _notice: { memberId: string; kind: 'bonus' | 'cashback'; amount: number }): void {
-  // Wiring pending: notify(ctx, { type: 'petisco_received', subjectId: memberId, data: { kind, amount } }).
-}
-
-function notifyPetiscoExpiring(_ctx: Context, _notice: { memberId: string; amount: number; expiresAt: string }): void {
-  // Wiring pending: notify(ctx, { type: 'petisco_expiring', subjectId: memberId, data: { amount, expiresAt } }).
+  return warnedAnyone;
 }

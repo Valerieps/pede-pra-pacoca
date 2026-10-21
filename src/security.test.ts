@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ALLOWED_ORIGINS, IMAGE_ORIGINS, SERVER_ORIGINS } from '../network-policy.ts';
+import { ALLOWED_ORIGINS, IMAGE_ORIGINS, PUSH_SERVICE_ORIGINS, SERVER_ORIGINS } from '../network-policy.ts';
 import { CONTENT_SECURITY_POLICY } from '../vite.config';
 
 /**
@@ -82,6 +82,18 @@ describe('security rules', () => {
     expect(rules.find((rule) => rule.startsWith('img-src'))).toBe(["img-src 'self' data:", ...IMAGE_ORIGINS].join(' '));
     expect(CONTENT_SECURITY_POLICY).toContain("script-src 'self'");
     expect(CONTENT_SECURITY_POLICY).toContain("object-src 'none'");
+  });
+
+  it('the service worker makes no network calls, links nowhere and inserts no HTML', () => {
+    const worker = read(join(__dirname, '..', 'public', 'sw.js'));
+    expect(NETWORK.filter(([, pattern]) => pattern.test(worker)).map(([name]) => name)).toEqual([]);
+    expect(HTML_INJECTION.filter(([, pattern]) => pattern.test(worker)).map(([name]) => name)).toEqual([]);
+    expect(worker.match(EXTERNAL_URL) ?? []).toEqual([]);
+  });
+
+  it('push goes only to the listed push services, which the server may call', () => {
+    expect(PUSH_SERVICE_ORIGINS.length).toBeGreaterThan(0);
+    expect(PUSH_SERVICE_ORIGINS.every((origin) => SERVER_ORIGINS.includes(origin))).toBe(true);
   });
 
   it('the test sign-in is never turned on in the deployed configuration (ADR-009)', () => {

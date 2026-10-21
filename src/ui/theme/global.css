@@ -436,3 +436,27 @@ button.link.muted {
   border-radius: var(--radius);
   text-align: left;
 }
+
+legend {
+  font-weight: 600;
+}
+
+.inbox-item {
+  width: 100%;
+  text-align: left;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.inbox-item.unread {
+  border-color: var(--color-brand);
+}
+
+.badge {
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius);
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  font-size: 0.8em;
+}

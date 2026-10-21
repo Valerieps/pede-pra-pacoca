@@ -1,6 +1,6 @@
 # ADR-001: Vite + React + TypeScript, minimal dependencies
 
-**Status:** Accepted, updated by ADR-006
+**Status:** Accepted, updated by ADR-006 and ADR-011
 **Date:** 2026-10-17
 **Decision:** Runtime dependencies are React and React DOM only. Build and test tooling: Vite,
 TypeScript and Vitest. All versions are pinned exactly and installed with `npm ci`. No lint tool
@@ -12,3 +12,5 @@ files that any static host serves; Vitest shares its config.
 bundling, deploy) and `@cloudflare/workers-types`. Runtime dependencies stay React and React DOM;
 the Worker uses no npm package: Google sign-in, hashing and, later, Web Push use WebCrypto. Server
 tests run on Node's built-in `node:sqlite`, with no extra test tooling.
+
+**Update (2026-10-21):** Web Push is built on WebCrypto as planned, with no package (ADR-011).

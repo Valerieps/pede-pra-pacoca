@@ -6,3 +6,7 @@
   X-Frame-Options: DENY
   Referrer-Policy: no-referrer
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+# The service worker must never be served stale, or a fix to it would take a day to arrive.
+/sw.js
+  Cache-Control: no-cache

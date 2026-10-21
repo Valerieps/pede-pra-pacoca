@@ -38,6 +38,10 @@ beforeEach(() => {
   service.command('s-cesar', 'member.setRoles', { memberId: ids.cesar, roles: ['admin', 'attendant'] });
 });
 
+function inbox(memberId: string) {
+  return sql.all<{ type: string; data: string }>('SELECT type, data FROM inbox WHERE member_id = ? ORDER BY rowid', memberId).map((r) => ({ type: r.type, data: JSON.parse(r.data) as unknown }));
+}
+
 function balance(session: string) {
   return value<{ petiscos: { total: number; monthlyAvailable: number; extras: unknown[] } }>(service.query(session, 'me', {})).petiscos;
 }
@@ -114,6 +118,7 @@ describe('bonus', () => {
       { kind: 'bonus', operation: 'credit', reason: 'aniversário' },
     ]);
     expect(value<unknown[]>(service.query('s-carla', 'feed', {})).length).toBe(feedBefore);
+    expect(inbox(ids.carla)).toEqual([{ type: 'petisco_received', data: { kind: 'bonus', amount: 2 } }]);
   });
 
   it('accepts 1 to 10 at a time and a reason up to 200 characters', () => {
@@ -129,12 +134,13 @@ describe('manual cashback', () => {
     const before = value<PetiscoSettingsView>(service.query('s-cesar', 'petiscos.settings', {}));
     expect(before.cashbackCandidates).toMatchObject([{ requestId: 'r1', title: 'Filme r1', requester: { name: 'Carla' } }]);
 
-    expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'r1', reason: 'capricho' })).toMatchObject({ ok: true, changed: ['me', 'petiscos', 'feed'] });
+    expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'r1', reason: 'capricho' })).toMatchObject({ ok: true, changed: ['me', 'petiscos', 'feed', 'notifications'] });
     expect(balance('s-carla')).toMatchObject({ total: 3, monthlyAvailable: 2, extras: [{ kind: 'cashback' }] });
     expect(value<unknown[]>(service.query('s-carla', 'feed', {}))[0]).toMatchObject({ type: 'cashback', actor: { name: 'Carla' }, requestId: 'r1' });
     const statement = value<PetiscoStatementView>(service.query('s-carla', 'petiscos.statement', {}));
     expect(statement.movements[0]).toMatchObject({ kind: 'cashback', operation: 'credit', requestTitle: 'Filme r1', reason: 'capricho' });
 
+    expect(inbox(ids.carla)).toEqual([{ type: 'petisco_received', data: { kind: 'cashback', amount: 1 } }]);
     expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'r1' })).toEqual({ ok: false, error: 'conflict' });
     expect(value<PetiscoSettingsView>(service.query('s-cesar', 'petiscos.settings', {})).cashbackCandidates).toEqual([]);
   });
@@ -198,8 +204,11 @@ describe('7-day expiry notice', () => {
     service.tick();
     expect(notices()).toEqual([]);
     clock.set('2027-01-12T15:00:00Z');
-    service.tick();
+    expect(service.tick()).toEqual(['notifications']);
     expect(notices()).toEqual([{ member_id: ids.carla }, { member_id: ids.carla }]);
+    expect(inbox(ids.carla).filter((n) => n.type === 'petisco_expiring')).toEqual([
+      { type: 'petisco_expiring', data: { amount: 2, expiresAt: '2027-01-19T15:00:00.000Z' } },
+    ]);
     clock.set('2027-01-13T15:00:00Z');
     service.tick();
     expect(notices()).toHaveLength(2);

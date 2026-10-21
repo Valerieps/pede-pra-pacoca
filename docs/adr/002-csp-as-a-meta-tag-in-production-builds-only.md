@@ -1,6 +1,6 @@
 # ADR-002: CSP as a meta tag in production builds only, driven by network-policy.ts
 
-**Status:** Accepted, updated by ADR-008
+**Status:** Accepted, updated by ADR-008 and ADR-011
 **Date:** 2026-10-17
 **Decision:** `vite.config.ts` injects the Content-Security-Policy as a meta tag in production
 builds. Its `connect-src` comes from `network-policy.ts`: `'none'` when the list is empty, exactly
@@ -13,3 +13,7 @@ files. One file for the allowed origins keeps the rule from drifting between con
 **Update (2026-10-21):** With the API on the app's own origin (ADR-006), `connect-src` is `'self'`
 plus `ALLOWED_ORIGINS`, and `img-src` adds `IMAGE_ORIGINS` (ADR-008). The other headers still live
 in `public/_headers`, which Workers static assets also apply.
+
+**Update (2026-10-21):** The app now has a service worker (`public/sw.js`, for push, ADR-011). The
+meta-tag CSP does not cover it, so `src/security.test.ts` checks it makes no network calls and has
+no external URLs.

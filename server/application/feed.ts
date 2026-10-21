@@ -3,6 +3,7 @@ import type { FeedEventType, FeedEventView, LikeToggleView, MemberView } from '.
 import { FEED_PAGE_SIZE, toFeedFilter } from '../../src/domain/feed/feed';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import { memberView, toMember, type Member, type MemberRow } from './members';
+import { notify } from './notifications';
 
 const REQUEST_EVENTS: readonly FeedEventType[] = ['request_created', 'co_request'];
 
@@ -81,7 +82,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
 /** One like per person per event; liking again undoes it. Likes never subscribe anyone to a request. */
 export function toggleLike(ctx: Context, actor: Member, input: { eventId?: unknown }): CommandResult<LikeToggleView> {
   if (typeof input.eventId !== 'string') return failure('invalid');
-  const [event] = ctx.sql.all<{ actor_id: string }>('SELECT actor_id FROM feed_events WHERE id = ?', input.eventId);
+  const [event] = ctx.sql.all<{ actor_id: string; request_id: string | null }>('SELECT actor_id, request_id FROM feed_events WHERE id = ?', input.eventId);
   if (!event) return failure('not_found');
 
   const [existing] = ctx.sql.all<{ at: string }>('SELECT at FROM likes WHERE event_id = ? AND member_id = ?', input.eventId, actor.id);
@@ -91,11 +92,15 @@ export function toggleLike(ctx: Context, actor: Member, input: { eventId?: unkno
   } else {
     ctx.sql.run('INSERT INTO likes (event_id, member_id, at) VALUES (?, ?, ?)', input.eventId, actor.id, nowIso(ctx));
     ctx.sql.run('UPDATE feed_events SET like_count = like_count + 1 WHERE id = ?', input.eventId);
-    if (event.actor_id !== actor.id) enqueueGroupedLikeNotice(ctx, { eventId: input.eventId, authorId: event.actor_id });
+  }
+  // The author hears about it grouped, at most once per event per hour (docs/spec/notificacoes.md).
+  const notified = !existing && event.actor_id !== actor.id;
+  if (notified) {
+    notify(ctx, { type: 'likes', data: { eventId: input.eventId, requestId: event.request_id, names: [actor.name] }, subjectId: event.actor_id, actorId: actor.id });
   }
 
   const [{ like_count }] = ctx.sql.all<{ like_count: number }>('SELECT like_count FROM feed_events WHERE id = ?', input.eventId);
-  return { ok: true, value: { liked: !existing, likeCount: like_count }, changed: ['feed'] };
+  return { ok: true, value: { liked: !existing, likeCount: like_count }, changed: notified ? ['feed', 'notifications'] : ['feed'] };
 }
 
 /** Who liked an event, first like first. */
@@ -109,13 +114,6 @@ export function listLikes(ctx: Context, input: { eventId?: unknown }): MemberVie
     )
     .map((row) => memberView(toMember(row)));
 }
-
-/**
- * The like notice to the event's author: grouped, at most one per event per hour
- * (docs/spec/notificacoes.md). NOT WIRED YET: the outbox is being built in its own slice; once its
- * enqueue API exists, call it here with group key `like:<eventId>` (docs/ROADMAP.md).
- */
-export function enqueueGroupedLikeNotice(_ctx: Context, _notice: { eventId: string; authorId: string }): void {}
 
 /** Takes a request's events off the feed, likes included: all of them, or one type by one actor. */
 export function removeFeedEvents(ctx: Context, requestId: string, only?: { type: FeedEventType; actorId: string }): void {

@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.server.json",
     "deploy": "wrangler deploy",
     "docs:check": "node scripts/check-docs.mjs",
-    "setup:repo": "node scripts/setup-repo.mjs"
+    "setup:repo": "node scripts/setup-repo.mjs",
+    "vapid:keys": "node scripts/vapid-keys.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
