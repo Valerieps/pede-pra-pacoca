@@ -204,3 +204,12 @@ button.toggle[aria-pressed='true'] {
   border-radius: 50%;
   font-size: var(--placeholder-glyph-size);
 }
+
+.dev-sign-in {
+  max-width: 320px;
+  margin: var(--space-8) auto 0;
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  text-align: left;
+}
