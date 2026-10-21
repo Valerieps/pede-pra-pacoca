@@ -1,6 +1,6 @@
 {
-  "name": "Nome do app",
-  "short_name": "Nome do app",
+  "name": "Pede pra Paçoca",
+  "short_name": "Pede pra Paçoca",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

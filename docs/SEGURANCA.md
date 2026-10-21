@@ -7,24 +7,24 @@ conferidas pelo `src/security.test.ts`, que roda em todo build.
 - **Não entra aqui:** como cada regra foi implementada (`adr/`) e o que falta verificar (issues
   `t:debito-tecnico` e `t:vulnerability`).
 
-O `BOOTSTRAP.md` escolhe um dos dois casos da seção 1 e apaga o outro.
-
 ## 1. Rede
-
-### Caso A: local-only
-
-- O app não faz nenhuma chamada de rede: `network-policy.ts` fica vazio e a CSP tem `connect-src 'none'`.
-- Os dados ficam só no navegador. Backups vão para arquivos locais que a pessoa escolhe, nunca para um servidor.
-- Sem analytics, telemetria, relatórios de erro remotos nem login.
-
-### Caso B: com servidores
 
 - O app fala só com as origens listadas em `network-policy.ts`; a CSP abre `connect-src` só para elas.
 - As chamadas de rede ficam em `src/infrastructure/`; o resto do código não as faz.
 - Sem analytics nem telemetria de terceiros sem uma decisão registrada num ADR.
-- Segredos nunca vão para o código do cliente: tudo que está no bundle é público.
+- Segredos nunca vão para o código do cliente: tudo que está no bundle é público. A chave do TMDB e
+  o segredo do webhook ficam só nas Cloud Functions.
+- Os dados guardados são nome, foto, e-mail e pedidos do grupo. Não há dado sensível.
 
-## 2. Para todo app
+## 2. Acesso e dados
+
+- Só entra quem tem convite para o e-mail da conta Google. As regras do Firestore negam tudo a quem
+  não é membro.
+- Papéis e escritas sensíveis (status, petiscos, convites, configuração) passam só pelas Functions.
+- O webhook confere o segredo em tempo constante e ignora chamadas inválidas.
+- O segredo do webhook e a URL do Jellyseerr só o admin vê.
+
+## 3. Para todo app
 
 - Texto do usuário nunca é inserido como HTML (`textContent`, nunca `innerHTML` ou `dangerouslySetInnerHTML`).
 - Links abrem com `target="_blank" rel="noopener noreferrer"`.
