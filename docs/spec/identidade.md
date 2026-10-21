@@ -33,6 +33,13 @@ Nenhuma.
 - A do Atendido aparece quando eu abro um pedido meu, ou em que cliquei "Eu também quero", que
   está Atendido (pelo push, pela caixa de entrada ou pelo feed), ou quando ele vira Atendido com a
   tela aberta. Ela aparece uma vez por pedido em cada celular, com o texto do Atendido. *(1)*
+- Logo depois de pedir, junto com a animação, aparece o card do pedido (pôster, título e estado) e
+  os botões "Ver meus pedidos" e "Pedir outro". *(1)*
+- No computador, as animações abrem num cartão centralizado, do tamanho do celular, com o fundo
+  escurecido. O do Atendido tem "Fechar", e fecha também com Esc ou clicando fora. No celular, a
+  animação fica no topo da tela. *(1)*
+  Por quê: solta no meio da tela larga, a Paçoca se perde; o cartão mantém o tamanho pensado para
+  o celular.
 - Com a opção do celular de reduzir movimento ligada, a Paçoca aparece parada. *(1)*
 - Ilustrações da Paçoca ocupam os estados vazios e o card do pedido manual. *(1)*
 - Os arquivos de ilustração e animação chegam depois. Até lá, o app usa placeholders. *(1)*

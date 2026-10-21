@@ -111,6 +111,7 @@ export const strings = {
     alreadyJoined: 'Você já quer esse.',
     askAgain: 'Pedir de novo',
     seeRequest: 'Ver o pedido',
+    seeMyRequests: 'Ver meus pedidos',
   },
 
   manual: {
@@ -352,6 +353,7 @@ export const strings = {
   },
 
   requestConfirmed: 'Pedido entregue pra Paçoca!',
+  close: 'Fechar',
   queueEmpty: 'Fila zerada! A Paçoca foi tirar um cochilo.',
 
   reasons: {

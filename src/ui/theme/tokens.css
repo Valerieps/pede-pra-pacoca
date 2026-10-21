@@ -120,13 +120,17 @@
   --poster-width-small: 48px;
 
   --avatar-size: 40px;
-  --placeholder-size: 96px;
+  /* The Paçoca's art slot: 96px in empty states, 128px in the animations (brief-artes-pacoca.md) */
+  --pacoca-art-size: 96px;
+  --pacoca-art-size-large: 128px;
   --placeholder-glyph-size: 40px;
 
   /* The Paçoca animation (PacocaCelebration) */
   --color-celebration: #d9a35a;
-  --celebration-size: 128px;
   --celebration-glyph-size: var(--font-size-hero);
+  /* On a computer: a phone-sized card over the dimmed page */
+  --celebration-card-width: 390px;
+  --color-backdrop: rgb(36 18 26 / 0.5);
   --celebration-hop-height: 16px;
   --celebration-duration: 700ms;
   --celebration-hops: 3;
@@ -156,5 +160,6 @@
     --color-accent-text: #e6b572;
     --color-celebration: #e6b572;
     --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
+    --color-backdrop: rgb(0 0 0 / 0.6);
   }
 }

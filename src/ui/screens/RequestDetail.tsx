@@ -55,7 +55,7 @@ function Detail({ request }: { request: RequestDetailView }) {
 
   return (
     <section>
-      {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} />}
+      {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} onClose={() => setCelebrate(false)} />}
       <div className="media-header">
         <Poster path={request.posterPath} title={request.title} />
         <div>
