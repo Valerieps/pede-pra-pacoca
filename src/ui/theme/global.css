@@ -261,6 +261,7 @@ button.link.muted {
 .feed-more {
   display: block;
   margin: var(--space-4) auto 0;
+}
 
 .dev-sign-in {
   max-width: 320px;
