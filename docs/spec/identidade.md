@@ -2,7 +2,8 @@
 
 A voz e a cara do app.
 
-- **Entra aqui:** o tom dos textos, os textos-chave, as animações, as ilustrações e os ícones.
+- **Entra aqui:** o tom dos textos, os textos-chave, as cores e as fontes, as animações, as
+  ilustrações e os ícones.
 - **Não entra aqui:** as regras que disparam cada texto (ficam nos outros arquivos de `spec/`).
 
 ## Em aberto
@@ -26,6 +27,34 @@ Nenhuma.
 | Cashback | A Paçoca te devolveu um petisco! |
 | Modo férias | A Paçoca está dormindo. Pode pedir, ela vê quando acordar. |
 | Erro genérico | A Paçoca tropeçou. Tenta de novo? |
+
+## Cores e fontes
+
+A identidade visual se chama Bombonière: a sala de cinema e o papel de bombom. Aqui fica o papel
+de cada cor; os valores ficam em `src/ui/theme/tokens.css`, e as artes seguem o
+[brief do Cesar](../rascunhos/brief-artes-pacoca.md).
+
+- O fundo do app é branco em quase tudo, e os pôsteres trazem o resto da cor. *(1)*
+  Por quê: numa moldura discreta qualquer pôster fica bonito; uma interface colorida brigaria com
+  eles.
+- Vinho-cereja é a cor do app: nome do app, botões, aba atual, filtro ativo, links e "Eu também
+  quero". *(1)*
+  Por quê: começamos com o azul-escuro favorito do Cesar, mas branco com azul tinha cara de app
+  de banco. O vinho junta os dois temas do app, cinema e doce.
+- O vinho nunca clareia até virar vermelho. Erros, Recusado e Não foi possível usam laranja-tijolo. *(1)*
+  Por quê: vermelho vivo lembra banco e se confunde com erro.
+- Cereja marca o que o grupo faz: curtidas e o número de avisos não lidos. Nunca aparece em botões
+  nem em erros. *(1)*
+- Caramelo é só da Paçoca e dos petiscos. *(1)*
+  Por quê: ver caramelo na tela sempre quer dizer "a Paçoca está aqui" ou "isto é um petisco". Se
+  ele aparecer em qualquer botão, vira só mais uma cor.
+- O azul do Cesar fica como homenagem, na coleira da Paçoca nas artes. *(1)*
+- No tema escuro, o fundo é um vinho quase marrom, como a sala de cinema com a luz apagada, e não
+  preto. *(1)*
+- O nome do app, os títulos de tela, os nomes de filmes e séries e as frases da Paçoca usam a
+  Fredoka, uma fonte arredondada. O resto usa a fonte do próprio celular. *(1)*
+  Por quê: a Fredoka dá o jeito da Paçoca sem ficar infantil; a fonte do celular faz o app parecer
+  nativo e lê bem em tamanho pequeno.
 
 ## Animações e ilustrações
 
