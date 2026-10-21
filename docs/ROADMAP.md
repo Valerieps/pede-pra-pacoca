@@ -20,7 +20,6 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Filas e ações do atendente | 1 | `spec/atendente.md` | O modo férias está pronto. Falta: as filas, "Eu pego esse", os status e as ações em lote |
 | Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base está pronta (caixa de entrada, preferências, silêncio, resumo diário, curtidas agrupadas, Web Push). Falta cada feature chamar `notify` no seu comando: pedidos (novo, aguardando aprovação, aprovado, recusado ou não foi possível, atendido, eu também quero, oferta de herança), petiscos renovados, Obrigada e falha do webhook. Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
-| Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que a dona vai mandar |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
@@ -72,3 +71,9 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/identidade.md`: a animação do Atendido aparece ao abrir o pedido Atendido (meu ou em
   que cliquei "Eu também quero"), uma vez por pedido em cada celular; com "reduzir movimento", a
   Paçoca fica parada.
+- [ ] `spec/estatisticas.md`: cancelado não conta nos números; tempo até Atendido vai do pedido à
+  primeira vez Atendido; 5 gêneros e 12 meses no perfil; minha própria curtida não conta.
+- [ ] `spec/estatisticas.md`: período por dia da data do pedido; pessoa = solicitante; atendente =
+  responsável; agrupando por gênero o pedido aparece em cada gênero; histórico mostra até 200 pedidos.
+- [ ] `spec/estatisticas.md`: taxa de Não foi possível = Não foi possível ÷ (Atendido + Não foi
+  possível); devolvidos = cashbacks (estorno de reserva não conta); 5 pedidos mais curtidos; tela "Números" para todos.

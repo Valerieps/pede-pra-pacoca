@@ -65,14 +65,14 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `members` | id, google_sub, e-mail, nome, foto, foto do Google, escolha de foto (`google` ou `none`), perfil confirmado em, papéis, ativo, petiscos mensais próprios, preferências de notificação, férias | Removido fica com `active = 0`: o histórico continua. `photo_url` é a foto mostrada; o login atualiza a do Google |
 | `sessions` | hash do token, membro, validade | Só o hash fica no banco |
 | `invites` | e-mail, quem convidou, estado (pendente, aceito, revogado), datas | Um por e-mail; convidar de novo volta a pendente |
-| `requests` | origem (tmdb ou manual), tipo, tmdb_id, `media_key`, título, ano, pôster, lançamento, gêneros, link, observação, solicitante, status, responsável, lote de petisco, motivo, nota de atendimento | `media_key` (`movie:123`) indexado para a duplicidade |
+| `requests` | origem (tmdb ou manual), tipo, tmdb_id, `media_key`, título, ano, pôster, lançamento, gêneros, link, observação, solicitante, status, responsável, lote de petisco, motivo, nota de atendimento | `media_key` (`movie:123`) indexado para a duplicidade; responsável indexado para as estatísticas (ADR-012) |
 | `request_transitions` | pedido, de, para, autor, detalhe, data | Autor é o membro ou `jellyseerr` |
 | `co_requests` | pedido, membro, data | A data ordena a oferta de herança |
 | `inheritance_offers` | pedido, membro, estado, prazo | 5 dias por oferta |
 | `feedback` | pedido, membro, assisti, nota, obrigada | |
-| `feed_events` | tipo, ator, pedido, contagem de curtidas, data | |
+| `feed_events` | tipo, ator, pedido, contagem de curtidas, data | Ator e pedido indexados para as estatísticas (ADR-012) |
 | `likes` | evento, membro, data | Uma por pessoa por evento |
-| `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito |
+| `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito. Pedido indexado para as estatísticas (ADR-012) |
 | `petisco_expiry_notices` | lote, membro, data | Um por lote de bônus ou cashback: o aviso de 7 dias sai uma vez só |
 | `known_media` | `media_key`, data | Gravada pelo webhook |
 | `config` | chave, valor (JSON) | Petiscos por mês, cashback, URL do Jellyseerr, segredo do webhook |
