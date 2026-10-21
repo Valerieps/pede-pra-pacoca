@@ -21,12 +21,12 @@ The owner edits docs between messages: re-read a doc before editing it and prese
 | Reviewing or reorganizing the docs | All of them |
 
 Hard rules from `docs/SEGURANCA.md`, valid for every change:
-- The app talks only to the origins in `network-policy.ts` (Firebase); the TMDB key and the webhook secret live only in Cloud Functions, never in the bundle.
-- Roles, petisco movements and request status change only through Cloud Functions; Firestore rules deny those writes to clients.
+- The app talks only to its own origin (the Worker) and the origins in `network-policy.ts`; the TMDB key, the Google client secret and the webhook secret live only in the Worker, never in the bundle.
+- The app never reaches the database: every read and write goes through the API, which checks the session and the role on the server.
 - Only invited e-mails get in; Google is the only sign-in.
 - Never insert user text as HTML; links open with `target="_blank" rel="noopener noreferrer"`.
 - Minimize dependencies; pin exact versions; bundle them, never load from a CDN.
-- `network-policy.ts` is the only place that says which servers the app may talk to.
+- `network-policy.ts` is the only place that says which servers the app and the Worker may talk to.
 
 ### Where information lives
 
@@ -67,28 +67,35 @@ Product docs are written in Brazilian Portuguese; ADRs, code and this file in En
 
 ## Architecture Overview
 - Clean Architecture + Domain Driven Design (DDD).
-- Web app (Vite + React) on Cloudflare Pages; backend on Firebase (Auth, Firestore, Functions, Scheduler, FCM); the home Jellyseerr only sends a webhook to a Function. See `docs/ARQUITETURA.md`, ADR-004 and ADR-005.
+- Web app (Vite + React) and backend in one Cloudflare Worker; all group data in one SQLite Durable Object (`Group`); live updates over a WebSocket; Google sign-in by OAuth code flow; the home Jellyseerr only sends a webhook to the Worker. See `docs/ARQUITETURA.md`, ADR-006 and ADR-007.
+- The domain (`src/domain`) is shared: the server imports the same rules the app uses.
 
 ## Project Layout
-- `src/domain` - entities and rules. Pure TypeScript, no framework imports.
-- `src/application` - use cases and ports (interfaces the infrastructure implements).
+- `src/domain` - entities and rules. Pure TypeScript, no framework imports. Shared with the server. `strings.ts` holds every Paçoca text.
+- `src/application` - ports (interfaces the infrastructure implements) and `api-contract.ts`, the API's types.
 - `src/infrastructure` - storage, browser APIs and, if `network-policy.ts` allows it, network calls.
 - `src/ui` - React components. All colors, fonts and spacing live in `src/ui/theme/tokens.css`.
-- `public/` - static files: manifest, icons, Cloudflare `_headers`.
-- `network-policy.ts` - the servers the app may talk to; empty means local-only.
+- `server/application` - the server's use cases (`GroupService`), synchronous, on the `Sql`/`Clock`/`IdGenerator` ports; `schema.ts` holds the migrations.
+- `server/infrastructure`, `server/entry` - Durable Object, Worker, Google sign-in, cookies. `server/testing` - `node:sqlite` for tests.
+- `wrangler.jsonc` - the Worker: assets, Durable Object, cron, vars. Secrets via `wrangler secret put`; locally in `.dev.vars` (see `.dev.vars.example`).
+- `public/` - static files: manifest, icons, `_headers`.
+- `network-policy.ts` - the servers the app (`ALLOWED_ORIGINS`, `IMAGE_ORIGINS`) and the Worker (`SERVER_ORIGINS`) may talk to.
 - `scripts/` - `check-docs.mjs` (run by CI) and `setup-repo.mjs` (once per new repository).
 
 ## Commands
 - `npm ci` - install exactly what the lockfile pins
-- `npm run dev` - dev server (no CSP)
+- `npm run dev` - Vite dev server (no CSP); proxies `/api` to `npm run dev:api`
+- `npm run dev:api` - the Worker locally (wrangler, port 8787); needs `.dev.vars` and a `dist/` (run `npm run build` once)
 - `npm test` - unit tests, including `src/security.test.ts`
-- `npm run build` - typecheck, unit tests, and production build into `dist/` (CSP injected); a failing test stops the deploy
-- `npm run preview` - serve the production build locally
+- `npm run build` - typecheck, unit tests, production build into `dist/` (CSP injected) and a Worker bundle dry run; a failing test stops the deploy
+- `npm run preview` - serve the built app and the Worker together, as in production
+- `npm run deploy` - deploy the Worker (normally Workers Builds does it from `main`)
 - `npm run docs:check` - broken links between docs and ADRs without a status
 
 ## Deployment
-Cloudflare Pages, from the GitHub repository. Build command `npm run build`, output directory
-`dist`. GitHub Actions (`.github/workflows/ci.yml`) runs the same build and the docs check on every
+Cloudflare Workers Builds, from the GitHub repository. Build command `npm run build`, deploy
+command `npx wrangler deploy` for `main`; other branches get a preview version (ADR-006). Sign-in
+only works where Google has the redirect URI registered: production and localhost (ADR-007). GitHub Actions (`.github/workflows/ci.yml`) runs the same build and the docs check on every
 pull request. Branch protection on `main` requires the `build` check and a branch up to date with
 `main` (ADR-003): wait with `gh pr checks <n> --watch`, and if the merge is refused because the
 branch is behind, bring it up to date and wait again. No direct pushes to `main`. No `dev` branch:

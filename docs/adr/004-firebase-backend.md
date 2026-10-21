@@ -1,6 +1,6 @@
 # ADR-004: Firebase as the backend
 
-**Status:** Accepted
+**Status:** Superseded by ADR-006
 **Date:** 2026-10-20
 **Decision:** The backend is Firebase: Auth (Google sign-in only), Firestore, Cloud Functions, Cloud
 Scheduler and Cloud Messaging. Functions own every sensitive write (status, token ledger, invites,

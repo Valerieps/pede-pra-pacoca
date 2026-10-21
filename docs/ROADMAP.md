@@ -13,8 +13,10 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| App instalável, login Google, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | |
-| Convites, membros e papéis | 1 | `spec/grupo-e-papeis.md` | |
+| Contas: Cloudflare, projeto Google Cloud (cliente OAuth) e endereço do app | 1 | ADR-006, ADR-007 | Depende da dona. Sem isso o login não funciona fora dos testes |
+| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google está pronto. Falta: explicar a instalação, `share_target` no manifest, service worker, confirmar nome e foto na primeira vez |
+| Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites e o comando de papéis estão prontos. Falta: remover membro (cancelar os pedidos ativos dele), tela de membros e papéis |
+| Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
 | Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
@@ -27,7 +29,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 ## O código ainda não segue o spec
 
-Nenhum código de produto foi escrito ainda.
+- O feed só mostra "entrou no grupo"; os outros eventos chegam com as features deles.
+- Sem conexão, o app mostra o que já estava na tela, mas não guarda nada entre aberturas.
 
 ## Adiado
 
@@ -41,3 +44,5 @@ Nenhum código de produto foi escrito ainda.
 - [ ] `spec/pedidos.md`: se quem herda um pedido cancelado não tem petisco, o pedido vai para Aguardando aprovação.
 - [ ] `spec/atendente.md`: com todos os atendentes de férias, só os pedidos em Aguardando aprovação geram push.
 - [ ] `spec/notificacoes.md`: acrescentei os avisos de falha do webhook e da oferta de herdar pedido.
+- [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
+  conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.

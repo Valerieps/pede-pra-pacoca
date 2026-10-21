@@ -1,6 +1,6 @@
 # ADR-003: CI build on pull requests and a protected main
 
-**Status:** Accepted
+**Status:** Accepted, updated by ADR-006
 **Date:** 2026-10-17
 **Decision:** `.github/workflows/ci.yml` runs `npm run build` (typecheck, unit tests, production
 build) and `npm run docs:check` on every pull request and on pushes to `main`. `main` requires the
@@ -11,3 +11,7 @@ applies this, since a GitHub template does not copy branch protection. Cloudflar
 reaches `main`. Requiring an up-to-date branch makes the check run against what will be merged.
 Private repositories on GitHub's free plan cannot protect branches: there CI still runs, but the
 merge is not blocked.
+
+**Update (2026-10-21):** Deploys come from Workers Builds instead of Cloudflare Pages (ADR-006);
+each branch still gets a preview. `npm run build` also bundles the Worker with
+`wrangler deploy --dry-run`.

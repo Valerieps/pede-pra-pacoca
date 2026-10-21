@@ -9,18 +9,23 @@ conferidas pelo `src/security.test.ts`, que roda em todo build.
 
 ## 1. Rede
 
-- O app fala só com as origens listadas em `network-policy.ts`; a CSP abre `connect-src` só para elas.
+- O app fala só com a própria origem e com as listadas em `network-policy.ts`; a CSP abre
+  `connect-src` e `img-src` só para elas. O servidor (`server/`) chama só as origens de
+  `SERVER_ORIGINS`.
 - As chamadas de rede ficam em `src/infrastructure/`; o resto do código não as faz.
 - Sem analytics nem telemetria de terceiros sem uma decisão registrada num ADR.
-- Segredos nunca vão para o código do cliente: tudo que está no bundle é público. A chave do TMDB e
-  o segredo do webhook ficam só nas Cloud Functions.
+- Segredos nunca vão para o código do cliente: tudo que está no bundle é público. A chave do TMDB, o
+  segredo do login Google e o segredo do webhook ficam só no Worker.
 - Os dados guardados são nome, foto, e-mail e pedidos do grupo. Não há dado sensível.
 
 ## 2. Acesso e dados
 
-- Só entra quem tem convite para o e-mail da conta Google. As regras do Firestore negam tudo a quem
-  não é membro.
-- Papéis e escritas sensíveis (status, petiscos, convites, configuração) passam só pelas Functions.
+- Só entra quem tem convite para o e-mail da conta Google. Sem convite, nada é gravado.
+- O app não acessa o banco. Toda leitura e escrita passa pela API, que confere a sessão e o papel
+  no servidor.
+- A sessão é um cookie `HttpOnly`, `Secure`, `SameSite=Lax`; o banco guarda só o hash do token.
+  Remover um membro corta o acesso na hora.
+- Toda chamada que muda dados, e a conexão ao vivo, precisa vir da própria origem do app (`Origin`).
 - O webhook confere o segredo em tempo constante e ignora chamadas inválidas.
 - O segredo do webhook e a URL do Jellyseerr só o admin vê.
 

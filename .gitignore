@@ -11,3 +11,7 @@ network-policy.js
 # Claude Code worktrees and personal settings.
 .claude/worktrees/
 .claude/settings.local.json
+
+# Wrangler local state and secrets.
+.wrangler/
+.dev.vars

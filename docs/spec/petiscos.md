@@ -23,6 +23,12 @@ aprovado automaticamente; sem petisco, espera o atendente.
 
 - O saldo é um registro imutável de movimentos (crédito, reserva, débito, estorno). Ele nunca é um
   número editado direto. *(1)*
+- Quem entra no grupo no meio do mês recebe na hora os petiscos mensais do mês inteiro. *(1)*
+- Mudar o número mensal (o global ou o fixo de uma pessoa) vale na hora, para o mês corrente: os
+  petiscos mensais disponíveis passam a ser o novo número menos os que a pessoa já usou no mês. Se
+  era 5, ela já usou 2 e o número muda para 9, ela fica com 7. Se ela já usou mais do que o novo
+  número, fica com 0: o saldo nunca é negativo. Contam como usados os petiscos mensais do mês
+  reservados em pedidos em andamento e os já debitados. *(1)*
 - O número de petiscos mensais é global (padrão 3). O atendente pode definir, para uma pessoa, um
   número fixo no lugar do global. *(1)*
 

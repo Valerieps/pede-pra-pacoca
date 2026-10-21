@@ -1,4 +1,4 @@
-# Runs the same build Cloudflare Pages runs (typecheck, unit tests, production build) on every
+# Runs the same build Workers Builds runs (typecheck, unit tests, production build) on every
 # pull request, so a broken change is caught before it reaches main (ADR-003). The docs check
 # keeps links between docs and the ADR status lines honest. Runs on GitHub, never in the app.
 name: CI
