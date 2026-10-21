@@ -76,6 +76,7 @@ export const strings = {
     noResults: 'A Paçoca farejou e não achou nada.',
     manualOffer: 'Fazer um pedido manual',
     manualShortcut: 'Não achou? Faz um pedido manual',
+    searchInstead: 'Buscar pelo nome',
     back: 'Voltar',
     another: 'Pedir outro',
     requested: 'Já pedido',
@@ -276,6 +277,7 @@ export const strings = {
       unsupported: 'Este navegador não recebe avisos. Os avisos continuam aqui na caixa de entrada.',
       turnOff: 'Desligar avisos neste celular',
       failed: 'A Paçoca não conseguiu ligar os avisos. Tenta de novo?',
+      continue: 'Continuar',
     },
 
     preferences: {

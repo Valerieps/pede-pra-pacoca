@@ -30,5 +30,9 @@ Nenhuma.
 ## Animações e ilustrações
 
 - Uma animação da Paçoca aparece quando eu confirmo um pedido e quando recebo um Atendido. *(1)*
+- A do Atendido aparece quando eu abro um pedido meu, ou em que cliquei "Eu também quero", que
+  está Atendido (pelo push, pela caixa de entrada ou pelo feed), ou quando ele vira Atendido com a
+  tela aberta. Ela aparece uma vez por pedido em cada celular, com o texto do Atendido. *(1)*
+- Com a opção do celular de reduzir movimento ligada, a Paçoca aparece parada. *(1)*
 - Ilustrações da Paçoca ocupam os estados vazios e o card do pedido manual. *(1)*
 - Os arquivos de ilustração e animação chegam depois. Até lá, o app usa placeholders. *(1)*

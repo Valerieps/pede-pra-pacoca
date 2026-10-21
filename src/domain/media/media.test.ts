@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isPosterPath, isUnreleased, mediaKey, normalizeManualLink, parseSharedLink } from './media';
+import { findUrl, isPosterPath, isUnreleased, mediaKey, normalizeManualLink, parseSharedLink } from './media';
 
 describe('parseSharedLink', () => {
   it.each([
@@ -21,6 +21,13 @@ describe('parseSharedLink', () => {
     'https://example.com/movie/1',
   ])('does not recognize %s', (text) => {
     expect(parseSharedLink(text)).toBeNull();
+  });
+});
+
+describe('findUrl', () => {
+  it('finds the first link in shared text, for the manual request', () => {
+    expect(findUrl('Vi no Letterboxd https://letterboxd.com/film/dune/ e quero')).toBe('https://letterboxd.com/film/dune/');
+    expect(findUrl('Duna parte dois')).toBeNull();
   });
 });
 
