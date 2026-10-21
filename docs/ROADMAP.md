@@ -14,8 +14,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-009 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
-| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google está pronto. Falta: explicar a instalação, `share_target` no manifest, service worker, confirmar nome e foto na primeira vez |
-| Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites e o comando de papéis estão prontos. Falta: remover membro (cancelar os pedidos ativos dele), tela de membros e papéis |
+| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto) e a explicação da instalação estão prontos. Falta: `share_target` no manifest, service worker |
+| Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
 | Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
 | Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca"; a animação da Paçoca ao confirmar. As notificações dos pedidos entram com Notificações; as mudanças de status do atendente, com as filas |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
@@ -24,7 +24,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Notificações | 1 | `spec/notificacoes.md` | |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
-| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Ilustrações chegam depois; usar placeholders |
+| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios usam um placeholder (`EmptyState`). Falta: as ilustrações e as animações |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
@@ -57,3 +57,4 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
   também quero".
 - [ ] ADR-009: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
   Brasil.
+- [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.

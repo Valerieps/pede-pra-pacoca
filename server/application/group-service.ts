@@ -4,7 +4,7 @@ import type { ApiResult, CommandName, Commands, QueryName, Queries, Topic } from
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { listFeed } from './feed';
-import { listMembers, me, memberForSession, setRoles, signIn, signOut, type GoogleProfile, type Member, type SignInResult } from './members';
+import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
   answerOffer,
@@ -30,7 +30,7 @@ type Handler<T> = (ctx: Context, actor: Member, input: Input, prefetched: Prefet
 
 const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | null> } = {
   me: (ctx, actor) => me(ctx, actor),
-  members: (ctx) => listMembers(ctx),
+  members: (ctx, actor) => listMembers(ctx, actor),
   invites: (ctx, actor) => listInvites(ctx, actor),
   feed: (ctx, _actor, input) => listFeed(ctx, input),
   'media.search': searchMedia,
@@ -50,6 +50,7 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.cancel': cancelRequest,
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
+  'member.updateProfile': updateProfile,
 };
 
 export class GroupService {

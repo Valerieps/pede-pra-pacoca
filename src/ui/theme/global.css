@@ -140,18 +140,6 @@ textarea {
   resize: vertical;
 }
 
-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-
-.stack {
-  display: grid;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -168,7 +156,57 @@ button.chip {
   padding: var(--space-1) var(--space-3);
 }
 
-button.chip-on {
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+fieldset {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.choice input {
+  width: auto;
+}
+
+.avatar {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+button.toggle {
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+button.chip-on,
+button.toggle[aria-pressed='true'] {
   background: var(--color-brand);
   color: var(--color-on-brand);
   border-color: var(--color-brand);
@@ -282,4 +320,32 @@ button.media-card {
 .done-pacoca {
   font-size: var(--font-size-hero);
   margin: 0;
+.install-guide {
+  margin-bottom: var(--space-4);
+}
+
+.install-guide p {
+  margin: var(--space-1) 0 var(--space-3);
+}
+
+.install-guide .row {
+  margin-bottom: 0;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+  text-align: center;
+}
+
+.pacoca-placeholder {
+  display: grid;
+  place-items: center;
+  width: var(--placeholder-size);
+  height: var(--placeholder-size);
+  border: 2px dashed var(--color-border);
+  border-radius: 50%;
+  font-size: var(--placeholder-glyph-size);
 }

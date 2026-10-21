@@ -62,7 +62,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 
 | Tabela | Campos principais | Observação |
 | --- | --- | --- |
-| `members` | id, google_sub, e-mail, nome, foto, papéis, ativo, petiscos mensais próprios, preferências de notificação, férias | Removido fica com `active = 0`: o histórico continua |
+| `members` | id, google_sub, e-mail, nome, foto, foto do Google, escolha de foto (`google` ou `none`), perfil confirmado em, papéis, ativo, petiscos mensais próprios, preferências de notificação, férias | Removido fica com `active = 0`: o histórico continua. `photo_url` é a foto mostrada; o login atualiza a do Google |
 | `sessions` | hash do token, membro, validade | Só o hash fica no banco |
 | `invites` | e-mail, quem convidou, estado (pendente, aceito, revogado), datas | Um por e-mail; convidar de novo volta a pendente |
 | `requests` | origem (tmdb ou manual), tipo, tmdb_id, `media_key`, título, ano, pôster, lançamento, gêneros, link, observação, solicitante, status, responsável, lote de petisco, motivo, nota de atendimento | `media_key` (`movie:123`) indexado para a duplicidade |

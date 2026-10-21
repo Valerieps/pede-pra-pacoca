@@ -1,5 +1,6 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
+import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
 import type { MediaType } from '../domain/media/media';
 import type { RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
@@ -9,6 +10,11 @@ export interface MemberView {
   readonly name: string;
   readonly photoUrl: string | null;
   readonly roles: readonly Role[];
+}
+
+/** A row of the members screen: the e-mail only reaches admins. */
+export interface MemberListItem extends MemberView {
+  readonly email?: string;
 }
 
 export interface PetiscoBalanceView {
@@ -22,6 +28,11 @@ export interface PetiscoBalanceView {
 export interface MeView extends MemberView {
   readonly email: string;
   readonly petiscos: PetiscoBalanceView;
+  /** False until the first-access screen is confirmed. */
+  readonly profileConfirmed: boolean;
+  readonly photoChoice: PhotoChoice;
+  /** The Google account's photo, offered on the profile screen even when the member chose none. */
+  readonly googlePhotoUrl: string | null;
 }
 
 export type InviteState = 'pending' | 'accepted' | 'revoked';
@@ -152,7 +163,7 @@ export type CreateRequestInput =
 
 export interface Queries {
   me: { input: Record<string, never>; output: MeView };
-  members: { input: Record<string, never>; output: MemberView[] };
+  members: { input: Record<string, never>; output: MemberListItem[] };
   invites: { input: Record<string, never>; output: InviteView[] };
   feed: { input: { before?: string }; output: FeedEventView[] };
   'media.search': { input: { query: string; type: SearchType }; output: MediaCardView[] };
@@ -172,6 +183,7 @@ export interface Commands {
   'request.cancel': { input: { id: string }; output: null };
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
+  'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
 }
 
 export type QueryName = keyof Queries;

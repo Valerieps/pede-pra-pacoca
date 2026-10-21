@@ -35,6 +35,10 @@
 
   --poster-width: 128px;
   --poster-width-small: 48px;
+
+  --avatar-size: 40px;
+  --placeholder-size: 96px;
+  --placeholder-glyph-size: 40px;
 }
 
 @media (prefers-color-scheme: dark) {

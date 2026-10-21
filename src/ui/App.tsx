@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
+import type { MeView } from '../application/api-contract';
 import { canManageGroup } from '../domain/group/roles';
 import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
-import type { MeView } from '../application/api-contract';
+import { InstallGuide } from './components/InstallGuide';
 import { Link, navigate, usePath } from './router';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
 import { Invites } from './screens/Invites';
 import { MyRequests } from './screens/MyRequests';
 import { RequestDetail } from './screens/RequestDetail';
+import { Members } from './screens/Members';
+import { Profile } from './screens/Profile';
 import { SignIn } from './screens/SignIn';
 import { useQuery } from './use-query';
 
@@ -37,6 +40,13 @@ export function App() {
     );
   }
   if (!signedIn) return <SignIn />;
+  if (!me.data.profileConfirmed) {
+    return (
+      <main className="app">
+        <Profile me={me.data} firstAccess />
+      </main>
+    );
+  }
 
   async function signOut() {
     await backend.signOut();
@@ -51,11 +61,14 @@ export function App() {
         <span className="muted">{strings.petiscos.balance(me.data.petiscos.total)}</span>
       </header>
       <OfflineNotice />
+      <InstallGuide />
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
         <Link to="/pedir">{strings.nav.ask}</Link>
         <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
+        <Link to="/membros">{strings.nav.members}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
+        <Link to="/perfil">{strings.nav.profile}</Link>
         <button type="button" className="link" onClick={() => void signOut()}>
           {strings.nav.signOut}
         </button>
@@ -74,6 +87,8 @@ function Screen({ me }: { me: MeView }) {
   if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
+  if (path === '/membros') return <Members me={me} />;
+  if (path === '/perfil') return <Profile key={me.id} me={me} />;
   return <Feed />;
 }
 
