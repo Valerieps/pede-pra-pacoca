@@ -35,6 +35,14 @@ export const strings = {
     queues: 'Filas',
     signOut: 'Sair',
     stats: 'Números',
+    myRequestsShort: 'Meus',
+    askButton: '+ Pedir',
+    main: 'Navegação principal',
+    inProgress: 'Em andamento',
+    noneInProgress: 'Nada em andamento.',
+    seeAll: 'Ver todos',
+    quickAskLabel: 'Cole um link do IMDb ou busque',
+    quickAskButton: 'Pedir',
   },
 
   feed: {

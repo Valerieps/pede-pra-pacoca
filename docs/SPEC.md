@@ -44,7 +44,7 @@ o Sonarr); mais de um grupo; chat entre membros; app nas lojas de aplicativos; l
 
 | Arquivo | O que cobre |
 | --- | --- |
-| [spec/app-e-instalacao.md](spec/app-e-instalacao.md) | Web app mobile first, instalação, compartilhar no Android e no iPhone, login |
+| [spec/app-e-instalacao.md](spec/app-e-instalacao.md) | Web app mobile first, navegação, instalação, compartilhar no Android e no iPhone, login |
 | [spec/grupo-e-papeis.md](spec/grupo-e-papeis.md) | Convites, membros, papéis e permissões |
 | [spec/pedidos.md](spec/pedidos.md) | Pedir (link, busca, manual), ciclo de vida, "Eu também quero", retorno |
 | [spec/petiscos.md](spec/petiscos.md) | Saldo, reserva, validade, cashback e bônus |

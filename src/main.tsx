@@ -9,6 +9,7 @@ import { ServicesProvider } from './ui/backend-context';
 import { PushProvider } from './ui/push-context';
 import './ui/theme/tokens.css';
 import './ui/theme/global.css';
+import './ui/theme/shell.css';
 
 // Before anything reads the address: a link shared from Android becomes a pending share on /pedir.
 captureShare(browserShareEnvironment());

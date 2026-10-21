@@ -4,10 +4,24 @@ import { NAME_MAX_LENGTH, normalizeName, type PhotoChoice } from '../../domain/g
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { useServices } from '../backend-context';
+import { profileLinksFor } from '../navigation';
 import { Link } from '../router';
 
-/** Name and photo: the first-access screen, and later the Perfil screen. */
-export function Profile({ me, firstAccess = false, onConfirmed }: { me: MeView; firstAccess?: boolean; onConfirmed?: () => void }) {
+/**
+ * Name and photo: the first-access screen, and later the Perfil screen, which also holds the
+ * screens that are not tabs and "Sair" (docs/spec/app-e-instalacao.md, "Navegação").
+ */
+export function Profile({
+  me,
+  firstAccess = false,
+  onConfirmed,
+  onSignOut,
+}: {
+  me: MeView;
+  firstAccess?: boolean;
+  onConfirmed?: () => void;
+  onSignOut?: () => void;
+}) {
   const { backend } = useServices();
   const [name, setName] = useState(me.name);
   const [photo, setPhoto] = useState<PhotoChoice>(me.googlePhotoUrl ? me.photoChoice : 'none');
@@ -70,6 +84,24 @@ export function Profile({ me, firstAccess = false, onConfirmed }: { me: MeView; 
           {firstAccess ? strings.profile.confirm : strings.profile.save}
         </button>
       </form>
+      {!firstAccess && (
+        <nav className="profile-links" aria-label={strings.profile.title}>
+          <ul className="list">
+            {profileLinksFor(me).map((link) => (
+              <li key={link.path}>
+                <Link to={link.path} className="card">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {onSignOut && (
+            <button type="button" className="secondary sign-out" onClick={onSignOut}>
+              {strings.nav.signOut}
+            </button>
+          )}
+        </nav>
+      )}
     </section>
   );
 }

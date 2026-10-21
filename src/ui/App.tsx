@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import type { MeView } from '../application/api-contract';
 import { canAttend, canManageGroup } from '../domain/group/roles';
+import { askDraftVersion, submitAskDraft, subscribeAskDraft } from './ask-draft';
 import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
+import { Avatar } from './components/Avatar';
+import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
+import { activeTab, inProgress, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
@@ -80,43 +84,134 @@ export function App() {
   }
 
   return (
-    <div className="app">
-      <header className="row">
+    <div className="shell">
+      <header className="topbar">
         <strong className="grow">{strings.appName}</strong>
-        <Link to="/petiscos" className="muted">
-          {strings.petiscos.balance(me.data.petiscos.total)}
-        </Link>
-      </header>
-      <OfflineNotice />
-      <SleepingNotice />
-      <InstallGuide />
-      <nav className="row">
-        <Link to="/">{strings.nav.feed}</Link>
         <InboxLink />
-        <Link to="/pedir">{strings.nav.ask}</Link>
-        <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
-        {canAttend(me.data) && <Link to="/filas">{strings.nav.queues}</Link>}
-        <Link to="/membros">{strings.nav.members}</Link>
-        <Link to="/numeros">{strings.nav.stats}</Link>
-        {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
-        <Link to="/petiscos">{strings.nav.petiscos}</Link>
-        {canAttend(me.data) && <Link to="/ajustes">{strings.nav.settings}</Link>}
-        <Link to="/perfil">{strings.nav.profile}</Link>
-        <button type="button" className="link" onClick={() => void signOut()}>
-          {strings.nav.signOut}
-        </button>
-      </nav>
-      <main>
-        <Screen me={me.data} />
+        <PetiscoChip me={me.data} />
+      </header>
+      <Navigation me={me.data} />
+      <main className="content">
+        <OfflineNotice />
+        <SleepingNotice />
+        <InstallGuide />
+        <Screen me={me.data} onSignOut={() => void signOut()} />
       </main>
+      <SideColumn me={me.data} />
     </div>
   );
 }
 
-function Screen({ me }: { me: MeView }) {
+/**
+ * One nav, laid out by width (docs/spec/app-e-instalacao.md, "Navegação"): a bottom tab bar on a
+ * phone, an icon rail on a tablet, a sidebar with names, "+ Pedir" and my profile on a computer.
+ */
+function Navigation({ me }: { me: MeView }) {
   const path = usePath();
+  const tabs = tabsFor(me);
+  const current = activeTab(path, tabs);
+  return (
+    <nav className="tabs" aria-label={strings.nav.main}>
+      <strong className="sidebar-name">{strings.appName}</strong>
+      {tabs.map((t) => (
+        <Link
+          key={t.path}
+          to={t.path}
+          className={`tab tab-${t.icon}`}
+          aria-current={current === t.path ? 'page' : undefined}
+          aria-label={t.longLabel}
+          title={t.longLabel}
+        >
+          <Icon name={t.icon} />
+          <span className="tab-label" aria-hidden="true">
+            {t.label}
+          </span>
+          <span className="tab-long-label" aria-hidden="true">
+            {t.longLabel}
+          </span>
+        </Link>
+      ))}
+      <InboxLink sidebar />
+      <Link to={ASK_PATH} className="button sidebar-ask">
+        {strings.nav.askButton}
+      </Link>
+      <Link to="/perfil" className="sidebar-profile" aria-current={current === '/perfil' ? 'page' : undefined}>
+        <Avatar name={me.name} photoUrl={me.photoUrl} />
+        <span className="grow">{me.name}</span>
+      </Link>
+    </nav>
+  );
+}
+
+/** The petisco counter in the header; it opens Petiscos. */
+function PetiscoChip({ me }: { me: MeView }) {
+  return (
+    <Link to="/petiscos" className="petisco-chip">
+      {strings.petiscos.balance(me.petiscos.total)}
+    </Link>
+  );
+}
+
+/** The computer's right column: my petiscos, a quick way into Pedir and my requests in progress. */
+function SideColumn({ me }: { me: MeView }) {
+  const mine = useQuery('requests.mine', {}, ['requests']);
+  const [text, setText] = useState('');
+  const requests = inProgress(mine.data ?? []);
+
+  function ask(event: FormEvent) {
+    event.preventDefault();
+    if (!submitAskDraft(text)) return;
+    setText('');
+    navigate(ASK_PATH);
+  }
+
+  return (
+    <aside className="side-column">
+      <Link to="/petiscos" className="card petisco-card">
+        <span>
+          <strong>{strings.petiscos.balance(me.petiscos.total)}</strong>
+          <br />
+          <span className="muted">{strings.petiscos.monthly(me.petiscos.monthlyAvailable, me.petiscos.monthlyQuota)}</span>
+        </span>
+      </Link>
+      <form className="stack" onSubmit={ask}>
+        <label>
+          <span className="muted">{strings.nav.quickAskLabel}</span>
+          <input type="search" autoComplete="off" maxLength={1000} value={text} onChange={(e) => setText(e.target.value)} />
+        </label>
+        <button type="submit">{strings.nav.quickAskButton}</button>
+      </form>
+      <section>
+        <h2>{strings.nav.inProgress}</h2>
+        {mine.data && requests.length === 0 && <p className="muted">{strings.nav.noneInProgress}</p>}
+        {requests.length > 0 && (
+          <ul className="list">
+            {requests.map((r) => (
+              <li key={r.id}>
+                <Link to={`/pedido/${r.id}`} className="card request-item">
+                  <span className="grow">
+                    <strong>{r.title}</strong>
+                    <br />
+                    <span className="status">{strings.requestStatus[r.status]}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p>
+          <Link to="/meus-pedidos">{strings.nav.seeAll}</Link>
+        </p>
+      </section>
+    </aside>
+  );
+}
+
+function Screen({ me, onSignOut }: { me: MeView; onSignOut: () => void }) {
+  const path = usePath();
+  const askVersion = useSyncExternalStore(subscribeAskDraft, askDraftVersion);
   if (path === '/convites' && canManageGroup(me)) return <Invites />;
-  if (path === '/pedir') return <Ask me={me} />;
+  if (path === '/pedir') return <Ask key={askVersion} me={me} />;
   if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
@@ -124,7 +219,7 @@ function Screen({ me }: { me: MeView }) {
   const member = /^\/membro\/([\w-]+)$/.exec(path);
   if (member) return <MemberStats key={member[1]} memberId={member[1]} />;
   if (path === '/numeros') return <GroupStats />;
-  if (path === '/perfil') return <Profile key={me.id} me={me} />;
+  if (path === '/perfil') return <Profile key={me.id} me={me} onSignOut={onSignOut} />;
   if (path === '/petiscos') return <Petiscos />;
   if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;
   if (path === '/filas' && canAttend(me)) return <Queues me={me} />;
@@ -156,10 +251,26 @@ function OfflineNotice() {
   );
 }
 
-function InboxLink() {
+/** Avisos: a bell in the header, and a named link in the computer's sidebar; cherry when unread. */
+function InboxLink({ sidebar = false }: { sidebar?: boolean }) {
   const inbox = useQuery('notifications.inbox', {}, ['notifications']);
   const unread = inbox.data?.unread ?? 0;
-  return <Link to="/avisos">{unread > 0 ? strings.notifications.navUnread(unread) : strings.notifications.nav}</Link>;
+  const label = unread > 0 ? strings.notifications.navUnread(unread) : strings.notifications.nav;
+  return (
+    <Link to="/avisos" className={sidebar ? 'tab sidebar-inbox' : 'bell'} aria-label={label} title={label}>
+      <Icon name="bell" />
+      {sidebar && (
+        <span className="tab-long-label" aria-hidden="true">
+          {strings.notifications.nav}
+        </span>
+      )}
+      {unread > 0 && (
+        <span className="unread-count" aria-hidden="true">
+          {unread}
+        </span>
+      )}
+    </Link>
+  );
 }
 
 /**

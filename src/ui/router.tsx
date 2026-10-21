@@ -1,5 +1,5 @@
 // A tiny router over the History API: the app has a handful of screens and no router dependency.
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useState, type AnchorHTMLAttributes, type MouseEvent } from 'react';
 
 const listeners = new Set<() => void>();
 
@@ -23,15 +23,11 @@ export function usePath(): string {
   return path;
 }
 
-export function Link({ to, children, className }: { to: string; children: ReactNode; className?: string }) {
+export function Link({ to, ...rest }: { to: string } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'>) {
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
     event.preventDefault();
     navigate(to);
   };
-  return (
-    <a href={to} onClick={onClick} className={className}>
-      {children}
-    </a>
-  );
+  return <a {...rest} href={to} onClick={onClick} />;
 }
