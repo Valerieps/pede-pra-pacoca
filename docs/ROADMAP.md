@@ -13,11 +13,11 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| Contas: Cloudflare, projeto Google Cloud (cliente OAuth) e endereço do app | 1 | ADR-006, ADR-007 | Depende da dona. Sem isso o login não funciona fora dos testes |
-| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto) e a explicação da instalação estão prontos. Falta: `share_target` no manifest, service worker, colar link |
+| Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
+| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto) e a explicação da instalação estão prontos. Falta: `share_target` no manifest, service worker |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
 | Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
-| Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
+| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca"; a animação da Paçoca ao confirmar. As notificações dos pedidos entram com Notificações; as mudanças de status do atendente, com as filas |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
 | Feed e curtidas | 1 | `spec/feed.md` | Curtidas, lista de quem curtiu, filtros e "Ver mais" prontos. Falta: o aviso agrupado de curtida, que espera a fila de envio (`outbox`): ligar em `enqueueGroupedLikeNotice` (`server/application/feed.ts`) |
@@ -29,7 +29,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 ## O código ainda não segue o spec
 
-- O feed só mostra "entrou no grupo"; os outros eventos chegam com as features deles.
+- O feed mostra "entrou no grupo", "pediu" e "também quer"; os outros eventos chegam com as features
+  deles. Curtir ainda não existe no detalhe do pedido.
 - Sem conexão, o app mostra o que já estava na tela, mas não guarda nada entre aberturas.
 
 ## Adiado
@@ -46,6 +47,12 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/notificacoes.md`: acrescentei os avisos de falha do webhook e da oferta de herdar pedido.
 - [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
   conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.
+- [ ] `spec/pedidos.md`: se a co-solicitante com a oferta de herança desfaz "Eu também quero", a
+  oferta passa à seguinte.
+- [ ] `spec/pedidos.md`: Meus pedidos mostra também os encerrados e aqueles em que cliquei "Eu
+  também quero".
+- [ ] ADR-010: o selo "Ainda não lançado" usa a data de lançamento principal do TMDB, não a do
+  Brasil.
 - [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.
 - [ ] `spec/feed.md`: curtir fica no próprio item do feed (não só no detalhe do pedido).
 - [ ] `spec/feed.md`: posso curtir o meu próprio evento, sem gerar notificação para mim.

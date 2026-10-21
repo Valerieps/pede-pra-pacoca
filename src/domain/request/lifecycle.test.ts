@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { initialStatus, transition, type Actor, type RequestState } from './lifecycle';
+import { inheritedStatus, initialStatus, transition, type Actor, type RequestState } from './lifecycle';
 
 const ana: Actor = { kind: 'member', id: 'ana', canAttend: false };
 const bia: Actor = { kind: 'member', id: 'bia', canAttend: false };
@@ -97,5 +97,24 @@ describe('transition', () => {
 
   it('closed requests do not move', () => {
     expect(transition({ ...approved, status: 'fulfilled' }, { type: 'mark_fulfilled' }, cesar)).toEqual({ ok: false, error: 'invalid_transition' });
+  });
+});
+
+describe('inheritedStatus', () => {
+  it('with a petisco or as an attendant: approved, even from awaiting approval', () => {
+    expect(inheritedStatus({ status: 'awaiting_approval', heirIsAttendant: false, reservedLot: 'monthly:2026-10' })).toEqual({
+      status: 'approved',
+      effects: [{ type: 'petisco', operation: 'reserve', lot: 'monthly:2026-10' }],
+    });
+    expect(inheritedStatus({ status: 'approved', heirIsAttendant: true, reservedLot: null })).toEqual({ status: 'approved', effects: [] });
+  });
+
+  it('without a petisco: awaiting approval', () => {
+    expect(inheritedStatus({ status: 'approved', heirIsAttendant: false, reservedLot: null }).status).toBe('awaiting_approval');
+  });
+
+  it('past Aprovado the status stays; her petisco is reserved if she has one', () => {
+    expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: null })).toEqual({ status: 'in_jellyseerr', effects: [] });
+    expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: 'b1' }).effects).toHaveLength(1);
   });
 });

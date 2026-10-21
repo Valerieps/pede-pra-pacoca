@@ -24,6 +24,7 @@ interface FeedRow extends MemberRow {
   event_id: string;
   type: FeedEventType;
   request_id: string | null;
+  request_title: string | null;
   like_count: number;
   liked_by_me: number;
   at: string;
@@ -55,9 +56,11 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
 
   return ctx.sql
     .all<FeedRow>(
-      `SELECT members.*, e.id AS event_id, e.type, e.request_id, e.like_count, e.at,
+      `SELECT members.*, e.id AS event_id, e.type, e.request_id, requests.title AS request_title,
+              e.like_count, e.at,
               EXISTS (SELECT 1 FROM likes WHERE likes.event_id = e.id AND likes.member_id = ?) AS liked_by_me
        FROM feed_events e JOIN members ON members.id = e.actor_id
+       LEFT JOIN requests ON requests.id = e.request_id
        WHERE ${where.join(' AND ')} ORDER BY e.at DESC, e.id DESC LIMIT ?`,
       actor.id,
       ...bindings,
@@ -68,6 +71,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       type: row.type,
       actor: memberView(toMember(row)),
       requestId: row.request_id,
+      requestTitle: row.request_title,
       at: row.at,
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,
@@ -112,3 +116,11 @@ export function listLikes(ctx: Context, input: { eventId?: unknown }): MemberVie
  * enqueue API exists, call it here with group key `like:<eventId>` (docs/ROADMAP.md).
  */
 export function enqueueGroupedLikeNotice(_ctx: Context, _notice: { eventId: string; authorId: string }): void {}
+
+/** Takes a request's events off the feed, likes included: all of them, or one type by one actor. */
+export function removeFeedEvents(ctx: Context, requestId: string, only?: { type: FeedEventType; actorId: string }): void {
+  const where = only ? 'request_id = ? AND type = ? AND actor_id = ?' : 'request_id = ?';
+  const bindings = only ? [requestId, only.type, only.actorId] : [requestId];
+  ctx.sql.run(`DELETE FROM likes WHERE event_id IN (SELECT id FROM feed_events WHERE ${where})`, ...bindings);
+  ctx.sql.run(`DELETE FROM feed_events WHERE ${where}`, ...bindings);
+}

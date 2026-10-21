@@ -30,6 +30,8 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
 - Cancelado: só a solicitante cancela, e só enquanto o pedido está em Aguardando aprovação ou
   Aprovado, ou seja, antes de No Jellyseerr. *(1)*
 - Cancelado, Recusado e Não foi possível devolvem o petisco reservado (`petiscos.md`). *(1)*
+- Um pedido que vira Cancelado sai do feed, com os eventos dele (`feed.md`). *(1)*
+  Por quê: Cancelado é informação da pessoa, não do grupo.
 - Cada transição registra a data e o autor. Quando aplicável, ela gera um evento no feed
   (`feed.md`). *(1)*
 
@@ -76,16 +78,25 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
   desfazer enquanto o pedido estiver ativo. *(1)*
 - Co-solicitantes recebem as mesmas notificações de status da solicitante original. *(1)*
 - "Eu também quero" nunca consome petisco. *(1)*
+- Se eu desfaço, meu "também quer" sai do feed, com as curtidas (`feed.md`). *(1)*
 
 ## Meus pedidos
 
-- Eu vejo meus pedidos ativos com status, atendente responsável e data. *(1)*
+- Eu vejo meus pedidos ativos com status, atendente responsável e data. Abaixo deles ficam os já
+  encerrados. Os pedidos em que cliquei "Eu também quero" aparecem junto. *(1)*
 - Posso editar a observação e cancelar enquanto o status for Aguardando aprovação ou Aprovado. *(1)*
 - Se eu cancelo um pedido que tem co-solicitantes, o app oferece o pedido à co-solicitante mais
   antiga: ela confirma e diz se aceita gastar um petisco dela. Se aceitar, ela vira a solicitante.
   Se recusar (ou não responder em 5 dias), a oferta passa à seguinte. Se ninguém aceitar, o pedido
   vira Cancelado para todos. *(1)*
 - Se quem aceitou não tem petisco, o pedido vai para Aguardando aprovação. *(1)*
+- Se quem aceitou tem petisco (ou é atendente), o pedido vai ou fica em Aprovado, mesmo que estivesse
+  em Aguardando aprovação. *(1)*
+- Quando alguém aceita, eu saio do pedido por completo: não viro co-solicitante. *(1)*
+- Se a co-solicitante com a oferta desfaz o "Eu também quero", a oferta passa à seguinte. *(1)*
+- Enquanto a oferta está aberta, o pedido fica no mesmo estado e o atendente pode seguir com ele. Se
+  ele já passou de Aprovado quando ninguém aceita, ele não vira Cancelado: segue sem petisco de
+  ninguém, e as co-solicitantes recebem do mesmo jeito. *(1)*
 
 ## Dar retorno
 

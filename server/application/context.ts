@@ -18,3 +18,8 @@ export const failure = (error: ApiError) => ({ ok: false, error }) as const;
 export function nowIso(ctx: Context): string {
   return ctx.clock.now().toISOString();
 }
+
+/** A query's specific failure; returning null from a query still means `forbidden`. */
+export class QueryError {
+  constructor(readonly error: ApiError) {}
+}

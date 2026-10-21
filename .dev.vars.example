@@ -3,5 +3,7 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 # Comma-separated e-mails that may enter as admin while the group has no admin.
 BOOTSTRAP_ADMIN_EMAILS=
+# TMDB v3 API key or v4 read access token (themoviedb.org > Settings > API).
+TMDB_API_KEY=
 # 1 turns on the test sign-in (any e-mail, no Google) on localhost only (ADR-009). Never in wrangler.jsonc.
 DEV_SIGN_IN=

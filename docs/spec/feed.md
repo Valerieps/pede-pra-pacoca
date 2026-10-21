@@ -29,6 +29,9 @@ Nenhuma.
 
 - Recusado, Não foi possível, Cancelado e bônus avulso não geram evento: são informação da pessoa,
   não do grupo. *(1)*
+- Quando um pedido vira Cancelado, os eventos dele saem do feed ("Ana pediu", "Bia também quer"),
+  com as curtidas. *(1)*
+- Quando eu desfaço "Eu também quero", meu evento "também quer" sai do feed, com as curtidas. *(1)*
 
 ## Curtidas
 

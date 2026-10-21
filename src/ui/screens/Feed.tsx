@@ -3,14 +3,28 @@ import type { FeedEventView } from '../../application/api-contract';
 import { FEED_FILTERS, FEED_PAGE_SIZE, type FeedFilter } from '../../domain/feed/feed';
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
+import { Link } from '../router';
 import { EmptyState } from '../components/EmptyState';
 import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
-function describe(event: FeedEventView): string {
+function describe(event: FeedEventView) {
+  const title = <em>{event.requestTitle}</em>;
   switch (event.type) {
     case 'member_joined':
       return strings.feed.memberJoined(event.actor.name);
+    case 'request_created':
+      return (
+        <>
+          {strings.feed.requestCreated(event.actor.name)} {title}
+        </>
+      );
+    case 'co_request':
+      return (
+        <>
+          {strings.feed.coRequest(event.actor.name)} {title}
+        </>
+      );
     default:
       // The other events arrive with their features (docs/ROADMAP.md).
       return event.actor.name;
@@ -93,7 +107,13 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
   return (
     <li className="card feed-item">
       <div className="feed-line">
-        <span>{describe(event)}</span>
+        {event.requestId ? (
+          <Link to={`/pedido/${event.requestId}`} className="grow">
+            {describe(event)}
+          </Link>
+        ) : (
+          <span className="grow">{describe(event)}</span>
+        )}
         <time className="muted" dateTime={event.at}>
           {new Date(event.at).toLocaleDateString('pt-BR')}
         </time>
