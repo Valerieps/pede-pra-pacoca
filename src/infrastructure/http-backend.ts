@@ -27,6 +27,7 @@ export function httpBackend(): Backend {
     signOut: async () => {
       await post('/api/auth/logout', {});
     },
+    devSignIn: (email, name) => post('/api/auth/dev', { email, name }),
     signInUrl: '/api/auth/login',
   };
 }

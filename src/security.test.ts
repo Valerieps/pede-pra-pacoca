@@ -84,6 +84,10 @@ describe('security rules', () => {
     expect(CONTENT_SECURITY_POLICY).toContain("object-src 'none'");
   });
 
+  it('the test sign-in is never turned on in the deployed configuration (ADR-009)', () => {
+    expect(read(join(__dirname, '..', 'wrangler.jsonc'))).not.toContain('DEV_SIGN_IN');
+  });
+
   it('allowed origins are bare https origins', () => {
     for (const origin of [...ALLOWED_ORIGINS, ...IMAGE_ORIGINS, ...SERVER_ORIGINS]) {
       expect(origin).toMatch(/^https:\/\/[a-z0-9.-]+(:\d+)?$/);

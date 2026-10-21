@@ -21,6 +21,8 @@ conferidas pelo `src/security.test.ts`, que roda em todo build.
 ## 2. Acesso e dados
 
 - Só entra quem tem convite para o e-mail da conta Google. Sem convite, nada é gravado.
+- O login de teste sem Google (ADR-009) só existe com `DEV_SIGN_IN=1` no `.dev.vars` e em
+  `localhost`; nunca no `wrangler.jsonc`.
 - O app não acessa o banco. Toda leitura e escrita passa pela API, que confere a sessão e o papel
   no servidor.
 - A sessão é um cookie `HttpOnly`, `Secure`, `SameSite=Lax`; o banco guarda só o hash do token.

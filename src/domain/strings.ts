@@ -9,6 +9,12 @@ export const strings = {
     button: 'Entrar com Google',
     noInvite: 'A Paçoca não achou um convite pra esse e-mail. Pede pra um admin te convidar.',
     failed: 'A Paçoca tropeçou no login. Tenta de novo?',
+    devTitle: 'Entrar sem Google (só para testes neste computador)',
+    devEmail: 'E-mail',
+    devName: 'Nome',
+    devButton: 'Entrar para testar',
+    devHint: 'Precisa de DEV_SIGN_IN=1 no .dev.vars. As mesmas regras de convite valem.',
+    devOff: 'O login de teste está desligado. Põe DEV_SIGN_IN=1 no .dev.vars e reinicia o servidor.',
   },
 
   nav: {
