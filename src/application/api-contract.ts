@@ -1,5 +1,6 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
+import type { FeedFilter } from '../domain/feed/feed';
 import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
 import type { MediaType } from '../domain/media/media';
@@ -62,6 +63,14 @@ export interface FeedEventView {
   /** The request's title, for "Ana pediu *Duna*". */
   readonly requestTitle: string | null;
   readonly at: string;
+  readonly likeCount: number;
+  readonly likedByMe: boolean;
+}
+
+export type { FeedFilter };
+
+export interface LikeToggleView {
+  readonly liked: boolean;
   readonly likeCount: number;
 }
 
@@ -165,7 +174,8 @@ export interface Queries {
   me: { input: Record<string, never>; output: MeView };
   members: { input: Record<string, never>; output: MemberListItem[] };
   invites: { input: Record<string, never>; output: InviteView[] };
-  feed: { input: { before?: string }; output: FeedEventView[] };
+  feed: { input: { before?: string; beforeId?: string; filter?: FeedFilter }; output: FeedEventView[] };
+  'feed.likes': { input: { eventId: string }; output: MemberView[] };
   'media.search': { input: { query: string; type: SearchType }; output: MediaCardView[] };
   'media.preview': { input: PreviewInput; output: MediaCardView };
   'manual.availability': { input: { link: string }; output: Availability };
@@ -184,6 +194,7 @@ export interface Commands {
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
+  'feed.toggleLike': { input: { eventId: string }; output: LikeToggleView };
 }
 
 export type QueryName = keyof Queries;

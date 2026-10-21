@@ -3,7 +3,7 @@
 import type { ApiResult, CommandName, Commands, QueryName, Queries, Topic } from '../../src/application/api-contract';
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
-import { listFeed } from './feed';
+import { listFeed, listLikes, toggleLike } from './feed';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
@@ -32,7 +32,8 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   me: (ctx, actor) => me(ctx, actor),
   members: (ctx, actor) => listMembers(ctx, actor),
   invites: (ctx, actor) => listInvites(ctx, actor),
-  feed: (ctx, _actor, input) => listFeed(ctx, input),
+  feed: (ctx, actor, input) => listFeed(ctx, actor, input),
+  'feed.likes': (ctx, _actor, input) => listLikes(ctx, input),
   'media.search': searchMedia,
   'media.preview': previewMedia,
   'manual.availability': manualAvailability,
@@ -51,6 +52,7 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
   'member.updateProfile': updateProfile,
+  'feed.toggleLike': toggleLike,
 };
 
 export class GroupService {

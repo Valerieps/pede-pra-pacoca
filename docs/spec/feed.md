@@ -13,7 +13,9 @@ Nenhuma.
 ## Feed
 
 - O feed é a tela inicial: uma linha do tempo pública, mais recente primeiro. *(1)*
-- Cada item leva ao detalhe do pedido, onde estão "Eu também quero" e curtir. *(1)*
+- Cada item leva ao detalhe do pedido, onde está "Eu também quero". Curtir fica no próprio item, e
+  também no detalhe. *(1)*
+- O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
 
 | Evento | Exemplo de texto |
 | --- | --- |
@@ -38,7 +40,13 @@ Nenhuma.
 - O item mostra a contagem e, ao tocar nela, a lista de quem curtiu. *(1)*
 - Curtida é só simpatia: não inscreve a pessoa no pedido e não conta para o cashback. *(1)*
   Por quê: o cashback usa "Eu também quero", que é um sinal de que a pessoa quer assistir.
+- Eu posso curtir o meu próprio evento, mas isso não me gera notificação. *(1)*
 
 ## Filtros
 
 - Abas ou chips: Tudo, Pedidos, Atendidos, Meus. *(1)*
+- **Pedidos** mostra os pedidos criados e os "Eu também quero"; **Atendidos**, os pedidos atendidos.
+  *(1)*
+- **Meus** mostra o que eu fiz e tudo o que aconteceu com os pedidos que eu pedi ou em que cliquei
+  "Eu também quero". *(1)*
+- Trocar de filtro volta para o topo do feed. *(1)*
