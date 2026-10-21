@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import type { MeView } from '../application/api-contract';
-import { canManageGroup } from '../domain/group/roles';
+import { canAttend, canManageGroup } from '../domain/group/roles';
 import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
 import { InstallGuide } from './components/InstallGuide';
@@ -8,8 +8,11 @@ import { Link, navigate, usePath } from './router';
 import { Feed } from './screens/Feed';
 import { Invites } from './screens/Invites';
 import { Members } from './screens/Members';
+import { Petiscos } from './screens/Petiscos';
 import { Profile } from './screens/Profile';
+import { Settings } from './screens/Settings';
 import { SignIn } from './screens/SignIn';
+import { formatDateKey } from './format';
 import { useQuery } from './use-query';
 
 export function App() {
@@ -55,14 +58,19 @@ export function App() {
     <div className="app">
       <header className="row">
         <strong className="grow">{strings.appName}</strong>
-        <span className="muted">{strings.petiscos.balance(me.data.petiscos.total)}</span>
+        <Link to="/petiscos" className="muted">
+          {strings.petiscos.balance(me.data.petiscos.total)}
+        </Link>
       </header>
       <OfflineNotice />
+      <SleepingNotice />
       <InstallGuide />
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
         <Link to="/membros">{strings.nav.members}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
+        <Link to="/petiscos">{strings.nav.petiscos}</Link>
+        {canAttend(me.data) && <Link to="/ajustes">{strings.nav.settings}</Link>}
         <Link to="/perfil">{strings.nav.profile}</Link>
         <button type="button" className="link" onClick={() => void signOut()}>
           {strings.nav.signOut}
@@ -80,7 +88,21 @@ function Screen({ me }: { me: MeView }) {
   if (path === '/convites' && canManageGroup(me)) return <Invites />;
   if (path === '/membros') return <Members me={me} />;
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
+  if (path === '/petiscos') return <Petiscos />;
+  if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;
   return <Feed />;
+}
+
+/** "A Paçoca está dormindo": every attendant is on vacation (docs/spec/atendente.md). */
+function SleepingNotice() {
+  const vacation = useQuery('vacation', {}, ['vacation']);
+  if (!vacation.data?.sleeping) return null;
+  return (
+    <p className="notice" role="status">
+      {strings.vacation}
+      {vacation.data.returnsOn && <> {strings.vacationReturns(formatDateKey(vacation.data.returnsOn))}</>}
+    </p>
+  );
 }
 
 function OfflineNotice() {

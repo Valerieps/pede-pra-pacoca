@@ -72,6 +72,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `feed_events` | tipo, ator, pedido, contagem de curtidas, data | |
 | `likes` | evento, membro, data | Uma por pessoa por evento |
 | `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito |
+| `petisco_expiry_notices` | lote, membro, data | Um por lote de bônus ou cashback: o aviso de 7 dias sai uma vez só |
 | `known_media` | `media_key`, data | Gravada pelo webhook |
 | `config` | chave, valor (JSON) | Petiscos por mês, cashback, URL do Jellyseerr, segredo do webhook |
 | `inbox` | membro, tipo, dados, lida, data | Caixa de entrada |
@@ -91,7 +92,12 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
   como um comando.
 - **Cron a cada 5 minutos:** `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
   `outbox` (respeitando silêncio e agrupamento), resumo diário, aviso de 7 dias, prazo das ofertas
-  de herança, limpeza de sessões vencidas. A renovação mensal não precisa de job: a cota é do mês.
+  de herança, fim das férias na data de volta, limpeza de sessões vencidas. A renovação mensal não
+  precisa de job: a cota é do mês.
+- **Exportar:** a consulta `group.export` (só admin) devolve todas as tabelas, menos `sessions`,
+  `push_subscriptions` e as chaves de `config` com segredo; o app monta o arquivo no navegador.
+  Uma tabela nova entra sozinha: se ela guardar segredo, entra na lista de exclusão
+  (`server/application/export.ts`).
 
 ## Migrações
 

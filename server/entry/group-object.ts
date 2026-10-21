@@ -38,7 +38,8 @@ export class Group extends DurableObject<Env> {
   }
 
   tick(): void {
-    this.service.tick();
+    const changed = this.service.tick();
+    if (changed.length > 0) this.broadcast(changed);
   }
 
   /** Live connection: the Worker already checked the origin and passes the session hash. */

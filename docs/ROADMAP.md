@@ -16,10 +16,9 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth) e endereço do app | 1 | ADR-006, ADR-007 | Depende da dona. Sem isso o login não funciona fora dos testes |
 | App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto) e a explicação da instalação estão prontos. Falta: `share_target` no manifest, service worker, colar link |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
-| Exportar os dados do grupo (admin) | 1 | ADR-006 | O Durable Object não tem painel para ver os dados |
 | Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
-| Petiscos e cashback | 1 | `spec/petiscos.md` | |
-| Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
+| Petiscos e cashback | 1 | `spec/petiscos.md` | Ajustes, bônus, cashback à mão, extrato e o job do aviso de 7 dias prontos. Falta: reservar, debitar e estornar com o pedido e o cashback automático ao virar Atendido (vêm com os pedidos); ligar "cashback ou bônus recebido" e "petisco vence em 7 dias" às notificações (`notifyPetiscoReceived` e `notifyPetiscoExpiring` em `server/application/petiscos.ts`) |
+| Filas e ações do atendente | 1 | `spec/atendente.md` | O modo férias está pronto. Falta: as filas, "Eu pego esse", os status e as ações em lote |
 | Feed e curtidas | 1 | `spec/feed.md` | |
 | Notificações | 1 | `spec/notificacoes.md` | |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
@@ -47,3 +46,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
   conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.
 - [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.
+- [ ] `spec/petiscos.md`: o número mensal vai de 0 a 99, o bônus de 1 a 10 por vez (cada um com 90 dias), o limiar de 1 a 20, o motivo até 200 caracteres.
+- [ ] `spec/petiscos.md`: o aviso de 7 dias é só para bônus e cashback não usados, uma vez por petisco, agrupado por pessoa.
+- [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Atendidos mais recentes elegíveis.
+- [ ] `spec/atendente.md`: as férias acabam sozinhas às 00:00 da data de volta; o aviso mostra a data de volta mais próxima; admin sem papel de atendente não tem modo férias.
+- [ ] `spec/grupo-e-papeis.md`: o arquivo de dados do grupo deixa de fora sessões, chaves de push e segredos.

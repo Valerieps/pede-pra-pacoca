@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { automaticCashback, canGiveManualCashback, cashbackCriteria, DEFAULT_CASHBACK_SETTINGS } from './cashback';
-import { balanceOf, extraPetiscoExpiry, pickLotToReserve, type PetiscoMovement } from './ledger';
+import { balanceOf, expiringSoon, extraPetiscoExpiry, pickLotToReserve, type PetiscoMovement } from './ledger';
+import { isBonusAmount, isMonthlyNumber, normalizeReason, parseCashbackSettings } from './settings';
 
 const now = new Date('2026-10-21T15:00:00Z');
 const october = 'monthly:2026-10';
@@ -96,5 +97,38 @@ describe('cashback', () => {
   it('respects a disabled criterion and a custom threshold', () => {
     expect(automaticCashback(base, cashbackCriteria({ coRequesters: { enabled: false, threshold: 2 } }))).toBeNull();
     expect(automaticCashback(base, cashbackCriteria({ coRequesters: { enabled: true, threshold: 3 } }))).toBeNull();
+  });
+});
+
+describe('expiringSoon', () => {
+  it('finds the extras that expire within 7 days', () => {
+    const b = balanceOf([bonus('soon', '2026-10-28T15:00:00Z'), bonus('later', '2026-10-28T15:00:01Z')], 3, now);
+    expect(expiringSoon(b, now).map((e) => e.lot)).toEqual(['soon']);
+  });
+});
+
+describe('settings', () => {
+  it('accepts whole numbers in range', () => {
+    expect(isMonthlyNumber(0)).toBe(true);
+    expect(isMonthlyNumber(99)).toBe(true);
+    expect(isMonthlyNumber(100)).toBe(false);
+    expect(isMonthlyNumber(2.5)).toBe(false);
+    expect(isMonthlyNumber('3')).toBe(false);
+    expect(isBonusAmount(0)).toBe(false);
+    expect(isBonusAmount(10)).toBe(true);
+  });
+
+  it('parses the cashback settings', () => {
+    expect(parseCashbackSettings({ coRequesters: { enabled: false, threshold: 3 } })).toEqual({ coRequesters: { enabled: false, threshold: 3 } });
+    expect(parseCashbackSettings({ coRequesters: { enabled: true, threshold: 0 } })).toBeNull();
+    expect(parseCashbackSettings({})).toBeNull();
+  });
+
+  it('normalizes the reason', () => {
+    expect(normalizeReason('  pelo  aniversário ')).toBe('pelo aniversário');
+    expect(normalizeReason('   ')).toBeNull();
+    expect(normalizeReason(undefined)).toBeNull();
+    expect(normalizeReason('x'.repeat(201))).toBeUndefined();
+    expect(normalizeReason(3)).toBeUndefined();
   });
 });

@@ -168,6 +168,14 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
     `ALTER TABLE members ADD COLUMN google_photo_url TEXT`,
     `UPDATE members SET google_photo_url = photo_url`,
   ],
+  // 3: the 7-day expiry notice goes out once per bonus or cashback lot.
+  [
+    `CREATE TABLE petisco_expiry_notices (
+      lot TEXT PRIMARY KEY,
+      member_id TEXT NOT NULL REFERENCES members(id),
+      notified_at TEXT NOT NULL
+    )`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

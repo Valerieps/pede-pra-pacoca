@@ -60,3 +60,17 @@ export function nextMonthStart(instant: Date): Date {
 export function addDays(instant: Date, days: number): Date {
   return new Date(instant.getTime() + days * DAY_MS);
 }
+
+/** The group's calendar day an instant falls in, as "YYYY-MM-DD". */
+export function localDateKey(instant: Date): string {
+  const { year, month, day } = localParts(instant);
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+/** Whether `value` is a real calendar day written as "YYYY-MM-DD". */
+export function isDateKey(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}

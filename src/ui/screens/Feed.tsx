@@ -7,6 +7,8 @@ function describe(event: FeedEventView): string {
   switch (event.type) {
     case 'member_joined':
       return strings.feed.memberJoined(event.actor.name);
+    case 'cashback':
+      return strings.feed.cashback(event.actor.name);
     default:
       // The other events arrive with their features (docs/ROADMAP.md).
       return event.actor.name;
