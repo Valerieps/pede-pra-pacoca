@@ -56,7 +56,7 @@ export function Members({ me }: { me: MeView }) {
       {members.data?.length === 1 && <EmptyState text={strings.members.empty} />}
       <ul className="list">
         {members.data?.map((member) => (
-          <li key={member.id} className="card">
+          <li key={member.id} className="card member-card">
             <Avatar name={member.name} photoUrl={member.photoUrl} />
             <span className="grow">
               <Link to={`/membro/${member.id}`}>{member.name}</Link> {member.id === me.id && <span className="muted">{strings.members.you}</span>}

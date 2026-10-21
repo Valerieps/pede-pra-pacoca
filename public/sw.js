@@ -26,8 +26,8 @@ self.addEventListener('push', (event) => {
   }
   const options = {
     body: typeof data.body === 'string' ? data.body : '',
-    icon: '/icon.svg',
-    badge: '/icon.svg',
+    // Android does not draw SVG in notifications
+    icon: '/icon-192.png',
     data: { url: safePath(data.url) },
   };
   if (typeof data.tag === 'string') options.tag = data.tag;

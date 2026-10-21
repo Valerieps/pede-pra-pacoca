@@ -140,7 +140,7 @@ function Search({
     <section>
       <h1>{strings.ask.title}</h1>
       {showUnrecognized && <UnrecognizedLink onSearch={focusSearch} onManual={() => onManual('')} />}
-      <form className="row" onSubmit={openLink}>
+      <form className="row field-row" onSubmit={openLink}>
         <label className="grow">
           <span className="muted">{strings.ask.linkLabel}</span>
           <input type="url" inputMode="url" autoComplete="off" value={link} onChange={(e) => setLink(e.target.value)} />
@@ -148,7 +148,7 @@ function Search({
         <button type="submit">{strings.ask.linkButton}</button>
       </form>
 
-      <form className="row" onSubmit={(e) => void search(e)}>
+      <form className="row field-row" onSubmit={(e) => void search(e)}>
         <label className="grow">
           <span className="muted">{strings.ask.searchLabel}</span>
           <input id="ask-search" type="search" autoComplete="off" maxLength={100} value={query} onChange={(e) => setQuery(e.target.value)} />
