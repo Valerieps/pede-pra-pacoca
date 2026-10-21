@@ -41,7 +41,7 @@ wins: fix the other doc in the same change.
 | Terms | `docs/GLOSSARIO.md` | One term, one meaning. Use these names in UI text and docs |
 | What is missing, where code lags behind the spec, what is deferred | `docs/ROADMAP.md` | Only what is NOT done. When something is built, its row leaves the roadmap; git and closed issues keep the history |
 | Technical design the code does not show | `docs/ARQUITETURA.md` | Invariants, the data model, the event flow and migrations. Not a tour of the files: the code shows that |
-| Technical decisions | `docs/adr/`, one file per decision | Each ADR has a `**Status:**` line; there is no separate index. Find ADRs by grepping `docs/adr/` |
+| Technical decisions | `docs/adr/`, one file per decision | Each ADR has a `**Status:**` line and a unique number; there is no separate index. Find ADRs by grepping `docs/adr/` |
 | Security rules | `docs/SEGURANCA.md` | Short; enforced by `src/security.test.ts` wherever a rule can be tested |
 | Feature requests not yet decided | GitHub issues, `t:enhancement` + a size label | When decided: rule to `docs/spec/`, row to `docs/ROADMAP.md`, issue closed |
 | Bugs, technical debt, known limitations, checks only the owner can do | GitHub issues, `t:bug` or `t:debito-tecnico` + a priority (`p:`) + a size (`s:`) | Close the issue when resolved; open one when you knowingly leave something behind |
@@ -90,7 +90,7 @@ Product docs are written in Brazilian Portuguese; ADRs, code and this file in En
 - `npm run build` - typecheck, unit tests, production build into `dist/` (CSP injected) and a Worker bundle dry run; a failing test stops the deploy
 - `npm run preview` - serve the built app and the Worker together, as in production
 - `npm run deploy` - deploy the Worker (normally Workers Builds does it from `main`)
-- `npm run docs:check` - broken links between docs and ADRs without a status
+- `npm run docs:check` - broken links between docs, ADRs without a status, repeated ADR numbers
 
 ## Deployment
 Cloudflare Workers Builds, from the GitHub repository. Build command `npm run build`, deploy

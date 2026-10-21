@@ -1,6 +1,7 @@
 // Checks the docs the way CI does (`npm run docs:check`):
 // 1. every relative link in a Markdown file points to a file that exists;
-// 2. every ADR (docs/adr/NNN-*.md) has a `**Status:**` line, since there is no separate index.
+// 2. every ADR (docs/adr/NNN-*.md) has a `**Status:**` line, since there is no separate index,
+//    and a number no other ADR uses.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,11 +34,16 @@ for (const file of markdownFiles(root)) {
 }
 
 const adrDir = join(root, 'docs', 'adr');
+const adrByNumber = new Map();
 for (const name of readdirSync(adrDir)) {
   if (!/^\d{3}-.+\.md$/.test(name) || name.startsWith('000-')) continue;
   if (!/^\*\*Status:\*\* .+/m.test(readFileSync(join(adrDir, name), 'utf8'))) {
     problems.push(`docs/adr/${name}: falta a linha **Status:**`);
   }
+  // "ADR-012" must name one decision: two branches picking the same next number collide here.
+  const number = name.slice(0, 3);
+  if (adrByNumber.has(number)) problems.push(`docs/adr/${name}: o número ${number} já é de ${adrByNumber.get(number)}`);
+  else adrByNumber.set(number, name);
 }
 
 if (problems.length > 0) {
