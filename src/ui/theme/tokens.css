@@ -104,6 +104,10 @@
   --font-size-tiny: 11px;
   --shadow-raised: 0 4px 12px rgb(122 31 61 / 0.3);
 
+  /* Curtir: the paw's pop on tap */
+  --paw-pop-duration: 250ms;
+  --paw-pop-scale: 1.35;
+
   /* The petisco icon: a caramel square with darker crumbs, the same in both themes */
   --petisco-size: 16px;
   --petisco-size-large: 32px;

@@ -37,6 +37,9 @@ Nenhuma.
 
 - Qualquer evento pode ser curtido. É uma curtida por pessoa por evento, e tocar de novo desfaz.
   *(1)*
+- Curtir é uma patinha. Curtida, ela fica cereja e cheia; ao tocar, ela dá um pulinho. Com a opção
+  do celular de reduzir movimento ligada, ela não pula. Para quem usa leitor de tela, o botão se
+  chama "Curtir" ou "Descurtir". *(1)*
 - O item mostra a contagem e, ao tocar nela, a lista de quem curtiu. *(1)*
 - Curtida é só simpatia: não inscreve a pessoa no pedido e não conta para o cashback. *(1)*
   Por quê: o cashback usa "Eu também quero", que é um sinal de que a pessoa quer assistir.

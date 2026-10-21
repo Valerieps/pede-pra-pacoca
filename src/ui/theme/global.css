@@ -467,10 +467,49 @@ button.link.muted {
   color: var(--color-text-muted);
 }
 
-/* A like is a social signal: cherry pop */
-.feed-actions button[aria-pressed='true'] {
-  color: var(--color-pop-text);
-  font-weight: 600;
+/* Curtir as a paw; a like is a social signal: cherry pop */
+button.paw-like {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-size);
+  height: var(--touch-size);
+  margin: calc(-1 * var(--space-2)) 0;
+  padding: 0;
+  background: none;
+  color: var(--color-text-muted);
+}
+
+.paw {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+button.paw-like[aria-pressed='true'] {
+  color: var(--color-pop);
+}
+
+button.paw-like[aria-pressed='true'] .paw {
+  fill: currentColor;
+}
+
+.paw-pop {
+  animation: paw-pop var(--paw-pop-duration) ease-out;
+}
+
+@keyframes paw-pop {
+  50% {
+    transform: scale(var(--paw-pop-scale));
+  }
+}
+
+/* Reduced motion: the paw stands still; the color still says it was liked. */
+@media (prefers-reduced-motion: reduce) {
+  .paw-pop {
+    animation: none;
+  }
 }
 
 .likers {
