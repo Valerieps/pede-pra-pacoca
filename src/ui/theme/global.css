@@ -6,6 +6,7 @@
 
 body {
   margin: 0;
+  accent-color: var(--color-brand);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
@@ -35,6 +36,15 @@ a {
   align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
+}
+
+/* A field with its button: the button sits on the input's line, all buttons one width */
+.field-row {
+  align-items: end;
+}
+
+.field-row button {
+  min-width: 6.5em;
 }
 
 .grow {
@@ -203,6 +213,16 @@ fieldset {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+/* The role buttons get their own line under the name, or the name is squeezed to one letter wide */
+.member-card {
+  flex-wrap: wrap;
+}
+
+.member-card .toggles {
+  flex-basis: 100%;
+  padding-left: calc(var(--avatar-size) + var(--space-3));
 }
 
 button.toggle {
@@ -705,7 +725,13 @@ button.paw-like[aria-pressed='true'] .paw {
 }
 
 legend {
+  padding: 0;
   font-weight: 600;
+}
+
+/* A muted legend reads like the muted label of the field above it */
+legend.muted {
+  font-weight: inherit;
 }
 
 .inbox-item {

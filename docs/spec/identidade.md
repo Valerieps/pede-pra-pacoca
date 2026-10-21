@@ -37,6 +37,9 @@ de cada cor; os valores ficam em `src/ui/theme/tokens.css`, e as artes seguem o
 - O fundo do app é branco em quase tudo, e os pôsteres trazem o resto da cor. *(1)*
   Por quê: numa moldura discreta qualquer pôster fica bonito; uma interface colorida brigaria com
   eles.
+- As barras do celular (a de cima e a de voltar, embaixo) ficam da cor do fundo do app, branco no
+  tema claro, e não vinho. *(1)*
+  Por quê: o cabeçalho e a barra de abas são brancos; barras vinho emolduravam o app.
 - Vinho-cereja é a cor do app: nome do app, botões, aba atual, filtro ativo, links e "Eu também
   quero". *(1)*
   Por quê: começamos com o azul-escuro favorito do Cesar, mas branco com azul tinha cara de app
