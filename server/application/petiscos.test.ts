@@ -232,6 +232,45 @@ describe('7-day expiry notice', () => {
   });
 });
 
+describe('monthly renewal notice', () => {
+  const renewals = (memberId: string) => inbox(memberId).filter((n) => n.type === 'monthly_renewed');
+  const switchOn = (session: string) => service.command(session, 'notifications.setPrefs', { enabled: { monthly_renewed: true } });
+
+  it('is off by default: nobody hears about it unless they switch it on', () => {
+    switchOn('s-carla');
+    service.command('s-cesar', 'petiscos.setMemberMonthly', { memberId: ids.carla, petiscos: 5 });
+    clock.set('2026-11-01T03:05:00Z'); // 00:05 on day 1 in São Paulo
+    expect(service.tick()).toEqual(['notifications']);
+    expect(renewals(ids.carla)).toEqual([{ type: 'monthly_renewed', data: { amount: 5 } }]);
+    expect(renewals(ids.bia)).toEqual([]);
+  });
+
+  it('goes out once per month, on day 1 of the group calendar', () => {
+    switchOn('s-carla');
+    clock.set('2026-11-01T02:55:00Z'); // still Oct 31 in São Paulo
+    service.tick();
+    expect(renewals(ids.carla)).toEqual([]);
+    clock.set('2026-11-01T03:00:00Z');
+    service.tick();
+    clock.set('2026-11-01T20:00:00Z');
+    expect(service.tick()).toEqual([]);
+    expect(renewals(ids.carla)).toHaveLength(1);
+    clock.set('2026-12-01T10:00:00Z');
+    service.tick();
+    expect(renewals(ids.carla)).toHaveLength(2);
+  });
+
+  it('skips attendants, who spend no petisco, and members with 0 a month', () => {
+    switchOn('s-cesar');
+    switchOn('s-bia');
+    service.command('s-cesar', 'petiscos.setMemberMonthly', { memberId: ids.bia, petiscos: 0 });
+    clock.set('2026-11-01T12:00:00Z');
+    service.tick();
+    expect(renewals(ids.cesar)).toEqual([]);
+    expect(renewals(ids.bia)).toEqual([]);
+  });
+});
+
 describe('vacation', () => {
   const vacation = (session: string) => value<VacationView>(service.query(session, 'vacation', {}));
 

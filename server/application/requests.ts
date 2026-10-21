@@ -31,6 +31,7 @@ import {
 import { reasonText } from '../../src/domain/request/reason';
 import { addDays } from '../../src/domain/time';
 import { failure, nowIso, QueryError, type CommandResult, type Context } from './context';
+import { feedbackOf } from './feedback';
 import { recordFeedEvent, removeFeedEvents } from './feed';
 import { memberView, toMember, type Member, type MemberRow } from './members';
 import { notify } from './notifications';
@@ -362,6 +363,8 @@ export function requestDetail(ctx: Context, actor: Member, input: Input): Reques
       canJoin: !isRequester && !isCoRequester && isActive(row.status),
       canLeave: isCoRequester && isActive(row.status),
       hasOffer: offer?.member.id === actor.id,
+      canGiveFeedback: row.status === 'fulfilled',
+      feedback: feedbackOf(ctx, row.id, actor.id),
     },
   };
 }
@@ -519,7 +522,7 @@ export function cancelRequest(ctx: Context, actor: Member, input: Input): Comman
  * Offers the request to the oldest co-requester not yet asked since the requester cancelled.
  * With nobody left, the request becomes Cancelado for everyone, if it still can.
  */
-function offerToNext(ctx: Context, requestId: string): void {
+export function offerToNext(ctx: Context, requestId: string): void {
   const [round] = ctx.sql.all<{ at: string }>(
     "SELECT at FROM request_transitions WHERE request_id = ? AND json_extract(detail, '$.event') = 'offered_to_co_requesters' ORDER BY id DESC LIMIT 1",
     requestId,

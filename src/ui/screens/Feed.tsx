@@ -33,9 +33,15 @@ function describe(event: FeedEventView) {
           {strings.feed.fulfilledBefore} {title} {strings.feed.fulfilledFor(event.fulfilledFor ?? [event.actor.name])}
         </>
       );
-    default:
-      // The other events arrive with their features (docs/ROADMAP.md).
-      return event.actor.name;
+    case 'watched':
+      return (
+        <>
+          {strings.feed.watched(event.actor.name)} {title}
+          {event.rating ? <> {strings.feed.rated(event.rating)}</> : null}
+        </>
+      );
+    case 'thanked':
+      return strings.feed.thanked(event.actor.name);
   }
 }
 

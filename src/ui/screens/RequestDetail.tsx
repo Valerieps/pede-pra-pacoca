@@ -150,6 +150,8 @@ function Detail({ request }: { request: RequestDetailView }) {
         )}
       </div>
 
+      {viewer.canGiveFeedback && <Feedback request={request} busy={busy} run={run} />}
+
       {error && (
         <p className="notice" role="alert">
           {error}
@@ -169,5 +171,46 @@ function Detail({ request }: { request: RequestDetailView }) {
         ))}
       </ol>
     </section>
+  );
+}
+
+type Run = <N extends CommandName>(name: N, input: Commands[N]['input']) => Promise<boolean>;
+
+/** "Dar retorno" on an Atendido request: "Assisti" with a rating, and "Obrigada, Paçoca". */
+function Feedback({ request, busy, run }: { request: RequestDetailView; busy: boolean; run: Run }) {
+  const { feedback } = request.viewer;
+  return (
+    <div className="stack">
+      <h2>{strings.request.feedbackTitle}</h2>
+      {feedback.watched ? (
+        <p className="muted">{strings.request.youWatched}</p>
+      ) : (
+        <button type="button" className="secondary" disabled={busy} onClick={() => void run('request.watched', { id: request.id })}>
+          {strings.request.watched}
+        </button>
+      )}
+      <div className="chips" role="group" aria-label={strings.request.ratingLabel}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            className="chip"
+            aria-pressed={feedback.rating === n}
+            aria-label={strings.request.ratingOption(n)}
+            disabled={busy}
+            onClick={() => void run('request.watched', { id: request.id, rating: feedback.rating === n ? null : n })}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+      {feedback.thanked ? (
+        <p className="muted">{strings.request.thanked}</p>
+      ) : (
+        <button type="button" disabled={busy} onClick={() => void run('request.thank', { id: request.id })}>
+          {strings.request.thank}
+        </button>
+      )}
+    </div>
   );
 }

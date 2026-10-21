@@ -7,6 +7,8 @@ export interface ConfigValues {
   cashback: { coRequesters: { enabled: boolean; threshold: number } };
   jellyseerrBaseUrl: string | null;
   webhookSecret: string | null;
+  /** The last month ("YYYY-MM") whose petisco renewal was announced. */
+  monthlyRenewalAnnounced: string | null;
 }
 
 export function readConfig<K extends keyof ConfigValues>(ctx: Context, key: K, fallback: ConfigValues[K]): ConfigValues[K] {

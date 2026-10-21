@@ -103,4 +103,8 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
 - Em pedidos Atendidos, qualquer membro pode marcar "Assisti", dar uma nota de 1 a 5 e mandar um
   "Obrigada, Paçoca" ao atendente que atendeu. Cada ação gera um evento no feed. *(1)*
 - O atendente que atendeu é o responsável do "Eu pego esse"; sem responsável, é quem marcou
-  "Enviado". *(1)*
+  "Enviado". Se o pedido foi direto para Atendido, é quem marcou Atendido. *(1)*
+- Eu marco "Assisti" e dou a nota uma vez por pedido: o feed mostra um evento só, e se eu mudo a
+  nota depois, o mesmo evento mostra a nota nova. A nota é opcional; tocar na mesma nota tira a nota.
+  *(1)*
+- Eu mando o "Obrigada, Paçoca" uma vez por pedido. *(1)*

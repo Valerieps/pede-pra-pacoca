@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { inheritedStatus, initialStatus, transition, type Actor, type RequestState } from './lifecycle';
+import { fulfillingAttendant, inheritedStatus, initialStatus, isRating, requesterRemoved, transition, type Actor, type RequestState } from './lifecycle';
 
 const ana: Actor = { kind: 'member', id: 'ana', canAttend: false };
 const bia: Actor = { kind: 'member', id: 'bia', canAttend: false };
@@ -116,5 +116,46 @@ describe('inheritedStatus', () => {
   it('past Aprovado the status stays; her petisco is reserved if she has one', () => {
     expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: null })).toEqual({ status: 'in_jellyseerr', effects: [] });
     expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: 'b1' }).effects).toHaveLength(1);
+  });
+});
+
+describe('requesterRemoved', () => {
+  const refund = { type: 'petisco', operation: 'refund', lot: 'monthly:2026-10' };
+
+  it('before No Jellyseerr, alone: cancelled with the petisco back', () => {
+    expect(requesterRemoved(approved)).toEqual({ next: { ...approved, status: 'canceled', petiscoLot: null }, effects: [refund] });
+  });
+
+  it('with co-requesters: offered on, whatever the status', () => {
+    const shared = { ...approved, status: 'in_jellyseerr' as const, coRequesterIds: ['bia'] };
+    expect(requesterRemoved(shared)).toEqual({ next: { ...shared, petiscoLot: null }, effects: [refund, { type: 'offer_to_co_requesters' }] });
+  });
+
+  it("already sent, alone: keeps going on nobody's petisco", () => {
+    const sent = { ...approved, status: 'in_jellyseerr' as const };
+    expect(requesterRemoved(sent)).toEqual({ next: { ...sent, petiscoLot: null }, effects: [refund] });
+  });
+
+  it('a closed request stays as it is', () => {
+    const done = { ...approved, status: 'fulfilled' as const };
+    expect(requesterRemoved(done)).toEqual({ next: done, effects: [] });
+  });
+});
+
+describe('Dar retorno', () => {
+  it('ratings go from 1 to 5, whole numbers', () => {
+    expect([0, 1, 5, 6, 2.5, '3', null].map(isRating)).toEqual([false, true, true, false, false, false, false]);
+  });
+
+  it('thanks go to the assignee, else who marked Enviado, else who marked Atendido', () => {
+    const sent = [
+      { to: 'approved' as const, actorId: 'ana' },
+      { to: 'in_jellyseerr' as const, actorId: 'dani' },
+      { to: 'fulfilled' as const, actorId: null },
+    ];
+    expect(fulfillingAttendant('cesar', sent)).toBe('cesar');
+    expect(fulfillingAttendant(null, sent)).toBe('dani');
+    expect(fulfillingAttendant(null, [{ to: 'fulfilled', actorId: 'cesar' }])).toBe('cesar');
+    expect(fulfillingAttendant(null, [{ to: 'fulfilled', actorId: null }])).toBeNull();
   });
 });

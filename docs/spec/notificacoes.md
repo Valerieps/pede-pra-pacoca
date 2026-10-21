@@ -35,7 +35,7 @@ Nenhuma.
 | Curtidas no meu evento | Autora do evento | Agrupado |
 | Cashback ou bônus recebido | Quem recebeu | Imediato |
 | Petisco vence em 7 dias | Dona do petisco | Imediato |
-| Petiscos mensais renovados | Todos | Desligado |
+| Petiscos mensais renovados | Quem tem petisco mensal | Desligado |
 | Obrigada, Paçoca | Atendente que atendeu | Imediato |
 | Falha do servidor no webhook | Atendentes | Imediato |
 | Oferta de herdar um pedido cancelado | Co-solicitante | Imediato |
@@ -56,3 +56,5 @@ Nenhuma.
   - Eu posso desligar o silêncio. Mudar o silêncio vale também para os avisos que ainda estão
     esperando. *(1)*
 - O atendente em modo férias segue as regras de `atendente.md`. *(1)*
+- O aviso de petiscos renovados sai uma vez por mês, no dia 1, com quantos petiscos mensais eu tenho.
+  Quem não gasta petisco (atendente) ou tem 0 por mês não recebe. *(1)*

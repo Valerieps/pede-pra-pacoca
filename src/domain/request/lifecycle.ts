@@ -183,3 +183,28 @@ export function inheritedStatus(input: { status: RequestStatus; heirIsAttendant:
   if (input.heirIsAttendant || input.reservedLot) return { status: 'approved', effects: reserve };
   return { status: 'awaiting_approval', effects: [{ type: 'notify', trigger: 'request_awaiting_approval' }] };
 }
+
+/**
+ * The admin removed the requester (docs/spec/grupo-e-papeis.md): the request is handled as if she
+ * cancelled it. Her petisco comes back and the co-requesters are offered it. Past Aprovado she
+ * could not cancel, so without co-requesters it keeps going, on nobody's petisco.
+ */
+export function requesterRemoved(state: RequestState): { next: RequestState; effects: Effect[] } {
+  if (!isActive(state.status)) return { next: state, effects: [] };
+  if (state.coRequesterIds.length > 0) return { next: { ...state, petiscoLot: null }, effects: [...refund(state), { type: 'offer_to_co_requesters' }] };
+  const beforeServer = state.status === 'awaiting_approval' || state.status === 'approved';
+  return { next: { ...state, petiscoLot: null, status: beforeServer ? 'canceled' : state.status }, effects: refund(state) };
+}
+
+/** "Dar retorno" (docs/spec/pedidos.md): a rating goes from 1 to 5. */
+export const isRating = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 5;
+
+/**
+ * Who receives "Obrigada, Paçoca": the request's assignee; without one, whoever marked Enviado;
+ * when it went straight to Atendido, whoever marked it. Null when the Jellyseerr closed it alone.
+ */
+export function fulfillingAttendant(assigneeId: string | null, transitions: readonly { readonly to: RequestStatus; readonly actorId: string | null }[]): string | null {
+  if (assigneeId) return assigneeId;
+  const last = (to: RequestStatus) => [...transitions].reverse().find((t) => t.to === to && t.actorId !== null)?.actorId ?? null;
+  return last('in_jellyseerr') ?? last('fulfilled');
+}

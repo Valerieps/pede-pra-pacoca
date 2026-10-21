@@ -1,9 +1,9 @@
 // Petiscos (docs/spec/petiscos.md): the balance and statement, the attendant's settings, bonus and
-// manual cashback, and the 7-day expiry notice.
+// manual cashback, the 7-day expiry notice and the monthly renewal notice.
 import type { PetiscoBalanceView, PetiscoMovementView, PetiscoSettingsView, PetiscoStatementView, Topic } from '../../src/application/api-contract';
-import { canAttend } from '../../src/domain/group/roles';
+import { canAttend, isAttendant } from '../../src/domain/group/roles';
 import { automaticCashback, canGiveManualCashback, cashbackCriteria, DEFAULT_CASHBACK_SETTINGS, type CashbackContext } from '../../src/domain/petisco/cashback';
-import { addDays } from '../../src/domain/time';
+import { addDays, localParts, monthKey } from '../../src/domain/time';
 import {
   balanceOf,
   DEFAULT_MONTHLY_PETISCOS,
@@ -241,4 +241,23 @@ export function warnExpiringPetiscos(ctx: Context): boolean {
     warnedAnyone = true;
   }
   return warnedAnyone;
+}
+
+/**
+ * Job for `tick()`: on day 1 of the group's month, once, tells each member how many monthly
+ * petiscos she got. Attendants spend none and members with 0 get nothing to hear about. The notice
+ * is off by default, so only who switched it on receives it. Returns whether it ran.
+ */
+export function announceMonthlyPetiscos(ctx: Context): boolean {
+  const now = ctx.clock.now();
+  const month = monthKey(now);
+  if (localParts(now).day !== 1 || readConfig(ctx, 'monthlyRenewalAnnounced', null) === month) return false;
+  writeConfig(ctx, 'monthlyRenewalAnnounced', month);
+  const members = ctx.sql.all<MemberRow>('SELECT * FROM members WHERE active = 1').map(toMember);
+  for (const member of members) {
+    const amount = monthlyQuotaOf(ctx, member);
+    if (isAttendant(member) || amount === 0) continue;
+    notify(ctx, { type: 'monthly_renewed', subjectId: member.id, data: { amount } });
+  }
+  return true;
 }

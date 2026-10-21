@@ -54,7 +54,8 @@ Jellyseerr ──webhook──► Worker      cron 5 min ──┘      todos os
 - Sempre existe pelo menos um admin.
 - Um pedido gera no máximo um cashback.
 - O mesmo webhook processado duas vezes tem o mesmo resultado (`webhook_events`, pelo ID do evento).
-- A sessão vale só enquanto o membro está ativo: remover alguém corta o acesso na próxima chamada.
+- A sessão vale só enquanto o membro está ativo. Remover alguém apaga as sessões e as inscrições de
+  push dele e fecha os WebSockets abertos (o comando devolve `disconnect`), então o acesso acaba na hora.
 
 ## Modelo de dados
 
@@ -104,8 +105,9 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
   inscrições que o serviço de push dá como mortas (404/410) saem. Ver ADR-011.
 - **Cron a cada 5 minutos:** `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
   `outbox` (respeitando silêncio e agrupamento), resumo diário, aviso de 7 dias, prazo das ofertas
-  de herança, fim das férias na data de volta, limpeza de sessões vencidas. A renovação mensal não
-  precisa de job: a cota é do mês.
+  de herança, fim das férias na data de volta, limpeza de sessões vencidas e, no dia 1, o aviso de
+  petiscos renovados (uma vez por mês, guardado em `config.monthlyRenewalAnnounced`). A renovação em
+  si não precisa de job: a cota é do mês.
 - **Exportar:** a consulta `group.export` (só admin) devolve todas as tabelas, menos `sessions`,
   `push_subscriptions` e as chaves de `config` com segredo; o app monta o arquivo no navegador.
   Uma tabela nova entra sozinha: se ela guardar segredo, entra na lista de exclusão
