@@ -7,16 +7,32 @@ import { GroupService } from '../application/group-service';
 import type { GoogleProfile, SignInResult } from '../application/members';
 import type { Prefetched } from '../application/tmdb';
 import { durableObjectSql } from '../infrastructure/durable-object-sql';
+import { pushSender, sendAll, type PushSender } from '../infrastructure/web-push';
 import type { Env } from './env';
 
 export const SESSION_HASH_HEADER = 'x-pacoca-session-hash';
 
+/**
+ * Pushes per delivery. Workers Free gives little CPU per call (ADR-006) and each push is one
+ * encryption, so a command sends a few and the 5-minute cron the rest (ADR-011).
+ */
+const PUSHES_AFTER_COMMAND = 5;
+const PUSHES_PER_TICK = 10;
+
 export class Group extends DurableObject<Env> {
   private readonly service: GroupService;
+  private readonly push: PushSender | null;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    this.service = new GroupService(durableObjectSql(ctx.storage), { now: () => new Date() }, { next: () => crypto.randomUUID() });
+    this.service = new GroupService(
+      durableObjectSql(ctx.storage),
+      { now: () => new Date() },
+      { next: () => crypto.randomUUID() },
+      { pushPublicKey: env.VAPID_PUBLIC_KEY || null },
+    );
+    const { VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = env;
+    this.push = publicKey && privateKey && subject ? pushSender({ publicKey, privateKey, subject }) : null;
     void ctx.blockConcurrencyWhile(async () => this.service.migrate());
   }
 
@@ -40,12 +56,28 @@ export class Group extends DurableObject<Env> {
   command(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
     const result = this.service.command(sessionHash, name, input, prefetched);
     if (result.ok && result.changed.length > 0) this.broadcast(result.changed);
+    // A command that notified someone: send what is due now instead of waiting for the cron.
+    if (result.ok && result.changed.includes('notifications')) this.ctx.waitUntil(this.deliver(PUSHES_AFTER_COMMAND));
     return result;
   }
 
-  tick(): void {
+  async tick(): Promise<void> {
     const changed = this.service.tick();
     if (changed.length > 0) this.broadcast(changed);
+    await this.deliver(PUSHES_PER_TICK);
+  }
+
+  /** Claims the due pushes (marked sent at once, so no call sends them twice) and sends them. */
+  private async deliver(max: number): Promise<void> {
+    const { jobs, inboxChanged } = this.service.claimDuePushes(max);
+    if (inboxChanged) this.broadcast(['notifications']);
+    if (jobs.length === 0) return;
+    if (!this.push) {
+      console.warn('push not configured (VAPID_* secrets); notices reached the inbox only');
+      return;
+    }
+    const gone = await sendAll(this.push, jobs);
+    if (gone.length > 0) this.service.removePushSubscriptions(gone);
   }
 
   /** Live connection: the Worker already checked the origin and passes the session hash. */

@@ -76,7 +76,7 @@ describe('likes', () => {
     const [event] = feed('ana');
     expect(event).toMatchObject({ actor: { name: 'Bia' }, likeCount: 0, likedByMe: false });
 
-    expect(like('ana', event.id)).toEqual({ ok: true, value: { liked: true, likeCount: 1 }, changed: ['feed'] });
+    expect(like('ana', event.id)).toEqual({ ok: true, value: { liked: true, likeCount: 1 }, changed: ['feed', 'notifications'] });
     expect(like('cesar', event.id)).toMatchObject({ ok: true, value: { liked: true, likeCount: 2 } });
     expect(feed('ana')[0]).toMatchObject({ likeCount: 2, likedByMe: true });
     expect(feed('bia')[0]).toMatchObject({ likeCount: 2, likedByMe: false });
@@ -84,6 +84,16 @@ describe('likes', () => {
     expect(like('ana', event.id)).toMatchObject({ ok: true, value: { liked: false, likeCount: 1 } });
     expect(feed('ana')[0]).toMatchObject({ likeCount: 1, likedByMe: false });
     expect(sql.all('SELECT member_id FROM likes')).toEqual([{ member_id: ids.cesar }]);
+  });
+
+  it('tells the author, grouped, and not when liking my own event or undoing', () => {
+    const [event] = feed('ana');
+    like('ana', event.id);
+    like('cesar', event.id);
+    like('ana', event.id);
+    expect(like('bia', event.id)).toMatchObject({ changed: ['feed'] });
+    const inbox = service.query('session-bia', 'notifications.inbox', {});
+    expect(inbox).toMatchObject({ ok: true, value: { unread: 1, items: [{ type: 'likes', body: 'Ana e Cesar curtiram sua novidade no feed.' }] } });
   });
 
   it('lists who liked, first like first', () => {

@@ -5,9 +5,13 @@ import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
 import { InstallGuide } from './components/InstallGuide';
 import { Link, navigate, usePath } from './router';
+import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
+import { Inbox } from './screens/Inbox';
 import { Invites } from './screens/Invites';
+import { NotificationPreferences } from './screens/NotificationPreferences';
+import { PushPermission } from './screens/PushPermission';
 import { MyRequests } from './screens/MyRequests';
 import { RequestDetail } from './screens/RequestDetail';
 import { Members } from './screens/Members';
@@ -25,6 +29,8 @@ export function App() {
     live.start();
     return () => live.stop();
   }, [live, signedIn]);
+
+  usePushSync(signedIn);
 
   if (me.loading && !me.data) return null;
   if (!me.data && me.error && me.error !== 'unauthenticated') {
@@ -64,6 +70,7 @@ export function App() {
       <InstallGuide />
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
+        <InboxLink />
         <Link to="/pedir">{strings.nav.ask}</Link>
         <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
         <Link to="/membros">{strings.nav.members}</Link>
@@ -89,6 +96,9 @@ function Screen({ me }: { me: MeView }) {
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
   if (path === '/membros') return <Members me={me} />;
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
+  if (path === '/avisos') return <Inbox />;
+  if (path === '/avisos/celular') return <PushPermission />;
+  if (path === '/avisos/preferencias') return <NotificationPreferences />;
   return <Feed />;
 }
 
@@ -100,4 +110,31 @@ function OfflineNotice() {
       {strings.status.offline}
     </p>
   );
+}
+
+function InboxLink() {
+  const inbox = useQuery('notifications.inbox', {}, ['notifications']);
+  const unread = inbox.data?.unread ?? 0;
+  return <Link to="/avisos">{unread > 0 ? strings.notifications.navUnread(unread) : strings.notifications.nav}</Link>;
+}
+
+/**
+ * Once signed in: sends this phone's push subscription to the server on every start (it may have
+ * changed or been dropped as gone), and follows the screen a tapped notification asks for.
+ */
+function usePushSync(signedIn: boolean) {
+  const { backend } = useServices();
+  const push = usePushDevice();
+
+  useEffect(() => push.onNavigate((path) => navigate(path)), [push]);
+
+  useEffect(() => {
+    if (!signedIn || push.state() !== 'granted') return;
+    void (async () => {
+      const settings = await backend.query('notifications.settings', {});
+      if (!settings.ok || !settings.value.pushPublicKey) return;
+      const subscription = await push.current(settings.value.pushPublicKey);
+      if (subscription) await backend.command('push.subscribe', subscription);
+    })();
+  }, [backend, push, signedIn]);
 }

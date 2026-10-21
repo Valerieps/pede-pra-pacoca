@@ -6,7 +6,7 @@ export function base64Url(bytes: Uint8Array): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function fromBase64Url(text: string): Uint8Array {
+export function fromBase64Url(text: string): Uint8Array<ArrayBuffer> {
   const base64 = text.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(text.length / 4) * 4, '=');
   return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 }

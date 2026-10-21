@@ -4,6 +4,18 @@ import type { ApiResult, CommandName, Commands, QueryName, Queries, Topic } from
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { listFeed, listLikes, toggleLike } from './feed';
+import {
+  claimDuePushes,
+  inbox,
+  markRead,
+  notificationSettings,
+  pruneOutbox,
+  removePushSubscriptions,
+  setPrefs,
+  subscribePush,
+  unsubscribePush,
+  type DuePushes,
+} from './notifications';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
@@ -25,8 +37,15 @@ import type { Prefetched } from './tmdb';
 
 type Input = Record<string, unknown>;
 
+/** Settings from the environment that some use cases show. */
+export interface ServiceOptions {
+  readonly pushPublicKey?: string | null;
+}
+
+type ServiceContext = Context & { readonly options: ServiceOptions };
+
 /** `prefetched` is what the Worker looked up on TMDB first (./tmdb.ts); the app cannot set it. */
-type Handler<T> = (ctx: Context, actor: Member, input: Input, prefetched: Prefetched) => T;
+type Handler<T> = (ctx: ServiceContext, actor: Member, input: Input, prefetched: Prefetched) => T;
 
 const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | null> } = {
   me: (ctx, actor) => me(ctx, actor),
@@ -34,6 +53,8 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   invites: (ctx, actor) => listInvites(ctx, actor),
   feed: (ctx, actor, input) => listFeed(ctx, actor, input),
   'feed.likes': (ctx, _actor, input) => listLikes(ctx, input),
+  'notifications.inbox': (ctx, actor) => inbox(ctx, actor),
+  'notifications.settings': (ctx, actor) => notificationSettings(ctx, actor, ctx.options.pushPublicKey || null),
   'media.search': searchMedia,
   'media.preview': previewMedia,
   'manual.availability': manualAvailability,
@@ -45,6 +66,10 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'invite.create': createInvite,
   'invite.revoke': revokeInvite,
   'member.setRoles': setRoles,
+  'push.subscribe': subscribePush,
+  'push.unsubscribe': unsubscribePush,
+  'notifications.markRead': markRead,
+  'notifications.setPrefs': setPrefs,
   'request.create': createRequest,
   'request.join': joinRequest,
   'request.leave': leaveRequest,
@@ -56,10 +81,10 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
 };
 
 export class GroupService {
-  private readonly ctx: Context;
+  private readonly ctx: ServiceContext;
 
-  constructor(sql: Sql, clock: Clock, ids: IdGenerator) {
-    this.ctx = { sql, clock, ids };
+  constructor(sql: Sql, clock: Clock, ids: IdGenerator, options: ServiceOptions = {}) {
+    this.ctx = { sql, clock, ids, options };
   }
 
   migrate(): void {
@@ -99,13 +124,24 @@ export class GroupService {
   /**
    * Runs the time-based jobs that are due (ADR-006: one cron, every few minutes; the rules decide
    * what is due in America/Sao_Paulo). Monthly petiscos need no job: they are a quota per month.
-   * Still to come (docs/ROADMAP.md): outbox delivery, daily digest, 7-day expiry notice.
-   * Returns the topics that changed.
+   * Push delivery is not here: the Durable Object calls `claimDuePushes` after the tick.
+   * Still to come (docs/ROADMAP.md): 7-day expiry notice. Returns the topics that changed.
    */
   tick(): Topic[] {
     this.ctx.sql.run('DELETE FROM sessions WHERE expires_at <= ?', this.ctx.clock.now().toISOString());
+    pruneOutbox(this.ctx);
     const offersMoved = this.ctx.sql.transaction(() => expireOffers(this.ctx));
     return offersMoved ? ['requests', 'feed'] : [];
+  }
+
+  /** The pushes that are due (quiet hours, digest, grouped likes), marked sent; see notifications.ts. */
+  claimDuePushes(maxPushes: number): DuePushes {
+    return this.ctx.sql.transaction(() => claimDuePushes(this.ctx, maxPushes));
+  }
+
+  /** Forgets subscriptions the push service said are gone (404/410). */
+  removePushSubscriptions(endpoints: readonly string[]): void {
+    removePushSubscriptions(this.ctx, endpoints);
   }
 }
 

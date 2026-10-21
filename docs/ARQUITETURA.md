@@ -97,6 +97,10 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 - **Webhook do Jellyseerr:** Worker → confere o segredo em tempo constante → `Group` grava em
   `webhook_events` (se já existe, para) → grava Mídia conhecida → muda os pedidos correspondentes,
   como um comando.
+- **Notificação:** o comando chama `notify`, que grava o item da caixa de entrada e a linha do
+  `outbox` com `deliver_after` (silêncio, resumo, curtidas agrupadas) na mesma transação. Depois do
+  comando, e no cron, o `Group` pega o que venceu, marca como enviado e manda o Web Push; as
+  inscrições que o serviço de push dá como mortas (404/410) saem. Ver ADR-011.
 - **Cron a cada 5 minutos:** `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
   `outbox` (respeitando silêncio e agrupamento), resumo diário, aviso de 7 dias, prazo das ofertas
   de herança, limpeza de sessões vencidas. A renovação mensal não precisa de job: a cota é do mês.
