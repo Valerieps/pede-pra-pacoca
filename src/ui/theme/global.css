@@ -92,6 +92,13 @@ button.secondary {
   border: 1px solid var(--color-border);
 }
 
+/* Ghost: the quiet choice next to a primary button */
+button.ghost {
+  background: transparent;
+  color: var(--color-brand);
+  font-weight: 600;
+}
+
 button.link {
   background: none;
   color: var(--color-brand);
@@ -333,7 +340,8 @@ button.media-card {
   overflow-wrap: anywhere;
 }
 
-button.media-card strong {
+button.media-card strong,
+.media-title {
   font-family: var(--font-display);
   font-weight: 500;
 }
@@ -379,20 +387,17 @@ button.media-card strong {
 }
 
 .celebration-pacoca {
-  width: var(--celebration-size);
-  height: var(--celebration-size);
-  border-color: var(--color-celebration);
-  background: var(--color-accent-surface);
-  font-size: var(--celebration-glyph-size);
   animation: pacoca-hop var(--celebration-duration) ease-in-out var(--celebration-hops);
 }
 
 .celebration-text {
   margin: 0;
-  font-family: var(--font-display);
   font-size: var(--font-size-heading);
   font-weight: 600;
-  color: var(--color-accent-text);
+}
+
+.celebration-close {
+  display: none;
 }
 
 @keyframes pacoca-hop {
@@ -415,6 +420,42 @@ button.media-card strong {
   }
 }
 
+/* On a computer the Paçoca opens in a phone-sized card over a dimmed page, not across the screen. */
+@media (min-width: 1024px) {
+  .celebration-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: var(--space-4);
+    background: var(--color-backdrop);
+  }
+
+  .celebration-layer > .celebration {
+    width: min(var(--celebration-card-width), 100%);
+    padding: var(--space-8) var(--space-6) var(--space-6);
+    border-radius: var(--radius-card);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-raised);
+  }
+
+  .celebration-close {
+    display: inline-block;
+  }
+}
+
+.done-request {
+  width: 100%;
+  text-align: left;
+}
+
+.done-actions {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+}
+
 .install-guide {
   margin-bottom: var(--space-4);
 }
@@ -430,26 +471,46 @@ button.media-card strong {
 .empty-state {
   display: grid;
   justify-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   padding: var(--space-6) 0;
   text-align: center;
 }
 
-/* The Paçoca's line */
-.empty-state p {
+/* The Paçoca's line, under her art */
+.pacoca-line {
   margin: 0;
+  color: var(--color-brand);
   font-family: var(--font-display);
   font-weight: 500;
 }
 
-.pacoca-placeholder {
+/* The art slot: Cesar's art over a caramel-light circle; until it arrives, a dashed placeholder */
+.pacoca-art {
   display: grid;
   place-items: center;
-  width: var(--placeholder-size);
-  height: var(--placeholder-size);
-  border: 2px dashed var(--color-border);
+  width: var(--pacoca-art-size);
+  height: var(--pacoca-art-size);
+  border-radius: 50%;
+  background: var(--color-accent-surface);
+}
+
+.pacoca-art-large {
+  width: var(--pacoca-art-size-large);
+  height: var(--pacoca-art-size-large);
+}
+
+.pacoca-art-placeholder {
+  display: grid;
+  place-items: center;
+  width: 80%;
+  height: 80%;
+  border: 2px dashed var(--color-celebration);
   border-radius: 50%;
   font-size: var(--placeholder-glyph-size);
+}
+
+.pacoca-art-large .pacoca-art-placeholder {
+  font-size: var(--celebration-glyph-size);
 }
 
 select {

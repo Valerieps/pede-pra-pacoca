@@ -1,6 +1,6 @@
 // Pedir (docs/spec/pedidos.md): paste a link, or search, then confirm; or a manual request.
 import { useEffect, useState, type FormEvent } from 'react';
-import type { ApiError, MediaCardView, MeView, PreviewInput, SearchType } from '../../application/api-contract';
+import type { ApiError, MediaCardView, MeView, PreviewInput, RequestView, SearchType } from '../../application/api-contract';
 import { isAttendant } from '../../domain/group/roles';
 import { findUrl, isUnreleased, parseSharedLink, type MediaType } from '../../domain/media/media';
 import { strings } from '../../domain/strings';
@@ -8,6 +8,7 @@ import { useServices } from '../backend-context';
 import { browserShareEnvironment, clearPendingShare, pendingShare } from '../../infrastructure/share-target';
 import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
+import { StatusChip } from '../components/StatusChip';
 import { takeAskDraft } from '../ask-draft';
 import { Link, navigate } from '../router';
 import { useQuery } from '../use-query';
@@ -227,18 +228,28 @@ function PetiscoNotice({ me }: { me: MeView }) {
   return <p className="muted">{strings.confirm.balance(me.petiscos.total)}</p>;
 }
 
-function Done({ requestId, onBack }: { requestId: string; onBack: () => void }) {
+/** After confirming: the Paçoca, the request I just made and where to go next. */
+function Done({ request, onBack }: { request: RequestView; onBack: () => void }) {
   return (
     <section className="done">
-      <PacocaCelebration text={strings.requestConfirmed} />
-      <div className="row">
-        <button type="button" onClick={() => navigate(`/pedido/${requestId}`)}>
-          {strings.confirm.seeRequest}
-        </button>
-        <button type="button" className="secondary" onClick={onBack}>
-          {strings.ask.another}
-        </button>
-      </div>
+      <PacocaCelebration text={strings.requestConfirmed}>
+        <Link to={`/pedido/${request.id}`} className="card request-item done-request">
+          <Poster path={request.posterPath} title={request.title} small />
+          <span className="grow">
+            <strong className="media-title">{request.title}</strong>
+            <br />
+            <StatusChip status={request.status} />
+          </span>
+        </Link>
+        <div className="done-actions">
+          <button type="button" autoFocus onClick={() => navigate('/meus-pedidos')}>
+            {strings.confirm.seeMyRequests}
+          </button>
+          <button type="button" className="ghost" onClick={onBack}>
+            {strings.ask.another}
+          </button>
+        </div>
+      </PacocaCelebration>
     </section>
   );
 }
@@ -249,9 +260,9 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<RequestView | null>(null);
 
-  if (done) return <Done requestId={done} onBack={onBack} />;
+  if (done) return <Done request={done} onBack={onBack} />;
 
   const media = preview.data;
   const backButton = (
@@ -278,7 +289,7 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
     setBusy(true);
     const result = await backend.command('request.create', { origin: 'tmdb', type: media.type, tmdbId: media.tmdbId, note, again });
     setBusy(false);
-    if (result.ok) setDone(result.value.id);
+    if (result.ok) setDone(result.value);
     else setError(result.error === 'conflict' ? strings.genericError : errorText(result.error));
   }
 
@@ -367,11 +378,11 @@ function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView
   const [link, setLink] = useState(initialLink);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<string | null>(null);
+  const [done, setDone] = useState<RequestView | null>(null);
   // Set when the link matches another manual request (docs/spec/pedidos.md).
   const [duplicate, setDuplicate] = useState<{ requestId: string | null; active: boolean } | null>(null);
 
-  if (done) return <Done requestId={done} onBack={onBack} />;
+  if (done) return <Done request={done} onBack={onBack} />;
 
   async function submit(event: FormEvent | null, again = false) {
     event?.preventDefault();
@@ -379,7 +390,7 @@ function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView
     const result = await backend.command('request.create', { origin: 'manual', type, title, note, link: link.trim() || undefined, again });
     if (result.ok) {
       setBusy(false);
-      setDone(result.value.id);
+      setDone(result.value);
       return;
     }
     if (result.error === 'conflict' && link.trim()) {
