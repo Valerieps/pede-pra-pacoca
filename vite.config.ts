@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { ALLOWED_ORIGINS, IMAGE_ORIGINS } from './network-policy.ts';
 
@@ -50,5 +50,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // Claude Code sessions keep their own checkouts under .claude/worktrees; their tests are not ours.
+    exclude: [...configDefaults.exclude, '.claude/**'],
   },
 });
