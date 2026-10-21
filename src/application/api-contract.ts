@@ -1,5 +1,6 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
+import type { FeedFilter } from '../domain/feed/feed';
 import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
 
@@ -59,13 +60,22 @@ export interface FeedEventView {
   readonly requestId: string | null;
   readonly at: string;
   readonly likeCount: number;
+  readonly likedByMe: boolean;
+}
+
+export type { FeedFilter };
+
+export interface LikeToggleView {
+  readonly liked: boolean;
+  readonly likeCount: number;
 }
 
 export interface Queries {
   me: { input: Record<string, never>; output: MeView };
   members: { input: Record<string, never>; output: MemberListItem[] };
   invites: { input: Record<string, never>; output: InviteView[] };
-  feed: { input: { before?: string }; output: FeedEventView[] };
+  feed: { input: { before?: string; beforeId?: string; filter?: FeedFilter }; output: FeedEventView[] };
+  'feed.likes': { input: { eventId: string }; output: MemberView[] };
 }
 
 export interface Commands {
@@ -73,6 +83,7 @@ export interface Commands {
   'invite.revoke': { input: { email: string }; output: null };
   'member.setRoles': { input: { memberId: string; roles: Role[] }; output: MemberView };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
+  'feed.toggleLike': { input: { eventId: string }; output: LikeToggleView };
 }
 
 export type QueryName = keyof Queries;

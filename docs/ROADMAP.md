@@ -20,7 +20,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Pedidos e ciclo de vida | 1 | `spec/pedidos.md` | |
 | Petiscos e cashback | 1 | `spec/petiscos.md` | |
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
-| Feed e curtidas | 1 | `spec/feed.md` | |
+| Feed e curtidas | 1 | `spec/feed.md` | Curtidas, lista de quem curtiu, filtros e "Ver mais" prontos. Falta: o aviso agrupado de curtida, que espera a fila de envio (`outbox`): ligar em `enqueueGroupedLikeNotice` (`server/application/feed.ts`) |
 | Notificações | 1 | `spec/notificacoes.md` | |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
@@ -47,3 +47,8 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/grupo-e-papeis.md`: admin sem o papel de atendente pode fazer tudo do atendente, mas não
   conta como atendente: o pedido dele reserva petisco e ele não recebe os avisos de atendente.
 - [ ] `spec/grupo-e-papeis.md`: o nome tem de 1 a 40 caracteres.
+- [ ] `spec/feed.md`: curtir fica no próprio item do feed (não só no detalhe do pedido).
+- [ ] `spec/feed.md`: posso curtir o meu próprio evento, sem gerar notificação para mim.
+- [ ] `spec/feed.md`: Pedidos = pedidos criados e "Eu também quero"; Meus = o que eu fiz e tudo dos
+  pedidos que eu pedi ou também quero.
+- [ ] `spec/feed.md`: o feed carrega 30 eventos de cada vez, com "Ver mais".

@@ -1,9 +1,10 @@
-// The group's public timeline (docs/spec/feed.md).
-import type { FeedEventType, FeedEventView } from '../../src/application/api-contract';
-import { nowIso, type Context } from './context';
-import { memberView, toMember, type MemberRow } from './members';
+// The group's public timeline and its likes (docs/spec/feed.md).
+import type { FeedEventType, FeedEventView, LikeToggleView, MemberView } from '../../src/application/api-contract';
+import { FEED_PAGE_SIZE, toFeedFilter } from '../../src/domain/feed/feed';
+import { failure, nowIso, type CommandResult, type Context } from './context';
+import { memberView, toMember, type Member, type MemberRow } from './members';
 
-export const FEED_PAGE_SIZE = 30;
+const REQUEST_EVENTS: readonly FeedEventType[] = ['request_created', 'co_request'];
 
 export function recordFeedEvent(ctx: Context, event: { type: FeedEventType; actorId: string; requestId: string | null; data?: object }): string {
   const id = ctx.ids.next();
@@ -24,19 +25,42 @@ interface FeedRow extends MemberRow {
   type: FeedEventType;
   request_id: string | null;
   like_count: number;
+  liked_by_me: number;
   at: string;
 }
 
-/** Most recent first; `before` is the `at` of the last event already shown. */
-export function listFeed(ctx: Context, input: { before?: unknown }): FeedEventView[] {
+/**
+ * Most recent first, one page at a time. `before` and `beforeId` are the `at` and the `id` of the
+ * last event already shown; `beforeId` breaks ties between events recorded in the same instant.
+ */
+export function listFeed(ctx: Context, actor: Member, input: { before?: unknown; beforeId?: unknown; filter?: unknown }): FeedEventView[] {
   const before = typeof input.before === 'string' ? input.before : '9999';
+  const beforeId = typeof input.beforeId === 'string' ? input.beforeId : null;
+  const filter = toFeedFilter(input.filter);
+
+  const where = [beforeId === null ? 'e.at < ?' : '(e.at < ? OR (e.at = ? AND e.id < ?))'];
+  const bindings: (string | number)[] = beforeId === null ? [before] : [before, before, beforeId];
+  if (filter === 'requests') {
+    where.push(`e.type IN (${REQUEST_EVENTS.map(() => '?').join(', ')})`);
+    bindings.push(...REQUEST_EVENTS);
+  } else if (filter === 'fulfilled') {
+    where.push("e.type = 'request_fulfilled'");
+  } else if (filter === 'mine') {
+    // Mine: what I did, and anything about a request I asked for or also want.
+    where.push(`(e.actor_id = ?
+      OR e.request_id IN (SELECT id FROM requests WHERE requester_id = ?)
+      OR e.request_id IN (SELECT request_id FROM co_requests WHERE member_id = ?))`);
+    bindings.push(actor.id, actor.id, actor.id);
+  }
+
   return ctx.sql
     .all<FeedRow>(
-      `SELECT members.*, feed_events.id AS event_id, feed_events.type, feed_events.request_id,
-              feed_events.like_count, feed_events.at
-       FROM feed_events JOIN members ON members.id = feed_events.actor_id
-       WHERE feed_events.at < ? ORDER BY feed_events.at DESC, feed_events.id DESC LIMIT ?`,
-      before,
+      `SELECT members.*, e.id AS event_id, e.type, e.request_id, e.like_count, e.at,
+              EXISTS (SELECT 1 FROM likes WHERE likes.event_id = e.id AND likes.member_id = ?) AS liked_by_me
+       FROM feed_events e JOIN members ON members.id = e.actor_id
+       WHERE ${where.join(' AND ')} ORDER BY e.at DESC, e.id DESC LIMIT ?`,
+      actor.id,
+      ...bindings,
       FEED_PAGE_SIZE,
     )
     .map((row) => ({
@@ -46,5 +70,45 @@ export function listFeed(ctx: Context, input: { before?: unknown }): FeedEventVi
       requestId: row.request_id,
       at: row.at,
       likeCount: row.like_count,
+      likedByMe: row.liked_by_me === 1,
     }));
 }
+
+/** One like per person per event; liking again undoes it. Likes never subscribe anyone to a request. */
+export function toggleLike(ctx: Context, actor: Member, input: { eventId?: unknown }): CommandResult<LikeToggleView> {
+  if (typeof input.eventId !== 'string') return failure('invalid');
+  const [event] = ctx.sql.all<{ actor_id: string }>('SELECT actor_id FROM feed_events WHERE id = ?', input.eventId);
+  if (!event) return failure('not_found');
+
+  const [existing] = ctx.sql.all<{ at: string }>('SELECT at FROM likes WHERE event_id = ? AND member_id = ?', input.eventId, actor.id);
+  if (existing) {
+    ctx.sql.run('DELETE FROM likes WHERE event_id = ? AND member_id = ?', input.eventId, actor.id);
+    ctx.sql.run('UPDATE feed_events SET like_count = like_count - 1 WHERE id = ?', input.eventId);
+  } else {
+    ctx.sql.run('INSERT INTO likes (event_id, member_id, at) VALUES (?, ?, ?)', input.eventId, actor.id, nowIso(ctx));
+    ctx.sql.run('UPDATE feed_events SET like_count = like_count + 1 WHERE id = ?', input.eventId);
+    if (event.actor_id !== actor.id) enqueueGroupedLikeNotice(ctx, { eventId: input.eventId, authorId: event.actor_id });
+  }
+
+  const [{ like_count }] = ctx.sql.all<{ like_count: number }>('SELECT like_count FROM feed_events WHERE id = ?', input.eventId);
+  return { ok: true, value: { liked: !existing, likeCount: like_count }, changed: ['feed'] };
+}
+
+/** Who liked an event, first like first. */
+export function listLikes(ctx: Context, input: { eventId?: unknown }): MemberView[] {
+  if (typeof input.eventId !== 'string') return [];
+  return ctx.sql
+    .all<MemberRow>(
+      `SELECT members.* FROM likes JOIN members ON members.id = likes.member_id
+       WHERE likes.event_id = ? ORDER BY likes.at, members.name`,
+      input.eventId,
+    )
+    .map((row) => memberView(toMember(row)));
+}
+
+/**
+ * The like notice to the event's author: grouped, at most one per event per hour
+ * (docs/spec/notificacoes.md). NOT WIRED YET: the outbox is being built in its own slice; once its
+ * enqueue API exists, call it here with group key `like:<eventId>` (docs/ROADMAP.md).
+ */
+export function enqueueGroupedLikeNotice(_ctx: Context, _notice: { eventId: string; authorId: string }): void {}

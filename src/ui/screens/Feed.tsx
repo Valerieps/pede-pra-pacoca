@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import type { FeedEventView } from '../../application/api-contract';
+import { FEED_FILTERS, FEED_PAGE_SIZE, type FeedFilter } from '../../domain/feed/feed';
 import { strings } from '../../domain/strings';
+import { Avatar } from '../components/Avatar';
 import { EmptyState } from '../components/EmptyState';
+import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
 function describe(event: FeedEventView): string {
@@ -13,24 +17,112 @@ function describe(event: FeedEventView): string {
   }
 }
 
+/** Where a page starts: right after the last event of the page before it. */
+interface Cursor {
+  readonly before: string;
+  readonly beforeId: string;
+}
+
 export function Feed() {
-  const feed = useQuery('feed', {}, ['feed']);
+  const [filter, setFilter] = useState<FeedFilter>('all');
+  // One entry per loaded page; the first page has no cursor and follows new events live.
+  const [pages, setPages] = useState<(Cursor | null)[]>([null]);
+
+  function choose(next: FeedFilter) {
+    setFilter(next);
+    setPages([null]);
+  }
 
   return (
     <section>
       <h1>{strings.feed.title}</h1>
-      {feed.error && !feed.data && <p className="notice">{strings.genericError}</p>}
-      {feed.data?.length === 0 && <EmptyState text={strings.feed.empty} />}
-      <ul className="list">
-        {feed.data?.map((event) => (
-          <li key={event.id} className="card">
-            <span>{describe(event)}</span>
-            <time className="muted" dateTime={event.at}>
-              {new Date(event.at).toLocaleDateString('pt-BR')}
-            </time>
-          </li>
+      <div className="chips" role="group" aria-label={strings.feed.title}>
+        {FEED_FILTERS.map((f) => (
+          <button key={f} type="button" className="chip" aria-pressed={f === filter} onClick={() => choose(f)}>
+            {strings.feed.filters[f]}
+          </button>
         ))}
-      </ul>
+      </div>
+      {pages.map((cursor, index) => (
+        <FeedPage
+          key={`${filter}:${cursor?.beforeId ?? 'top'}`}
+          filter={filter}
+          cursor={cursor}
+          isLast={index === pages.length - 1}
+          onMore={(next) => setPages([...pages, next])}
+        />
+      ))}
     </section>
+  );
+}
+
+function FeedPage({ filter, cursor, isLast, onMore }: { filter: FeedFilter; cursor: Cursor | null; isLast: boolean; onMore: (next: Cursor) => void }) {
+  const feed = useQuery('feed', { filter, ...(cursor ?? {}) }, ['feed']);
+  const events = feed.data;
+  const last = events?.[events.length - 1];
+
+  return (
+    <>
+      {feed.error && !events && <p className="notice">{strings.genericError}</p>}
+      {cursor === null && events?.length === 0 && <EmptyState text={filter === 'all' ? strings.feed.empty : strings.feed.emptyFiltered} />}
+      <ul className="list feed-page">
+        {events?.map((event) => <FeedItem key={event.id} event={event} onChanged={feed.reload} />)}
+      </ul>
+      {isLast && last && events.length >= FEED_PAGE_SIZE && (
+        <button type="button" className="secondary feed-more" onClick={() => onMore({ before: last.at, beforeId: last.id })}>
+          {strings.feed.loadMore}
+        </button>
+      )}
+    </>
+  );
+}
+
+function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () => void }) {
+  const { backend } = useServices();
+  const [showLikers, setShowLikers] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function toggleLike() {
+    setBusy(true);
+    // Other open apps refresh through the "feed" topic; this one refreshes now, live or not.
+    const result = await backend.command('feed.toggleLike', { eventId: event.id });
+    setBusy(false);
+    if (result.ok) onChanged();
+  }
+
+  return (
+    <li className="card feed-item">
+      <div className="feed-line">
+        <span>{describe(event)}</span>
+        <time className="muted" dateTime={event.at}>
+          {new Date(event.at).toLocaleDateString('pt-BR')}
+        </time>
+      </div>
+      <div className="feed-actions">
+        <button type="button" className="link" aria-pressed={event.likedByMe} disabled={busy} onClick={() => void toggleLike()}>
+          {event.likedByMe ? strings.feed.unlike : strings.feed.like}
+        </button>
+        {event.likeCount > 0 && (
+          <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
+            {strings.feed.likeCount(event.likeCount)}
+          </button>
+        )}
+      </div>
+      {showLikers && event.likeCount > 0 && <Likers eventId={event.id} />}
+    </li>
+  );
+}
+
+function Likers({ eventId }: { eventId: string }) {
+  const likers = useQuery('feed.likes', { eventId }, ['feed']);
+  return (
+    <ul className="likers" aria-label={strings.feed.likedBy}>
+      {likers.data?.map((member) => (
+        <li key={member.id} className="choice">
+          <Avatar name={member.name} photoUrl={member.photoUrl} />
+          <span>{member.name}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
