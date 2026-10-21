@@ -13,8 +13,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
-| Notificações: falha do webhook e chaves VAPID | 1 | `spec/notificacoes.md` | Todos os outros gatilhos estão ligados. Falta chamar `notify` para a falha do webhook (com o Jellyseerr) e pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`), que depende da dona |
+| Notificações: falha do webhook | 1 | `spec/notificacoes.md` | Todos os outros gatilhos estão ligados. Falta chamar `notify` para a falha do webhook (com o Jellyseerr) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que a dona vai mandar |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
