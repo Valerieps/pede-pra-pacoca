@@ -14,9 +14,14 @@
   --color-brand: #4b3fb3;
   --color-on-brand: #ffffff;
   --color-danger: #b3261e;
+  --color-accent-surface: #f6e7c8;
+  --color-accent-text: #5c4110;
 
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-size-base: 15px;
+  --font-size-small: 13px;
+  --font-size-heading: 20px;
+  --font-size-hero: 64px;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -26,6 +31,10 @@
   --space-8: 32px;
 
   --radius: 8px;
+  --radius-pill: 999px;
+
+  --poster-width: 128px;
+  --poster-width-small: 48px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,5 +49,7 @@
     --color-brand: #a59cf0;
     --color-on-brand: #17161a;
     --color-danger: #f2b8b5;
+    --color-accent-surface: #3a3020;
+    --color-accent-text: #f2d9a6;
   }
 }

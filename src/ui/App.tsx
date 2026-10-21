@@ -2,9 +2,13 @@ import { useEffect } from 'react';
 import { canManageGroup } from '../domain/group/roles';
 import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
+import type { MeView } from '../application/api-contract';
 import { Link, navigate, usePath } from './router';
+import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
 import { Invites } from './screens/Invites';
+import { MyRequests } from './screens/MyRequests';
+import { RequestDetail } from './screens/RequestDetail';
 import { SignIn } from './screens/SignIn';
 import { useQuery } from './use-query';
 
@@ -49,21 +53,27 @@ export function App() {
       <OfflineNotice />
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
+        <Link to="/pedir">{strings.nav.ask}</Link>
+        <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
         <button type="button" className="link" onClick={() => void signOut()}>
           {strings.nav.signOut}
         </button>
       </nav>
       <main>
-        <Screen isAdmin={canManageGroup(me.data)} />
+        <Screen me={me.data} />
       </main>
     </div>
   );
 }
 
-function Screen({ isAdmin }: { isAdmin: boolean }) {
+function Screen({ me }: { me: MeView }) {
   const path = usePath();
-  if (path === '/convites' && isAdmin) return <Invites />;
+  if (path === '/convites' && canManageGroup(me)) return <Invites />;
+  if (path === '/pedir') return <Ask me={me} />;
+  if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
+  const request = /^\/pedido\/([\w-]+)$/.exec(path);
+  if (request) return <RequestDetail key={request[1]} id={request[1]} />;
   return <Feed />;
 }
 
