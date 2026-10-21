@@ -39,6 +39,14 @@
   --avatar-size: 40px;
   --placeholder-size: 96px;
   --placeholder-glyph-size: 40px;
+
+  /* The Paçoca animation (PacocaCelebration) */
+  --color-celebration: #c9902e;
+  --celebration-size: 128px;
+  --celebration-glyph-size: var(--font-size-hero);
+  --celebration-hop-height: 16px;
+  --celebration-duration: 700ms;
+  --celebration-hops: 3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,5 +63,6 @@
     --color-danger: #f2b8b5;
     --color-accent-surface: #3a3020;
     --color-accent-text: #f2d9a6;
+    --color-celebration: #e0b25c;
   }
 }

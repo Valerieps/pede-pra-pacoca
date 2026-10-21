@@ -14,13 +14,11 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
 | Contas: Cloudflare, projeto Google Cloud (cliente OAuth), chave do TMDB e endereço do app | 1 | ADR-006, ADR-007, ADR-010 | Depende da dona. Sem isso o login não funciona fora dos testes, e sem a chave do TMDB (`TMDB_API_KEY`) a busca e o pedido por link não funcionam |
-| App instalável, compartilhar e colar link | 1 | `spec/app-e-instalacao.md` | O login Google, o primeiro acesso (nome e foto), a explicação da instalação, colar link e o service worker (só para os avisos) estão prontos. Falta: `share_target` no manifest, oferecer os avisos no primeiro acesso |
 | Membros e papéis | 1 | `spec/grupo-e-papeis.md` | Convites, tela de membros e papéis prontos. Falta: remover membro (cancelar os pedidos ativos dele) |
-| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca"; a animação da Paçoca ao confirmar |
+| Pedidos: dar retorno | 1 | `spec/pedidos.md` | Pedir (link, busca, manual), duplicidade, "Eu também quero", cancelar com oferta, observação, Meus pedidos e detalhe estão prontos. Falta: "Assisti", nota e "Obrigada, Paçoca" |
 | Notificações: ligar cada gatilho | 1 | `spec/notificacoes.md` | A base e os avisos de pedidos, curtidas e petiscos estão prontos. Falta chamar `notify` para petiscos renovados, "Obrigada, Paçoca" (com Dar retorno) e falha do webhook (com o Jellyseerr). Também falta pôr as chaves VAPID nos segredos do Worker (`npm run vapid:keys`) |
 | Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
-| Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
-| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios usam um placeholder (`EmptyState`). Falta: as ilustrações e as animações |
+| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que a dona vai mandar |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
@@ -63,6 +61,20 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 - [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Atendidos mais recentes elegíveis.
 - [ ] `spec/atendente.md`: as férias acabam sozinhas às 00:00 da data de volta; o aviso mostra a data de volta mais próxima; admin sem papel de atendente não tem modo férias.
 - [ ] `spec/grupo-e-papeis.md`: o arquivo de dados do grupo deixa de fora sessões, chaves de push e segredos.
+- [ ] `spec/app-e-instalacao.md`: os avisos são oferecidos uma vez, logo depois de confirmar nome e
+  foto, e não aparecem se o navegador já tem resposta ou não recebe avisos (no iPhone fora da tela
+  de início, aparecem para explicar a instalação).
+- [ ] `spec/app-e-instalacao.md`: o link compartilhado sem login espera o login e o primeiro
+  acesso; no atalho do pedido manual, o link compartilhado já vem preenchido; o link é usado uma vez.
+- [ ] `spec/identidade.md`: a animação do Atendido aparece ao abrir o pedido Atendido (meu ou em
+  que cliquei "Eu também quero"), uma vez por pedido em cada celular; com "reduzir movimento", a
+  Paçoca fica parada.
+- [ ] `spec/estatisticas.md`: cancelado não conta nos números; tempo até Atendido vai do pedido à
+  primeira vez Atendido; 5 gêneros e 12 meses no perfil; minha própria curtida não conta.
+- [ ] `spec/estatisticas.md`: período por dia da data do pedido; pessoa = solicitante; atendente =
+  responsável; agrupando por gênero o pedido aparece em cada gênero; histórico mostra até 200 pedidos.
+- [ ] `spec/estatisticas.md`: taxa de Não foi possível = Não foi possível ÷ (Atendido + Não foi
+  possível); devolvidos = cashbacks (estorno de reserva não conta); 5 pedidos mais curtidos; tela "Números" para todos.
 - [ ] `spec/atendente.md`: uma quarta fila, No Jellyseerr, para fechar à mão o que já foi enviado; em
   A enviar também dá para marcar Atendido ou Não foi possível direto.
 - [ ] `spec/atendente.md`: o pedido oferecido a quem também quer sai das filas até alguém ficar com ele.

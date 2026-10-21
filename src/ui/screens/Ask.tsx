@@ -1,15 +1,20 @@
 // Pedir (docs/spec/pedidos.md): paste a link, or search, then confirm; or a manual request.
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import type { ApiError, MediaCardView, MeView, PreviewInput, SearchType } from '../../application/api-contract';
 import { isAttendant } from '../../domain/group/roles';
-import { isUnreleased, type MediaType } from '../../domain/media/media';
+import { findUrl, isUnreleased, parseSharedLink, type MediaType } from '../../domain/media/media';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
+import { browserShareEnvironment, clearPendingShare, pendingShare } from '../../infrastructure/share-target';
+import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
 import { Link, navigate } from '../router';
 import { useQuery } from '../use-query';
 
-type Step = { kind: 'search' } | { kind: 'confirm'; input: PreviewInput } | { kind: 'manual'; title: string };
+type Step =
+  | { kind: 'search'; unrecognized?: string }
+  | { kind: 'confirm'; input: PreviewInput }
+  | { kind: 'manual'; title: string; link?: string };
 
 const FILTERS: { value: SearchType; label: string }[] = [
   { value: 'all', label: strings.ask.filterAll },
@@ -24,16 +29,60 @@ function errorText(error: ApiError): string {
   return strings.genericError;
 }
 
-export function Ask({ me }: { me: MeView }) {
-  const [step, setStep] = useState<Step>({ kind: 'search' });
-  const back = () => setStep({ kind: 'search' });
-
-  if (step.kind === 'confirm') return <Confirm me={me} input={step.input} onBack={back} />;
-  if (step.kind === 'manual') return <ManualForm me={me} initialTitle={step.title} onBack={back} />;
-  return <Search onPick={(input) => setStep({ kind: 'confirm', input })} onManual={(title) => setStep({ kind: 'manual', title })} />;
+/** Where a link shared to the app on Android lands (docs/spec/app-e-instalacao.md). */
+function stepForShare(text: string | null): Step {
+  if (text === null) return { kind: 'search' };
+  return parseSharedLink(text) ? { kind: 'confirm', input: { text } } : { kind: 'search', unrecognized: text };
 }
 
-function Search({ onPick, onManual }: { onPick: (input: PreviewInput) => void; onManual: (title: string) => void }) {
+export function Ask({ me }: { me: MeView }) {
+  const [step, setStep] = useState<Step>(() => stepForShare(pendingShare(browserShareEnvironment())));
+  const back = () => setStep({ kind: 'search' });
+  const manual = (title: string, text?: string) => setStep({ kind: 'manual', title, link: (text && findUrl(text)) || undefined });
+
+  // The shared text is taken once: going back or opening Pedir again starts empty.
+  useEffect(() => clearPendingShare(browserShareEnvironment()), []);
+
+  if (step.kind === 'confirm') {
+    const text = 'text' in step.input ? step.input.text : undefined;
+    return <Confirm me={me} input={step.input} onBack={back} onManual={() => manual('', text)} />;
+  }
+  if (step.kind === 'manual') return <ManualForm me={me} initialTitle={step.title} initialLink={step.link} onBack={back} />;
+  return (
+    <Search
+      unrecognized={step.unrecognized}
+      onPick={(input) => setStep({ kind: 'confirm', input })}
+      onManual={(title) => manual(title, step.unrecognized)}
+    />
+  );
+}
+
+/** A link the app does not know: the friendly message, with the search and the manual request. */
+function UnrecognizedLink({ onSearch, onManual }: { onSearch: () => void; onManual: () => void }) {
+  return (
+    <div className="notice" role="alert">
+      <p>{strings.ask.unrecognizedLink}</p>
+      <div className="row">
+        <button type="button" onClick={onSearch}>
+          {strings.ask.searchInstead}
+        </button>
+        <button type="button" className="secondary" onClick={onManual}>
+          {strings.ask.manualOffer}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Search({
+  unrecognized,
+  onPick,
+  onManual,
+}: {
+  unrecognized?: string;
+  onPick: (input: PreviewInput) => void;
+  onManual: (title: string) => void;
+}) {
   const { backend } = useServices();
   const [link, setLink] = useState('');
   const [query, setQuery] = useState('');
@@ -42,10 +91,16 @@ function Search({ onPick, onManual }: { onPick: (input: PreviewInput) => void; o
   const [searched, setSearched] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [showUnrecognized, setShowUnrecognized] = useState(unrecognized !== undefined);
 
   function openLink(event: FormEvent) {
     event.preventDefault();
     if (link.trim()) onPick({ text: link });
+  }
+
+  function focusSearch() {
+    setShowUnrecognized(false);
+    document.getElementById('ask-search')?.focus();
   }
 
   async function search(event: FormEvent, filter: SearchType = type) {
@@ -67,6 +122,7 @@ function Search({ onPick, onManual }: { onPick: (input: PreviewInput) => void; o
   return (
     <section>
       <h1>{strings.ask.title}</h1>
+      {showUnrecognized && <UnrecognizedLink onSearch={focusSearch} onManual={() => onManual('')} />}
       <form className="row" onSubmit={openLink}>
         <label className="grow">
           <span className="muted">{strings.ask.linkLabel}</span>
@@ -78,7 +134,7 @@ function Search({ onPick, onManual }: { onPick: (input: PreviewInput) => void; o
       <form className="row" onSubmit={(e) => void search(e)}>
         <label className="grow">
           <span className="muted">{strings.ask.searchLabel}</span>
-          <input type="search" autoComplete="off" maxLength={100} value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input id="ask-search" type="search" autoComplete="off" maxLength={100} value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
         <button type="submit" disabled={busy}>
           {strings.ask.searchButton}
@@ -158,10 +214,7 @@ function PetiscoNotice({ me }: { me: MeView }) {
 function Done({ requestId, onBack }: { requestId: string; onBack: () => void }) {
   return (
     <section className="done">
-      <p className="done-pacoca" aria-hidden="true">
-        🐶
-      </p>
-      <h1>{strings.requestConfirmed}</h1>
+      <PacocaCelebration text={strings.requestConfirmed} />
       <div className="row">
         <button type="button" onClick={() => navigate(`/pedido/${requestId}`)}>
           {strings.confirm.seeRequest}
@@ -174,7 +227,7 @@ function Done({ requestId, onBack }: { requestId: string; onBack: () => void }) 
   );
 }
 
-function Confirm({ me, input, onBack }: { me: MeView; input: PreviewInput; onBack: () => void }) {
+function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewInput; onBack: () => void; onManual: () => void }) {
   const { backend } = useServices();
   const preview = useQuery('media.preview', input, ['requests']);
   const [note, setNote] = useState('');
@@ -194,7 +247,8 @@ function Confirm({ me, input, onBack }: { me: MeView; input: PreviewInput; onBac
     return (
       <section>
         {backButton}
-        {preview.error && (
+        {preview.error === 'unrecognized_link' && <UnrecognizedLink onSearch={onBack} onManual={onManual} />}
+        {preview.error && preview.error !== 'unrecognized_link' && (
           <p className="notice" role="alert">
             {errorText(preview.error)}
           </p>
@@ -289,12 +343,12 @@ function Confirm({ me, input, onBack }: { me: MeView; input: PreviewInput; onBac
   );
 }
 
-function ManualForm({ me, initialTitle, onBack }: { me: MeView; initialTitle: string; onBack: () => void }) {
+function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView; initialTitle: string; initialLink?: string; onBack: () => void }) {
   const { backend } = useServices();
   const [title, setTitle] = useState(initialTitle);
   const [type, setType] = useState<MediaType>('movie');
   const [note, setNote] = useState('');
-  const [link, setLink] = useState('');
+  const [link, setLink] = useState(initialLink);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);

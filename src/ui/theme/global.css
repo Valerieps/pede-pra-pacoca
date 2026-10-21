@@ -317,9 +317,50 @@ button.media-card {
   justify-content: center;
 }
 
-.done-pacoca {
-  font-size: var(--font-size-hero);
+.celebration {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  text-align: center;
+}
+
+.celebration-pacoca {
+  width: var(--celebration-size);
+  height: var(--celebration-size);
+  border-color: var(--color-celebration);
+  background: var(--color-accent-surface);
+  font-size: var(--celebration-glyph-size);
+  animation: pacoca-hop var(--celebration-duration) ease-in-out var(--celebration-hops);
+}
+
+.celebration-text {
   margin: 0;
+  font-size: var(--font-size-heading);
+  font-weight: 600;
+  color: var(--color-accent-text);
+}
+
+@keyframes pacoca-hop {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  30% {
+    transform: translateY(calc(-1 * var(--celebration-hop-height))) rotate(-8deg);
+  }
+  60% {
+    transform: translateY(0) rotate(6deg);
+  }
+}
+
+/* Reduced motion: the Paçoca stands still; the text says the same thing. */
+@media (prefers-reduced-motion: reduce) {
+  .celebration-pacoca {
+    animation: none;
+  }
+}
+
 .install-guide {
   margin-bottom: var(--space-4);
 }
@@ -472,4 +513,59 @@ legend {
 .queue-check {
   width: auto;
   align-self: center;
+}
+
+/* Statistics (docs/spec/estatisticas.md) */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-2);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.stat strong {
+  font-size: 1.4em;
+}
+
+.bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.bars li {
+  display: grid;
+  grid-template-columns: minmax(64px, 30%) 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-track {
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-brand);
 }

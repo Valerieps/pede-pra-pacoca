@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CommandName, Commands, RequestDetailView } from '../../application/api-contract';
 import { isUnreleased } from '../../domain/media/media';
 import { reasonText } from '../../domain/request/reason';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
+import { browserCelebrationStore, celebratesFulfilled, firstCelebration } from '../../infrastructure/celebrations';
+import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
 import { useQuery } from '../use-query';
 
@@ -24,7 +26,14 @@ function Detail({ request }: { request: RequestDetailView }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
   const { viewer } = request;
+
+  // The Paçoca celebrates my Atendido once per phone, also when it arrives while I look.
+  const celebrates = celebratesFulfilled(request);
+  useEffect(() => {
+    if (celebrates && firstCelebration(browserCelebrationStore(), request.id)) setCelebrate(true);
+  }, [celebrates, request.id]);
 
   async function run<N extends CommandName>(name: N, input: Commands[N]['input']): Promise<boolean> {
     setBusy(true);
@@ -45,6 +54,7 @@ function Detail({ request }: { request: RequestDetailView }) {
 
   return (
     <section>
+      {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} />}
       <div className="media-header">
         <Poster path={request.posterPath} title={request.title} />
         <div>

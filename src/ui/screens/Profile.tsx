@@ -4,9 +4,10 @@ import { NAME_MAX_LENGTH, normalizeName, type PhotoChoice } from '../../domain/g
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { useServices } from '../backend-context';
+import { Link } from '../router';
 
 /** Name and photo: the first-access screen, and later the Perfil screen. */
-export function Profile({ me, firstAccess = false }: { me: MeView; firstAccess?: boolean }) {
+export function Profile({ me, firstAccess = false, onConfirmed }: { me: MeView; firstAccess?: boolean; onConfirmed?: () => void }) {
   const { backend } = useServices();
   const [name, setName] = useState(me.name);
   const [photo, setPhoto] = useState<PhotoChoice>(me.googlePhotoUrl ? me.photoChoice : 'none');
@@ -23,14 +24,21 @@ export function Profile({ me, firstAccess = false }: { me: MeView; firstAccess?:
     const result = await backend.command('member.updateProfile', { name, photo });
     setBusy(false);
     // On first access, the "me" refetch that follows moves the app on to the feed.
-    if (result.ok) setMessage(firstAccess ? null : strings.profile.saved);
-    else setMessage(result.error === 'invalid' ? strings.profile.invalidName : strings.genericError);
+    if (result.ok) {
+      setMessage(firstAccess ? null : strings.profile.saved);
+      onConfirmed?.();
+    } else setMessage(result.error === 'invalid' ? strings.profile.invalidName : strings.genericError);
   }
 
   return (
     <section>
       <h1>{firstAccess ? strings.profile.firstAccessTitle : strings.profile.title}</h1>
       {firstAccess && <p>{strings.profile.firstAccessIntro}</p>}
+      {!firstAccess && (
+        <p>
+          <Link to={`/membro/${me.id}`}>{strings.stats.myNumbers}</Link>
+        </p>
+      )}
       <form className="stack" onSubmit={submit}>
         <label>
           <span className="muted">{strings.profile.nameLabel}</span>
