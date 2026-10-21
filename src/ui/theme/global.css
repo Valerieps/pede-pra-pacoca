@@ -73,15 +73,17 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* Primary: brand fill, bold */
 button,
 .button {
   display: inline-block;
   padding: var(--space-2) var(--space-4);
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--radius-button);
   background: var(--color-brand);
   color: var(--color-on-brand);
   font: inherit;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
 }
@@ -557,9 +559,27 @@ button.chip[aria-pressed='true'] {
   margin-top: var(--space-2);
 }
 
+/* A feed card: the poster on the left, then who did what, then the actions */
 .feed-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: var(--color-bg);
+}
+
+.feed-poster {
+  flex: none;
+}
+
+.feed-poster .poster {
+  width: var(--feed-poster-width);
+}
+
+.feed-body {
   display: grid;
   gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
 }
 
 .feed-line,
@@ -570,8 +590,47 @@ button.chip[aria-pressed='true'] {
   gap: var(--space-3);
 }
 
+.feed-line .avatar {
+  width: var(--avatar-size-small);
+  height: var(--avatar-size-small);
+  font-size: var(--font-size-small);
+}
+
+.feed-text {
+  color: inherit;
+  text-decoration: none;
+}
+
+.feed-text .media-title {
+  font-style: normal;
+  font-weight: 600;
+}
+
 .feed-actions {
   justify-content: flex-start;
+}
+
+@media (min-width: 1024px) {
+  .feed-poster .poster {
+    width: var(--feed-poster-width-large);
+  }
+}
+
+/* Cards that open something rest on the page background */
+a.card {
+  background: var(--color-bg);
+}
+
+/* With a mouse, hovering shows what can be clicked; nothing depends on it, phones have no hover */
+@media (hover: hover) {
+  a.card:hover,
+  .feed-item:hover {
+    background: var(--color-surface);
+  }
+
+  a.card:hover {
+    cursor: pointer;
+  }
 }
 
 button.link.muted {

@@ -3,6 +3,7 @@ import type { FeedEventView } from '../../application/api-contract';
 import { FEED_FILTERS, FEED_PAGE_SIZE, type FeedFilter } from '../../domain/feed/feed';
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
+import { Poster } from '../components/Poster';
 import { Link } from '../router';
 import { EmptyState } from '../components/EmptyState';
 import { PawLike } from '../components/PawLike';
@@ -10,7 +11,7 @@ import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
 function describe(event: FeedEventView) {
-  const title = <em>{event.requestTitle}</em>;
+  const title = <em className="media-title">{event.requestTitle}</em>;
   switch (event.type) {
     case 'member_joined':
       return strings.feed.memberJoined(event.actor.name);
@@ -121,27 +122,35 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
 
   return (
     <li className="card feed-item">
-      <div className="feed-line">
-        {event.requestId ? (
-          <Link to={`/pedido/${event.requestId}`} className="grow">
-            {describe(event)}
-          </Link>
-        ) : (
-          <span className="grow">{describe(event)}</span>
-        )}
-        <time className="muted" dateTime={event.at}>
-          {new Date(event.at).toLocaleDateString('pt-BR')}
-        </time>
+      {event.requestId && (
+        <Link to={`/pedido/${event.requestId}`} className="feed-poster" tabIndex={-1} aria-hidden="true">
+          <Poster path={event.requestPosterPath} title={event.requestTitle ?? ''} />
+        </Link>
+      )}
+      <div className="feed-body">
+        <div className="feed-line">
+          <Avatar name={event.actor.name} photoUrl={event.actor.photoUrl} />
+          {event.requestId ? (
+            <Link to={`/pedido/${event.requestId}`} className="grow feed-text">
+              {describe(event)}
+            </Link>
+          ) : (
+            <span className="grow feed-text">{describe(event)}</span>
+          )}
+          <time className="muted" dateTime={event.at}>
+            {new Date(event.at).toLocaleDateString('pt-BR')}
+          </time>
+        </div>
+        <div className="feed-actions">
+          <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
+          {event.likeCount > 0 && (
+            <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
+              {strings.feed.likeCount(event.likeCount)}
+            </button>
+          )}
+        </div>
+        {showLikers && event.likeCount > 0 && <Likers eventId={event.id} />}
       </div>
-      <div className="feed-actions">
-        <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
-        {event.likeCount > 0 && (
-          <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
-            {strings.feed.likeCount(event.likeCount)}
-          </button>
-        )}
-      </div>
-      {showLikers && event.likeCount > 0 && <Likers eventId={event.id} />}
     </li>
   );
 }

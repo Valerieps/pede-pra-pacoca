@@ -26,6 +26,7 @@ interface FeedRow extends MemberRow {
   type: FeedEventType;
   request_id: string | null;
   request_title: string | null;
+  request_poster_path: string | null;
   like_count: number;
   liked_by_me: number;
   data: string;
@@ -58,7 +59,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
 
   const events = ctx.sql
     .all<FeedRow>(
-      `SELECT members.*, e.id AS event_id, e.type, e.request_id, requests.title AS request_title,
+      `SELECT members.*, e.id AS event_id, e.type, e.request_id, requests.title AS request_title, requests.poster_path AS request_poster_path,
               e.like_count, e.at, e.data,
               EXISTS (SELECT 1 FROM likes WHERE likes.event_id = e.id AND likes.member_id = ?) AS liked_by_me
        FROM feed_events e JOIN members ON members.id = e.actor_id
@@ -74,6 +75,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       actor: memberView(toMember(row)),
       requestId: row.request_id,
       requestTitle: row.request_title,
+      requestPosterPath: row.request_poster_path,
       at: row.at,
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,

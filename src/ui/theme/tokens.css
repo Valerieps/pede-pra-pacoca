@@ -90,6 +90,7 @@
   --space-8: 32px;
 
   --radius: 10px;
+  --radius-button: 14px;
   --radius-card: 16px;
   --radius-pill: 999px;
 
@@ -118,8 +119,12 @@
 
   --poster-width: 128px;
   --poster-width-small: 48px;
+  /* Feed cards: 62×92 on a phone, 84×126 on a computer (the poster keeps 2:3) */
+  --feed-poster-width: 62px;
+  --feed-poster-width-large: 84px;
 
   --avatar-size: 40px;
+  --avatar-size-small: 28px;
   /* The Paçoca's art slot: 96px in empty states, 128px in the animations (brief-artes-pacoca.md) */
   --pacoca-art-size: 96px;
   --pacoca-art-size-large: 128px;
