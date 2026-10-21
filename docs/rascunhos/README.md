@@ -9,3 +9,4 @@ Quando a tela de um rascunho fica pronta, o rascunho é apagado: o código passa
 
 | Rascunho | Status |
 | --- | --- |
+| [brief-artes-pacoca.md](brief-artes-pacoca.md) | Brief para o Cesar: estilo, paleta, peças e ícone. Fica até as artes chegarem e entrarem no app |
