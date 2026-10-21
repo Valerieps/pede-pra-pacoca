@@ -8,16 +8,21 @@ export type LinkTarget =
 
 const URL_IN_TEXT = /\bhttps?:\/\/\S+/i;
 
+/** The first http(s) link in a text, or null. */
+export function findUrl(text: string): string | null {
+  return URL_IN_TEXT.exec(text)?.[0] ?? null;
+}
+
 /**
  * Finds an IMDb or TMDB link in shared text. Android often sends the link inside `text`
  * ("Olha esse filme https://..."), so the whole text is searched.
  */
 export function parseSharedLink(text: string): LinkTarget | null {
-  const match = URL_IN_TEXT.exec(text);
-  if (!match) return null;
+  const found = findUrl(text);
+  if (!found) return null;
   let url: URL;
   try {
-    url = new URL(match[0]);
+    url = new URL(found);
   } catch {
     return null;
   }

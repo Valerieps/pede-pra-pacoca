@@ -93,3 +93,12 @@ export function browserPushDevice(): PushDevice {
     },
   };
 }
+
+/**
+ * Right after the first-access profile, the app offers push (docs/spec/app-e-instalacao.md):
+ * when the browser can still ask, or on an iPhone that needs the app installed first. Already
+ * answered or impossible: nothing to offer, the member can still go to Avisos later.
+ */
+export function offersPushAtFirstAccess(state: PushState): boolean {
+  return state === 'prompt' || state === 'needs-install';
+}
