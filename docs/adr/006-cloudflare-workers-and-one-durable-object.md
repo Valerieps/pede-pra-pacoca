@@ -21,7 +21,8 @@ database: it calls `POST /api/query/<name>` and `POST /api/command/<name>`, type
   quota computed from the ledger (`src/domain/petisco/ledger.ts`).
 - **Plan:** Workers Free. Durable Objects with SQLite storage and cron triggers are included.
 - **Deploy:** Workers Builds, connected to the GitHub repository, runs `npm run build` and deploys
-  `main`; other branches get a preview version. The build ends with `wrangler deploy --dry-run`, so
+  `main`; other branches get a preview version (`wrangler preview`, configured by the `previews`
+  block of `wrangler.jsonc`: its own empty `Group` namespace, no secrets). The build ends with `wrangler deploy --dry-run`, so
   CI catches a Worker that does not bundle.
 - **Phase 2:** the home agent will call two authenticated endpoints using only outgoing connections
   (claim the "A enviar" queue, report the result). Nothing is built for it now.

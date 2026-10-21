@@ -23,6 +23,17 @@
   "vars": {
     "GOOGLE_CLIENT_ID": "625557632408-gnlmrs1vh8ahpcvhae138en02r7qbhe0.apps.googleusercontent.com"
   },
+  // Branch previews (`wrangler preview`, ADR-006) refuse to deploy without this block. Each preview
+  // gets its own empty Group namespace, never production's data; it has no secrets and no cron, and
+  // Google sign-in does not work there (ADR-007), so the public client ID is enough.
+  "previews": {
+    "vars": {
+      "GOOGLE_CLIENT_ID": "625557632408-gnlmrs1vh8ahpcvhae138en02r7qbhe0.apps.googleusercontent.com"
+    },
+    "durable_objects": {
+      "bindings": [{ "name": "GROUP", "class_name": "Group" }]
+    }
+  },
   "observability": { "enabled": true },
   // No Wrangler usage telemetry from builds or CI (docs/SEGURANCA.md).
   "send_metrics": false
