@@ -167,3 +167,19 @@ export function transition(state: RequestState, action: RequestAction, actor: Ac
       return ok({ ...state, status: 'canceled' }, refund(state));
   }
 }
+
+/**
+ * A co-requester accepts the request its requester cancelled and becomes the requester
+ * (docs/spec/pedidos.md, "Meus pedidos"). Before No Jellyseerr the request starts over like a new
+ * one: approved with her petisco or as an attendant, awaiting approval without. Past that point it
+ * keeps going and only takes her petisco if she has one.
+ */
+export function inheritedStatus(input: { status: RequestStatus; heirIsAttendant: boolean; reservedLot: string | null }): {
+  status: RequestStatus;
+  effects: Effect[];
+} {
+  const reserve: Effect[] = input.reservedLot && !input.heirIsAttendant ? [{ type: 'petisco', operation: 'reserve', lot: input.reservedLot }] : [];
+  if (input.status !== 'awaiting_approval' && input.status !== 'approved') return { status: input.status, effects: reserve };
+  if (input.heirIsAttendant || input.reservedLot) return { status: 'approved', effects: reserve };
+  return { status: 'awaiting_approval', effects: [{ type: 'notify', trigger: 'request_awaiting_approval' }] };
+}

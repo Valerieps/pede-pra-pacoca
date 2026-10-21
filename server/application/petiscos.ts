@@ -2,7 +2,7 @@
 // manual cashback, and the 7-day expiry notice.
 import type { PetiscoBalanceView, PetiscoMovementView, PetiscoSettingsView, PetiscoStatementView, Topic } from '../../src/application/api-contract';
 import { canAttend } from '../../src/domain/group/roles';
-import { canGiveManualCashback, DEFAULT_CASHBACK_SETTINGS } from '../../src/domain/petisco/cashback';
+import { automaticCashback, canGiveManualCashback, cashbackCriteria, DEFAULT_CASHBACK_SETTINGS, type CashbackContext } from '../../src/domain/petisco/cashback';
 import { addDays } from '../../src/domain/time';
 import {
   balanceOf,
@@ -181,14 +181,34 @@ export function giveCashback(ctx: Context, actor: Member, input: { requestId?: u
     input.requestId,
   );
   if (!request) return failure('not_found');
-  const has = (where: string) => ctx.sql.all(`SELECT 1 FROM petisco_movements WHERE request_id = ? AND ${where}`, request.id).length > 0;
-  const context = { coRequesterCount: 0, debitedPetisco: has("operation = 'debit'"), alreadyGotCashback: has("kind = 'cashback' AND operation = 'credit'") };
-  if (request.status !== 'fulfilled' || !canGiveManualCashback(context)) return failure('conflict');
-
-  creditExtra(ctx, { memberId: request.requester_id, kind: 'cashback', requestId: request.id, reason, actorId: actor.id });
-  recordFeedEvent(ctx, { type: 'cashback', actorId: request.requester_id, requestId: request.id });
-  notifyPetiscoReceived(ctx, { memberId: request.requester_id, kind: 'cashback', amount: 1 });
+  if (request.status !== 'fulfilled' || !canGiveManualCashback(cashbackContextOf(ctx, request.id))) return failure('conflict');
+  grantCashback(ctx, { requestId: request.id, memberId: request.requester_id, reason, actorId: actor.id });
   return { ok: true, value: null, changed: [...BALANCE_TOPICS, 'feed'] };
+}
+
+function cashbackContextOf(ctx: Context, requestId: string): CashbackContext {
+  const has = (where: string) => ctx.sql.all(`SELECT 1 FROM petisco_movements WHERE request_id = ? AND ${where}`, requestId).length > 0;
+  const [{ count }] = ctx.sql.all<{ count: number }>('SELECT COUNT(*) AS count FROM co_requests WHERE request_id = ?', requestId);
+  return { coRequesterCount: count, debitedPetisco: has("operation = 'debit'"), alreadyGotCashback: has("kind = 'cashback' AND operation = 'credit'") };
+}
+
+function grantCashback(ctx: Context, input: { requestId: string; memberId: string; reason: string | null; actorId: string }): void {
+  creditExtra(ctx, { memberId: input.memberId, kind: 'cashback', requestId: input.requestId, reason: input.reason, actorId: input.actorId });
+  recordFeedEvent(ctx, { type: 'cashback', actorId: input.memberId, requestId: input.requestId });
+  notifyPetiscoReceived(ctx, { memberId: input.memberId, kind: 'cashback', amount: 1 });
+}
+
+/**
+ * The automatic cashback, for the request's `evaluate_cashback` effect once the debit is written:
+ * the first enabled criterion that matches gives the requester one cashback. Returns whether it did.
+ */
+export function evaluateAutomaticCashback(ctx: Context, requestId: string): boolean {
+  const [request] = ctx.sql.all<{ requester_id: string }>('SELECT requester_id FROM requests WHERE id = ?', requestId);
+  if (!request) return false;
+  const criterion = automaticCashback(cashbackContextOf(ctx, requestId), cashbackCriteria(readConfig(ctx, 'cashback', DEFAULT_CASHBACK_SETTINGS)));
+  if (!criterion) return false;
+  grantCashback(ctx, { requestId, memberId: request.requester_id, reason: null, actorId: 'pacoca' });
+  return true;
 }
 
 /**

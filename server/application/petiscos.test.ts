@@ -3,6 +3,7 @@ import type { GroupExport, PetiscoSettingsView, PetiscoStatementView, VacationVi
 import { fixedClock, memorySql, sequentialIds } from '../testing/node-sql';
 import type { Sql } from './ports';
 import { GroupService } from './group-service';
+import { evaluateAutomaticCashback } from './petiscos';
 
 const cesar = { sub: 'g-cesar', email: 'cesar@example.com', name: 'Cesar', picture: null };
 const carla = { sub: 'g-carla', email: 'carla@example.com', name: 'Carla', picture: null };
@@ -144,6 +145,33 @@ describe('manual cashback', () => {
     expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'open' })).toEqual({ ok: false, error: 'conflict' });
     expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'free' })).toEqual({ ok: false, error: 'conflict' });
     expect(service.command('s-cesar', 'petiscos.giveCashback', { requestId: 'none' })).toEqual({ ok: false, error: 'not_found' });
+  });
+});
+
+describe('automatic cashback', () => {
+  let n = 0;
+  const ctx = () => ({ sql, clock, ids: { next: () => `auto-${++n}` } });
+  const coRequest = (requestId: string, memberId: string) =>
+    sql.run('INSERT INTO co_requests (request_id, member_id, at) VALUES (?, ?, ?)', requestId, memberId, clock.now().toISOString());
+
+  it('gives one cashback when the request reaches the co-requester threshold', () => {
+    carlasRequest('r1', 'fulfilled');
+    coRequest('r1', ids.bia);
+    expect(evaluateAutomaticCashback(ctx(), 'r1')).toBe(false);
+    coRequest('r1', ids.cesar);
+    clock.set('2026-10-21T16:00:00Z');
+    expect(evaluateAutomaticCashback(ctx(), 'r1')).toBe(true);
+    expect(evaluateAutomaticCashback(ctx(), 'r1')).toBe(false);
+    expect(balance('s-carla').extras).toMatchObject([{ kind: 'cashback' }]);
+    expect(value<unknown[]>(service.query('s-carla', 'feed', {}))[0]).toMatchObject({ type: 'cashback', requestId: 'r1' });
+  });
+
+  it('follows the attendant settings', () => {
+    carlasRequest('r1', 'fulfilled');
+    coRequest('r1', ids.bia);
+    coRequest('r1', ids.cesar);
+    service.command('s-cesar', 'petiscos.setCashback', { coRequesters: { enabled: false, threshold: 2 } });
+    expect(evaluateAutomaticCashback(ctx(), 'r1')).toBe(false);
   });
 });
 

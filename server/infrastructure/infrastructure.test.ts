@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { clearCookie, readCookie, setCookie } from './cookies';
 import { base64Url, constantTimeEqual } from './crypto';
 import { authorizationUrl, decodePendingLogin, encodePendingLogin, newPendingLogin, profileFromIdToken } from './google-oauth';
+import { devProfile, devSignInAllowed } from './dev-sign-in';
 
 function idToken(claims: object): string {
   const part = (o: object) => base64Url(new TextEncoder().encode(JSON.stringify(o)));
@@ -79,5 +80,29 @@ describe('constantTimeEqual', () => {
     expect(constantTimeEqual('abc', 'abc')).toBe(true);
     expect(constantTimeEqual('abc', 'abd')).toBe(false);
     expect(constantTimeEqual('abc', 'abcd')).toBe(false);
+  });
+});
+
+describe('dev sign-in', () => {
+  it('is on only with the flag and only on this computer', () => {
+    expect(devSignInAllowed('1', new URL('http://localhost:4173/api/auth/dev'))).toBe(true);
+    expect(devSignInAllowed('1', new URL('http://127.0.0.1:8787/api/auth/dev'))).toBe(true);
+    expect(devSignInAllowed('1', new URL('http://[::1]:8787/api/auth/dev'))).toBe(true);
+    expect(devSignInAllowed(undefined, new URL('http://localhost:4173/api/auth/dev'))).toBe(false);
+    expect(devSignInAllowed('true', new URL('http://localhost:4173/api/auth/dev'))).toBe(false);
+    expect(devSignInAllowed('1', new URL('https://pede-pra-pacoca.workers.dev/api/auth/dev'))).toBe(false);
+    expect(devSignInAllowed('1', new URL('https://localhost.example.com/api/auth/dev'))).toBe(false);
+  });
+
+  it('stands for the typed e-mail, with no photo', () => {
+    expect(devProfile({ email: ' Carla@Example.com ', name: 'Carla' })).toEqual({
+      sub: 'dev:carla@example.com',
+      email: 'carla@example.com',
+      name: 'Carla',
+      picture: null,
+    });
+    expect(devProfile({ email: 'dani@example.com', name: '' })).toMatchObject({ name: 'dani' });
+    expect(devProfile({ email: 'not an e-mail' })).toBeNull();
+    expect(devProfile({ email: null })).toBeNull();
   });
 });

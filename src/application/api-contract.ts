@@ -1,9 +1,12 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
+import type { FeedFilter } from '../domain/feed/feed';
 import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
 import type { CashbackSettings } from '../domain/petisco/cashback';
 import type { PetiscoKind, PetiscoOperation } from '../domain/petisco/ledger';
+import type { MediaType } from '../domain/media/media';
+import type { RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
 
 export interface MemberView {
   readonly id: string;
@@ -103,15 +106,127 @@ export interface FeedEventView {
   readonly type: FeedEventType;
   readonly actor: MemberView;
   readonly requestId: string | null;
+  /** The request's title, for "Ana pediu *Duna*". */
+  readonly requestTitle: string | null;
   readonly at: string;
   readonly likeCount: number;
+  readonly likedByMe: boolean;
 }
+
+export type { FeedFilter };
+
+export interface LikeToggleView {
+  readonly liked: boolean;
+  readonly likeCount: number;
+}
+
+/** A movie or series as TMDB describes it. Posters are paths on image.tmdb.org. */
+export interface MediaView {
+  readonly type: MediaType;
+  readonly tmdbId: number;
+  readonly title: string;
+  readonly year: number | null;
+  readonly posterPath: string | null;
+  /** "YYYY-MM-DD"; the first air date for series. */
+  readonly releaseDate: string | null;
+  readonly genres: readonly string[];
+}
+
+/** The duplicate check (docs/spec/pedidos.md): what already exists for this media or link. */
+export type Availability =
+  | { readonly kind: 'new' }
+  | { readonly kind: 'active'; readonly requestId: string; readonly mine: boolean; readonly joined: boolean }
+  | { readonly kind: 'fulfilled'; readonly requestId: string }
+  | { readonly kind: 'known' };
+
+export interface MediaCardView extends MediaView {
+  readonly availability: Availability;
+}
+
+export type SearchType = MediaType | 'all';
+
+/** What to preview: a pasted or shared text with a link, or a pick from the search. */
+export type PreviewInput = { readonly text: string } | { readonly type: MediaType; readonly tmdbId: number };
+
+export interface RequestView {
+  readonly id: string;
+  readonly origin: RequestOrigin;
+  readonly mediaType: MediaType;
+  readonly tmdbId: number | null;
+  readonly title: string;
+  readonly year: number | null;
+  readonly posterPath: string | null;
+  readonly releaseDate: string | null;
+  readonly genres: readonly string[];
+  /** Only on manual requests: any http(s) URL. */
+  readonly link: string | null;
+  readonly note: string | null;
+  readonly status: RequestStatus;
+  readonly requester: MemberView;
+  readonly assignee: MemberView | null;
+  readonly coRequesters: readonly MemberView[];
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface RequestTransitionView {
+  readonly from: RequestStatus | null;
+  readonly to: RequestStatus;
+  /** Null when the Jellyseerr did it. */
+  readonly actor: MemberView | null;
+  readonly event: string | null;
+  readonly at: string;
+}
+
+export interface InheritanceOfferView {
+  readonly member: MemberView;
+  readonly expiresAt: string;
+}
+
+export interface RequestDetailView extends RequestView {
+  readonly transitions: readonly RequestTransitionView[];
+  /** The co-requester currently offered the request its requester cancelled. */
+  readonly offer: InheritanceOfferView | null;
+  readonly viewer: {
+    readonly isRequester: boolean;
+    readonly isCoRequester: boolean;
+    readonly canCancel: boolean;
+    readonly canEditNote: boolean;
+    readonly canJoin: boolean;
+    readonly canLeave: boolean;
+    readonly hasOffer: boolean;
+  };
+}
+
+export type CreateRequestInput =
+  | {
+      readonly origin: 'tmdb';
+      readonly type: MediaType;
+      readonly tmdbId: number;
+      readonly note?: string;
+      /** "Pedir de novo" a media already fulfilled or known. */
+      readonly again?: boolean;
+    }
+  | {
+      readonly origin: 'manual';
+      readonly type: MediaType;
+      readonly title: string;
+      readonly note?: string;
+      readonly link?: string;
+      readonly again?: boolean;
+    };
 
 export interface Queries {
   me: { input: Record<string, never>; output: MeView };
   members: { input: Record<string, never>; output: MemberListItem[] };
   invites: { input: Record<string, never>; output: InviteView[] };
-  feed: { input: { before?: string }; output: FeedEventView[] };
+  feed: { input: { before?: string; beforeId?: string; filter?: FeedFilter }; output: FeedEventView[] };
+  'feed.likes': { input: { eventId: string }; output: MemberView[] };
+  'media.search': { input: { query: string; type: SearchType }; output: MediaCardView[] };
+  'media.preview': { input: PreviewInput; output: MediaCardView };
+  'manual.availability': { input: { link: string }; output: Availability };
+  'requests.mine': { input: Record<string, never>; output: RequestView[] };
+  'request.detail': { input: { id: string }; output: RequestDetailView };
   'petiscos.statement': { input: Record<string, never>; output: PetiscoStatementView };
   'petiscos.settings': { input: Record<string, never>; output: PetiscoSettingsView };
   vacation: { input: Record<string, never>; output: VacationView };
@@ -122,6 +237,12 @@ export interface Commands {
   'invite.create': { input: { email: string }; output: InviteView };
   'invite.revoke': { input: { email: string }; output: null };
   'member.setRoles': { input: { memberId: string; roles: Role[] }; output: MemberView };
+  'request.create': { input: CreateRequestInput; output: RequestView };
+  'request.join': { input: { id: string }; output: null };
+  'request.leave': { input: { id: string }; output: null };
+  'request.cancel': { input: { id: string }; output: null };
+  'request.editNote': { input: { id: string; note: string }; output: null };
+  'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
   'member.updateProfile': { input: { name: string; photo: PhotoChoice }; output: MeView };
   'petiscos.setMonthly': { input: { petiscos: number }; output: null };
   /** `petiscos: null` goes back to the group's number. */
@@ -131,13 +252,14 @@ export interface Commands {
   'petiscos.giveCashback': { input: { requestId: string; reason?: string }; output: null };
   /** `until` is the return date, "YYYY-MM-DD", or null. */
   'vacation.set': { input: { onVacation: boolean; until: string | null }; output: VacationView };
+  'feed.toggleLike': { input: { eventId: string }; output: LikeToggleView };
 }
 
 export type QueryName = keyof Queries;
 export type CommandName = keyof Commands;
 
 /** What changed, pushed to every open app over the live connection so it refetches. */
-export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'petiscos' | 'vacation';
+export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'requests' | 'petiscos' | 'vacation';
 
 export interface LiveMessage {
   readonly type: 'changed';
@@ -151,6 +273,8 @@ export type ApiError =
   | 'invalid'
   | 'conflict'
   | 'last_admin'
-  | 'unavailable';
+  | 'unavailable'
+  /** A shared link the app does not recognize. */
+  | 'unrecognized_link';
 
 export type ApiResult<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: ApiError };
