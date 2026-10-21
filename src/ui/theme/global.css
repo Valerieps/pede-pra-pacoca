@@ -22,6 +22,16 @@ body {
 h1 {
   margin: 0 0 var(--space-2);
   color: var(--color-brand);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* The app name in the header */
+.app > header > strong {
+  color: var(--color-brand);
+  font-family: var(--font-display);
+  font-size: var(--font-size-heading);
+  font-weight: 600;
 }
 
 a {
@@ -47,7 +57,7 @@ a {
 .notice {
   padding: var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   background: var(--color-surface);
 }
 
@@ -66,7 +76,7 @@ a {
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   background: var(--color-surface);
   overflow-wrap: anywhere;
 }
@@ -187,8 +197,8 @@ fieldset {
   height: var(--avatar-size);
   border-radius: 50%;
   object-fit: cover;
-  background: var(--color-border);
-  color: var(--color-text-muted);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
   font-weight: 600;
 }
 
@@ -285,6 +295,11 @@ button.media-card {
   overflow-wrap: anywhere;
 }
 
+button.media-card strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
 .media-header {
   display: flex;
   gap: var(--space-4);
@@ -336,6 +351,7 @@ button.media-card {
 
 .celebration-text {
   margin: 0;
+  font-family: var(--font-display);
   font-size: var(--font-size-heading);
   font-weight: 600;
   color: var(--color-accent-text);
@@ -379,6 +395,13 @@ button.media-card {
   gap: var(--space-2);
   padding: var(--space-6) 0;
   text-align: center;
+}
+
+/* The Paçoca's line */
+.empty-state p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
 }
 
 .pacoca-placeholder {
@@ -456,6 +479,12 @@ button.link.muted {
   color: var(--color-text-muted);
 }
 
+/* A like is a social signal: cherry pop */
+.feed-actions button[aria-pressed='true'] {
+  color: var(--color-pop-text);
+  font-weight: 600;
+}
+
 .likers {
   list-style: none;
   margin: 0;
@@ -474,7 +503,7 @@ button.link.muted {
   margin: var(--space-8) auto 0;
   padding: var(--space-4);
   border: 1px dashed var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   text-align: left;
 }
 
@@ -490,16 +519,22 @@ legend {
 }
 
 .inbox-item.unread {
-  border-color: var(--color-brand);
+  border-color: var(--color-pop);
 }
 
 .badge {
   margin-left: var(--space-2);
   padding: 0 var(--space-2);
-  border-radius: var(--radius);
-  background: var(--color-brand);
-  color: var(--color-on-brand);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
   font-size: 0.8em;
+}
+
+.inbox-item .badge {
+  background: var(--color-pop-soft);
+  color: var(--color-pop-text);
+  font-weight: 600;
 }
 
 .queue-controls {
@@ -528,7 +563,7 @@ legend {
   gap: var(--space-1);
   padding: var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   background: var(--color-surface);
 }
 
