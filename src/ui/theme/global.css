@@ -26,14 +26,6 @@ h1 {
   font-weight: 600;
 }
 
-/* The app name in the header */
-.app > header > strong {
-  color: var(--color-brand);
-  font-family: var(--font-display);
-  font-size: var(--font-size-heading);
-  font-weight: 600;
-}
-
 a {
   color: var(--color-brand);
 }
@@ -133,10 +125,6 @@ input {
 h2 {
   margin: var(--space-6) 0 var(--space-2);
   font-size: var(--font-size-heading);
-}
-
-nav.row {
-  flex-wrap: wrap;
 }
 
 textarea {

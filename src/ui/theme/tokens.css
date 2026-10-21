@@ -93,6 +93,17 @@
   --radius-card: 16px;
   --radius-pill: 999px;
 
+  /* The navigation shell: phone tab bar, tablet rail, computer sidebar and right column */
+  --content-max-width: 560px;
+  --rail-width: 72px;
+  --sidebar-width: 220px;
+  --side-column-width: 300px;
+  --touch-size: 44px;
+  --icon-size: 24px;
+  --ask-button-size: 52px;
+  --font-size-tiny: 11px;
+  --shadow-raised: 0 4px 12px rgb(122 31 61 / 0.3);
+
   --poster-width: 128px;
   --poster-width-small: 48px;
 
@@ -132,5 +143,6 @@
     --color-accent-surface: #2e2618;
     --color-accent-text: #e6b572;
     --color-celebration: #e6b572;
+    --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
   }
 }

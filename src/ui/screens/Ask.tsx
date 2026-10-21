@@ -8,11 +8,12 @@ import { useServices } from '../backend-context';
 import { browserShareEnvironment, clearPendingShare, pendingShare } from '../../infrastructure/share-target';
 import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
+import { takeAskDraft } from '../ask-draft';
 import { Link, navigate } from '../router';
 import { useQuery } from '../use-query';
 
 type Step =
-  | { kind: 'search'; unrecognized?: string }
+  | { kind: 'search'; unrecognized?: string; query?: string }
   | { kind: 'confirm'; input: PreviewInput }
   | { kind: 'manual'; title: string; link?: string };
 
@@ -35,8 +36,16 @@ function stepForShare(text: string | null): Step {
   return parseSharedLink(text) ? { kind: 'confirm', input: { text } } : { kind: 'search', unrecognized: text };
 }
 
+/** A link or search typed in the computer's right column, else a link shared to the app. */
+function firstStep(): Step {
+  const draft = takeAskDraft();
+  if (draft?.kind === 'link') return { kind: 'confirm', input: { text: draft.text } };
+  if (draft?.kind === 'search') return { kind: 'search', query: draft.query };
+  return stepForShare(pendingShare(browserShareEnvironment()));
+}
+
 export function Ask({ me }: { me: MeView }) {
-  const [step, setStep] = useState<Step>(() => stepForShare(pendingShare(browserShareEnvironment())));
+  const [step, setStep] = useState<Step>(firstStep);
   const back = () => setStep({ kind: 'search' });
   const manual = (title: string, text?: string) => setStep({ kind: 'manual', title, link: (text && findUrl(text)) || undefined });
 
@@ -51,6 +60,7 @@ export function Ask({ me }: { me: MeView }) {
   return (
     <Search
       unrecognized={step.unrecognized}
+      initialQuery={step.query}
       onPick={(input) => setStep({ kind: 'confirm', input })}
       onManual={(title) => manual(title, step.unrecognized)}
     />
@@ -76,16 +86,18 @@ function UnrecognizedLink({ onSearch, onManual }: { onSearch: () => void; onManu
 
 function Search({
   unrecognized,
+  initialQuery = '',
   onPick,
   onManual,
 }: {
   unrecognized?: string;
+  initialQuery?: string;
   onPick: (input: PreviewInput) => void;
   onManual: (title: string) => void;
 }) {
   const { backend } = useServices();
   const [link, setLink] = useState('');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [type, setType] = useState<SearchType>('all');
   const [results, setResults] = useState<MediaCardView[] | null>(null);
   const [searched, setSearched] = useState('');
@@ -98,14 +110,18 @@ function Search({
     if (link.trim()) onPick({ text: link });
   }
 
+  // A search typed in the right column runs as soon as Pedir opens.
+  useEffect(() => {
+    if (initialQuery) void search(null, 'all', initialQuery);
+  }, []);
+
   function focusSearch() {
     setShowUnrecognized(false);
     document.getElementById('ask-search')?.focus();
   }
 
-  async function search(event: FormEvent, filter: SearchType = type) {
-    event.preventDefault();
-    const text = query.trim();
+  async function search(event: FormEvent | null, filter: SearchType = type, text = query.trim()) {
+    event?.preventDefault();
     if (!text) return;
     setBusy(true);
     const result = await backend.query('media.search', { query: text, type: filter });
