@@ -1,6 +1,7 @@
 // Members, sign-in and sessions (docs/spec/grupo-e-papeis.md, docs/spec/app-e-instalacao.md).
-import type { MemberView, MeView } from '../../src/application/api-contract';
+import type { MemberListItem, MemberView, MeView } from '../../src/application/api-contract';
 import { normalizeEmail } from '../../src/domain/group/email';
+import { isPhotoChoice, normalizeName, photoFor, type PhotoChoice } from '../../src/domain/group/profile';
 import { isAdmin, keepsAnAdmin, normalizeRoles, type Role } from '../../src/domain/group/roles';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import { recordFeedEvent } from './feed';
@@ -17,6 +18,9 @@ export interface MemberRow {
   roles: string;
   active: number;
   monthly_petiscos: number | null;
+  profile_confirmed_at: string | null;
+  photo_choice: string;
+  google_photo_url: string | null;
 }
 
 export interface Member {
@@ -27,6 +31,9 @@ export interface Member {
   readonly roles: readonly Role[];
   readonly active: boolean;
   readonly monthlyPetiscos: number | null;
+  readonly profileConfirmed: boolean;
+  readonly photoChoice: PhotoChoice;
+  readonly googlePhotoUrl: string | null;
 }
 
 export interface GoogleProfile {
@@ -45,6 +52,9 @@ export function toMember(row: MemberRow): Member {
     roles: normalizeRoles(JSON.parse(row.roles) as string[]),
     active: row.active === 1,
     monthlyPetiscos: row.monthly_petiscos,
+    profileConfirmed: row.profile_confirmed_at !== null,
+    photoChoice: isPhotoChoice(row.photo_choice) ? row.photo_choice : 'google',
+    googlePhotoUrl: row.google_photo_url,
   };
 }
 
@@ -64,6 +74,9 @@ function activeAdminIds(ctx: Context): string[] {
     .filter(isAdmin)
     .map((m) => m.id);
 }
+
+/** Keeps the Google photo current, and shows it only to whoever chose it (two bindings: the photo). */
+const GOOGLE_PHOTO_UPDATE = "google_photo_url = ?, photo_url = CASE photo_choice WHEN 'google' THEN ? ELSE NULL END";
 
 export type SignInResult = { ok: true; memberId: string } | { ok: false; error: 'no_invite' };
 
@@ -86,7 +99,7 @@ export function signIn(ctx: Context, profile: GoogleProfile, sessionHash: string
 
     if (row && row.active === 1) {
       memberId = row.id;
-      ctx.sql.run('UPDATE members SET google_sub = ?, photo_url = ? WHERE id = ?', profile.sub, profile.picture, memberId);
+      ctx.sql.run(`UPDATE members SET google_sub = ?, ${GOOGLE_PHOTO_UPDATE} WHERE id = ?`, profile.sub, profile.picture, profile.picture, memberId);
     } else {
       const [invite] = ctx.sql.all<{ email: string }>("SELECT email FROM invites WHERE email = ? AND state = 'pending'", email);
       const bootstrap = activeAdminIds(ctx).length === 0 && bootstrapAdminEmails.map(normalizeEmail).includes(email);
@@ -97,8 +110,9 @@ export function signIn(ctx: Context, profile: GoogleProfile, sessionHash: string
         // Back by a new invite: same member, same history and petiscos (docs/spec/grupo-e-papeis.md).
         memberId = row.id;
         ctx.sql.run(
-          'UPDATE members SET active = 1, removed_at = NULL, google_sub = ?, photo_url = ?, roles = ? WHERE id = ?',
+          `UPDATE members SET active = 1, removed_at = NULL, google_sub = ?, ${GOOGLE_PHOTO_UPDATE}, roles = ? WHERE id = ?`,
           profile.sub,
+          profile.picture,
           profile.picture,
           JSON.stringify(roles),
           memberId,
@@ -106,11 +120,12 @@ export function signIn(ctx: Context, profile: GoogleProfile, sessionHash: string
       } else {
         memberId = ctx.ids.next();
         ctx.sql.run(
-          'INSERT INTO members (id, google_sub, email, name, photo_url, roles, joined_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO members (id, google_sub, email, name, photo_url, google_photo_url, roles, joined_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
           memberId,
           profile.sub,
           email,
-          profile.name.trim() || email,
+          normalizeName(profile.name) ?? email,
+          profile.picture,
           profile.picture,
           JSON.stringify(roles),
           at,
@@ -142,11 +157,40 @@ export function signOut(ctx: Context, sessionHash: string): void {
 }
 
 export function me(ctx: Context, member: Member): MeView {
-  return { ...memberView(member), email: member.email, petiscos: petiscoBalanceOf(ctx, member) };
+  return {
+    ...memberView(member),
+    email: member.email,
+    petiscos: petiscoBalanceOf(ctx, member),
+    profileConfirmed: member.profileConfirmed,
+    photoChoice: member.photoChoice,
+    googlePhotoUrl: member.googlePhotoUrl,
+  };
 }
 
-export function listMembers(ctx: Context): MemberView[] {
-  return ctx.sql.all<MemberRow>('SELECT * FROM members WHERE active = 1 ORDER BY name').map((r) => memberView(toMember(r)));
+/** Everyone sees name, photo and roles; only admins also see the e-mail. */
+export function listMembers(ctx: Context, actor: Member): MemberListItem[] {
+  return ctx.sql
+    .all<MemberRow>('SELECT * FROM members WHERE active = 1 ORDER BY name COLLATE NOCASE')
+    .map(toMember)
+    .map((m) => (isAdmin(actor) ? { ...memberView(m), email: m.email } : memberView(m)));
+}
+
+/** First access and later: the member confirms their own name and photo. */
+export function updateProfile(ctx: Context, actor: Member, input: { name?: unknown; photo?: unknown }): CommandResult<MeView> {
+  if (typeof input.name !== 'string' || !isPhotoChoice(input.photo)) return failure('invalid');
+  const name = normalizeName(input.name);
+  if (!name) return failure('invalid');
+  const photoUrl = photoFor(input.photo, actor.googlePhotoUrl);
+  ctx.sql.run(
+    'UPDATE members SET name = ?, photo_choice = ?, photo_url = ?, profile_confirmed_at = COALESCE(profile_confirmed_at, ?) WHERE id = ?',
+    name,
+    input.photo,
+    photoUrl,
+    nowIso(ctx),
+    actor.id,
+  );
+  const updated: Member = { ...actor, name, photoChoice: input.photo, photoUrl, profileConfirmed: true };
+  return { ok: true, value: me(ctx, updated), changed: ['me', 'members', 'feed'] };
 }
 
 /** Only admins give and take roles, and the last admin keeps theirs. */

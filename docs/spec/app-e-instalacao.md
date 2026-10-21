@@ -24,6 +24,8 @@ Nenhuma.
 
 - Quando eu abro o app pelo navegador, ele me explica como instalar na tela inicial (no iPhone: Compartilhar
   e depois "Adicionar à Tela de Início"). *(1)*
+- Eu posso dispensar essa explicação. Dispensada, ela não volta naquele aparelho. Com o app
+  instalado, ela não aparece. *(1)*
 - No iPhone, as notificações só funcionam com o app instalado na tela inicial (iOS 16.4 ou mais
   novo). Antes de pedir a permissão, o app mostra uma tela que explica isso. *(1)*
 
@@ -33,7 +35,8 @@ Nenhuma.
   Por quê: o login com Apple exige conta paga de desenvolvedor, mesmo na web.
 - Só entra quem tem convite para o e-mail da conta Google (ver `grupo-e-papeis.md`). Com outro
   e-mail, o app avisa que não há convite e não cria a conta. *(1)*
-- Na primeira vez eu confirmo nome e foto e escolho se permito notificações. *(1)*
+- Na primeira vez eu confirmo nome e foto (ver "Perfil" em `grupo-e-papeis.md`) e escolho se
+  permito notificações. *(1)*
 
 ## Compartilhar para o app
 

@@ -161,6 +161,13 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
       received_at TEXT NOT NULL
     )`,
   ],
+  // 2: first access and the photo choice. Members who existed before confirm their profile once.
+  [
+    `ALTER TABLE members ADD COLUMN profile_confirmed_at TEXT`,
+    `ALTER TABLE members ADD COLUMN photo_choice TEXT NOT NULL DEFAULT 'google'`,
+    `ALTER TABLE members ADD COLUMN google_photo_url TEXT`,
+    `UPDATE members SET google_photo_url = photo_url`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

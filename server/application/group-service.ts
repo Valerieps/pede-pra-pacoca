@@ -4,7 +4,7 @@ import type { ApiResult, CommandName, Commands, QueryName, Queries } from '../..
 import { failure, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { listFeed } from './feed';
-import { listMembers, me, memberForSession, setRoles, signIn, signOut, type GoogleProfile, type Member, type SignInResult } from './members';
+import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import type { Clock, IdGenerator, Sql } from './ports';
 import { migrate } from './schema';
 
@@ -12,7 +12,7 @@ type Input = Record<string, unknown>;
 
 const QUERIES: { [N in QueryName]: (ctx: Context, actor: Member, input: Input) => Queries[N]['output'] | null } = {
   me: (ctx, actor) => me(ctx, actor),
-  members: (ctx) => listMembers(ctx),
+  members: (ctx, actor) => listMembers(ctx, actor),
   invites: (ctx, actor) => listInvites(ctx, actor),
   feed: (ctx, _actor, input) => listFeed(ctx, input),
 };
@@ -21,6 +21,7 @@ const COMMANDS: { [N in CommandName]: (ctx: Context, actor: Member, input: Input
   'invite.create': createInvite,
   'invite.revoke': revokeInvite,
   'member.setRoles': setRoles,
+  'member.updateProfile': updateProfile,
 };
 
 export class GroupService {

@@ -26,6 +26,10 @@
   --space-8: 32px;
 
   --radius: 8px;
+
+  --avatar-size: 40px;
+  --placeholder-size: 96px;
+  --placeholder-glyph-size: 40px;
 }
 
 @media (prefers-color-scheme: dark) {
