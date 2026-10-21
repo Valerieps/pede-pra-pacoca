@@ -129,6 +129,10 @@
   /* Feed cards: 62×92 on a phone, 84×126 on a computer (the poster keeps 2:3) */
   --feed-poster-width: 62px;
   --feed-poster-width-large: 84px;
+  /* How far the actor's photo hangs off the poster's corner, and the ring around it */
+  --feed-avatar-offset: 6px;
+  --feed-avatar-ring: 2px;
+  --feed-line-height: 1.4;
 
   --avatar-size: 40px;
   --avatar-size-small: 28px;
