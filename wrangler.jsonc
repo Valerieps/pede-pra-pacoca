@@ -1,6 +1,6 @@
 // Cloudflare Worker: the app's files, the API, the live connection and the cron (ADR-006).
-// Secrets are not here: set GOOGLE_CLIENT_SECRET, BOOTSTRAP_ADMIN_EMAILS and the Web Push keys
-// (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT; `npm run vapid:keys` makes the pair) with
+// Secrets are not here: set GOOGLE_CLIENT_SECRET, BOOTSTRAP_ADMIN_EMAILS, TMDB_API_KEY and the Web
+// Push keys (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT; `npm run vapid:keys` makes the pair) with
 // `npx wrangler secret put <NAME>`, and locally in .dev.vars (see .dev.vars.example).
 {
   "$schema": "node_modules/wrangler/config-schema.json",

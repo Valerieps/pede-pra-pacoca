@@ -6,11 +6,14 @@ import { useLiveStatus, useServices } from './backend-context';
 import { InstallGuide } from './components/InstallGuide';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
+import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
 import { Inbox } from './screens/Inbox';
 import { Invites } from './screens/Invites';
 import { NotificationPreferences } from './screens/NotificationPreferences';
 import { PushPermission } from './screens/PushPermission';
+import { MyRequests } from './screens/MyRequests';
+import { RequestDetail } from './screens/RequestDetail';
 import { Members } from './screens/Members';
 import { Profile } from './screens/Profile';
 import { SignIn } from './screens/SignIn';
@@ -68,6 +71,8 @@ export function App() {
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
         <InboxLink />
+        <Link to="/pedir">{strings.nav.ask}</Link>
+        <Link to="/meus-pedidos">{strings.nav.myRequests}</Link>
         <Link to="/membros">{strings.nav.members}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
         <Link to="/perfil">{strings.nav.profile}</Link>
@@ -85,6 +90,10 @@ export function App() {
 function Screen({ me }: { me: MeView }) {
   const path = usePath();
   if (path === '/convites' && canManageGroup(me)) return <Invites />;
+  if (path === '/pedir') return <Ask me={me} />;
+  if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
+  const request = /^\/pedido\/([\w-]+)$/.exec(path);
+  if (request) return <RequestDetail key={request[1]} id={request[1]} />;
   if (path === '/membros') return <Members me={me} />;
   if (path === '/perfil') return <Profile key={me.id} me={me} />;
   if (path === '/avisos') return <Inbox />;

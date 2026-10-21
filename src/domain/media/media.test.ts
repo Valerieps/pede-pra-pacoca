@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isUnreleased, mediaKey, parseSharedLink } from './media';
+import { isPosterPath, isUnreleased, mediaKey, normalizeManualLink, parseSharedLink } from './media';
 
 describe('parseSharedLink', () => {
   it.each([
@@ -34,5 +34,29 @@ describe('media', () => {
     expect(isUnreleased('2027-03-01', now)).toBe(true);
     expect(isUnreleased('2024-03-01', now)).toBe(false);
     expect(isUnreleased(null, now)).toBe(false);
+  });
+});
+
+describe('isPosterPath', () => {
+  it.each([
+    ['/abc123.jpg', true],
+    ['/a_b-c.png', true],
+    ['abc.jpg', false],
+    ['/../x.jpg', false],
+    ['https://image.tmdb.org/t/p/w342/abc.jpg', false],
+    [null, false],
+  ])('%s → %s', (path, expected) => {
+    expect(isPosterPath(path)).toBe(expected);
+  });
+});
+
+describe('normalizeManualLink', () => {
+  it('keeps http(s) links, without the fragment', () => {
+    expect(normalizeManualLink(' https://Example.com/a?b=1#c ')).toBe('https://example.com/a?b=1');
+    expect(normalizeManualLink('http://example.com')).toBe('http://example.com/');
+  });
+
+  it.each(['', 'example.com', 'javascript:alert(1)', 'data:text/html,x', `https://example.com/${'a'.repeat(500)}`])('refuses %s', (text) => {
+    expect(normalizeManualLink(text)).toBeNull();
   });
 });

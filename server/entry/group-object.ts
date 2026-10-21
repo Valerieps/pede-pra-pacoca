@@ -5,6 +5,7 @@ import { DurableObject } from 'cloudflare:workers';
 import type { LiveMessage, Topic } from '../../src/application/api-contract';
 import { GroupService } from '../application/group-service';
 import type { GoogleProfile, SignInResult } from '../application/members';
+import type { Prefetched } from '../application/tmdb';
 import { durableObjectSql } from '../infrastructure/durable-object-sql';
 import { pushSender, sendAll, type PushSender } from '../infrastructure/web-push';
 import type { Env } from './env';
@@ -43,12 +44,17 @@ export class Group extends DurableObject<Env> {
     this.service.signOut(sessionHash);
   }
 
-  query(sessionHash: string, name: string, input: unknown) {
-    return this.service.query(sessionHash, name, input);
+  /** Lets the Worker refuse a TMDB lookup before spending it on someone signed out. */
+  isSignedIn(sessionHash: string): boolean {
+    return this.service.memberForSession(sessionHash) !== null;
   }
 
-  command(sessionHash: string, name: string, input: unknown) {
-    const result = this.service.command(sessionHash, name, input);
+  query(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
+    return this.service.query(sessionHash, name, input, prefetched);
+  }
+
+  command(sessionHash: string, name: string, input: unknown, prefetched: Prefetched = {}) {
+    const result = this.service.command(sessionHash, name, input, prefetched);
     if (result.ok && result.changed.length > 0) this.broadcast(result.changed);
     // A command that notified someone: send what is due now instead of waiting for the cron.
     if (result.ok && result.changed.includes('notifications')) this.ctx.waitUntil(this.deliver(PUSHES_AFTER_COMMAND));
@@ -56,7 +62,8 @@ export class Group extends DurableObject<Env> {
   }
 
   async tick(): Promise<void> {
-    this.service.tick();
+    const changed = this.service.tick();
+    if (changed.length > 0) this.broadcast(changed);
     await this.deliver(PUSHES_PER_TICK);
   }
 

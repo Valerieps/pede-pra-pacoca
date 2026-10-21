@@ -3,6 +3,7 @@
 import type { ApiError, ApiResult } from '../../src/application/api-contract';
 import { SESSION_DAYS, type GoogleProfile } from '../application/members';
 import { clearCookie, LOGIN_COOKIE, readCookie, SESSION_COOKIE, setCookie } from '../infrastructure/cookies';
+import { lookup, needsTmdb, type Prefetched } from '../application/tmdb';
 import { randomToken, sha256 } from '../infrastructure/crypto';
 import { devProfile, devSignInAllowed } from '../infrastructure/dev-sign-in';
 import {
@@ -13,6 +14,7 @@ import {
   newPendingLogin,
   profileFromIdToken,
 } from '../infrastructure/google-oauth';
+import { tmdbClient } from '../infrastructure/tmdb-client';
 import type { Env } from './env';
 import { Group, SESSION_HASH_HEADER } from './group-object';
 
@@ -32,6 +34,7 @@ const STATUS: Record<ApiError, number> = {
   conflict: 409,
   last_admin: 409,
   unavailable: 503,
+  unrecognized_link: 400,
 };
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
@@ -137,9 +140,20 @@ async function api(request: Request, env: Env, url: URL): Promise<Response> {
   } catch {
     return json({ error: 'invalid' }, 400);
   }
-  const [, kind, name] = match;
+  const kind = match[1] as 'query' | 'command';
+  const name = match[2];
+  // TMDB first, here in the Worker: the Group's methods stay synchronous (ADR-006).
+  let prefetched: Prefetched = {};
+  if (needsTmdb(kind, name)) {
+    if (!(await group(env).isSignedIn(hash))) return json({ error: 'unauthenticated' }, 401);
+    const found = await lookup(tmdbClient(env.TMDB_API_KEY ?? ''), kind, name, input);
+    if (!found.ok) return json({ error: found.error }, STATUS[found.error]);
+    prefetched = found.value;
+  }
   // RPC wraps results in a Disposable, which hides the union from narrowing; restore it.
-  const result = (kind === 'query' ? await group(env).query(hash, name, input) : await group(env).command(hash, name, input)) as ApiResult<unknown>;
+  const result = (
+    kind === 'query' ? await group(env).query(hash, name, input, prefetched) : await group(env).command(hash, name, input, prefetched)
+  ) as ApiResult<unknown>;
   return result.ok ? json({ value: result.value }) : json({ error: result.error }, STATUS[result.error]);
 }
 

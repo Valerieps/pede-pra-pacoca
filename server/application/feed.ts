@@ -23,6 +23,7 @@ interface FeedRow extends MemberRow {
   event_id: string;
   type: FeedEventType;
   request_id: string | null;
+  request_title: string | null;
   like_count: number;
   at: string;
 }
@@ -33,8 +34,9 @@ export function listFeed(ctx: Context, input: { before?: unknown }): FeedEventVi
   return ctx.sql
     .all<FeedRow>(
       `SELECT members.*, feed_events.id AS event_id, feed_events.type, feed_events.request_id,
-              feed_events.like_count, feed_events.at
+              requests.title AS request_title, feed_events.like_count, feed_events.at
        FROM feed_events JOIN members ON members.id = feed_events.actor_id
+       LEFT JOIN requests ON requests.id = feed_events.request_id
        WHERE feed_events.at < ? ORDER BY feed_events.at DESC, feed_events.id DESC LIMIT ?`,
       before,
       FEED_PAGE_SIZE,
@@ -44,7 +46,16 @@ export function listFeed(ctx: Context, input: { before?: unknown }): FeedEventVi
       type: row.type,
       actor: memberView(toMember(row)),
       requestId: row.request_id,
+      requestTitle: row.request_title,
       at: row.at,
       likeCount: row.like_count,
     }));
+}
+
+/** Takes a request's events off the feed, likes included: all of them, or one type by one actor. */
+export function removeFeedEvents(ctx: Context, requestId: string, only?: { type: FeedEventType; actorId: string }): void {
+  const where = only ? 'request_id = ? AND type = ? AND actor_id = ?' : 'request_id = ?';
+  const bindings = only ? [requestId, only.type, only.actorId] : [requestId];
+  ctx.sql.run(`DELETE FROM likes WHERE event_id IN (SELECT id FROM feed_events WHERE ${where})`, ...bindings);
+  ctx.sql.run(`DELETE FROM feed_events WHERE ${where}`, ...bindings);
 }

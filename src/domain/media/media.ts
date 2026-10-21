@@ -43,3 +43,30 @@ export function isUnreleased(releaseDate: string | null, now: Date): boolean {
   if (!releaseDate) return false;
   return new Date(`${releaseDate}T00:00:00Z`).getTime() > now.getTime();
 }
+
+/** A TMDB image path such as "/abc123.jpg"; anything else is dropped before it is stored. */
+export function isPosterPath(path: unknown): path is string {
+  return typeof path === 'string' && /^\/[A-Za-z0-9_-]{1,100}\.(jpg|jpeg|png|webp)$/.test(path);
+}
+
+export const MAX_TITLE_LENGTH = 200;
+export const MAX_NOTE_LENGTH = 500;
+export const MAX_LINK_LENGTH = 500;
+
+/**
+ * The optional link of a manual request: any http(s) URL, normalized so the same link typed twice
+ * matches in the duplicate check. Null when it is not a usable URL.
+ */
+export function normalizeManualLink(text: string): string | null {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.length > MAX_LINK_LENGTH) return null;
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return null;
+  }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
+  url.hash = '';
+  return url.href;
+}
