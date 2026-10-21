@@ -6,6 +6,7 @@ import { HISTORY_LIMIT, STATS_GROUPS, STATS_SORTS, type StatsGroupBy, type Stats
 import { strings } from '../../domain/strings';
 import { EmptyState } from '../components/EmptyState';
 import { Poster } from '../components/Poster';
+import { StatusChip } from '../components/StatusChip';
 import { formatDate } from '../format';
 import { Link } from '../router';
 import { useQuery } from '../use-query';
@@ -192,7 +193,7 @@ export function GroupStats() {
                       <span className="grow">
                         <strong>{r.title}</strong>
                         <br />
-                        <span className="status">{strings.requestStatus[r.status]}</span>
+                        <StatusChip status={r.status} />
                         <span className="muted">
                           {' '}
                           · {strings.mediaType[r.mediaType]} · {r.requester.name}

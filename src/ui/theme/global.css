@@ -231,9 +231,59 @@ button.danger {
   font-size: var(--font-size-small);
 }
 
-.status {
-  color: var(--color-brand);
+/* A request's status (docs/spec/pedidos.md): a dot and the name, colored by its step */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-small);
   font-weight: 600;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.status-chip::before {
+  content: '';
+  flex: none;
+  width: var(--status-dot-size);
+  height: var(--status-dot-size);
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-waiting {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.status-approved {
+  background: var(--color-brand-soft);
+  color: var(--color-brand);
+}
+
+.status-sent {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+}
+
+.status-done {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.status-failed {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.status-canceled {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
 }
 
 .poster {

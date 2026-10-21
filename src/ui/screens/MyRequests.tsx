@@ -2,6 +2,7 @@ import type { RequestView } from '../../application/api-contract';
 import { isActive } from '../../domain/request/lifecycle';
 import { strings } from '../../domain/strings';
 import { Poster } from '../components/Poster';
+import { StatusChip } from '../components/StatusChip';
 import { Link } from '../router';
 import { useQuery } from '../use-query';
 
@@ -33,7 +34,7 @@ function RequestList({ title, requests, meId }: { title: string; requests: Reque
               <span className="grow">
                 <strong>{r.title}</strong>
                 <br />
-                <span className="status">{strings.requestStatus[r.status]}</span>
+                <StatusChip status={r.status} />
                 {r.assignee && <span className="muted"> · {strings.request.assignee(r.assignee.name)}</span>}
                 {r.requester.id !== meId && <span className="muted"> · {strings.myRequests.coRequested}</span>}
                 <br />
