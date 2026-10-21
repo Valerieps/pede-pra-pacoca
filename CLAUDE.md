@@ -23,7 +23,7 @@ The owner edits docs between messages: re-read a doc before editing it and prese
 Hard rules from `docs/SEGURANCA.md`, valid for every change:
 - The app talks only to its own origin (the Worker) and the origins in `network-policy.ts`; the TMDB key, the Google client secret and the webhook secret live only in the Worker, never in the bundle.
 - The app never reaches the database: every read and write goes through the API, which checks the session and the role on the server.
-- Only invited e-mails get in; Google is the only sign-in.
+- Only invited e-mails get in; Google is the only sign-in (the test sign-in of ADR-009 exists only on localhost).
 - Never insert user text as HTML; links open with `target="_blank" rel="noopener noreferrer"`.
 - Minimize dependencies; pin exact versions; bundle them, never load from a CDN.
 - `network-policy.ts` is the only place that says which servers the app and the Worker may talk to.

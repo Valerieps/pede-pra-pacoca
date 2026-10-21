@@ -16,7 +16,7 @@ import {
   unsubscribePush,
   type DuePushes,
 } from './notifications';
-import { listMembers, me, memberForSession, setRoles, signIn, signOut, type GoogleProfile, type Member, type SignInResult } from './members';
+import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import type { Clock, IdGenerator, Sql } from './ports';
 import { migrate } from './schema';
 
@@ -31,7 +31,7 @@ type QueryContext = Context & { readonly options: ServiceOptions };
 
 const QUERIES: { [N in QueryName]: (ctx: QueryContext, actor: Member, input: Input) => Queries[N]['output'] | null } = {
   me: (ctx, actor) => me(ctx, actor),
-  members: (ctx) => listMembers(ctx),
+  members: (ctx, actor) => listMembers(ctx, actor),
   invites: (ctx, actor) => listInvites(ctx, actor),
   feed: (ctx, _actor, input) => listFeed(ctx, input),
   'notifications.inbox': (ctx, actor) => inbox(ctx, actor),
@@ -46,6 +46,7 @@ const COMMANDS: { [N in CommandName]: (ctx: Context, actor: Member, input: Input
   'push.unsubscribe': unsubscribePush,
   'notifications.markRead': markRead,
   'notifications.setPrefs': setPrefs,
+  'member.updateProfile': updateProfile,
 };
 
 export class GroupService {

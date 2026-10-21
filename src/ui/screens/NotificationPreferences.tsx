@@ -33,11 +33,11 @@ function PreferencesForm({ saved, attendant }: { saved: NotificationPrefs; atten
   return (
     <section>
       <h1>{t.title}</h1>
-      <form onSubmit={submit} className="prefs">
+      <form onSubmit={submit} className="stack">
         <fieldset>
           <legend>{t.types}</legend>
           {types.map((type) => (
-            <label key={type} className="check">
+            <label key={type} className="choice">
               <input
                 type="checkbox"
                 checked={prefs.enabled[type]}
@@ -51,11 +51,11 @@ function PreferencesForm({ saved, attendant }: { saved: NotificationPrefs; atten
         {attendant && (
           <fieldset>
             <legend>{t.newRequests}</legend>
-            <label className="check">
+            <label className="choice">
               <input type="radio" name="newRequests" checked={prefs.newRequests === 'immediate'} onChange={() => setPrefs({ ...prefs, newRequests: 'immediate' })} />
               <span>{t.immediate}</span>
             </label>
-            <label className="check">
+            <label className="choice">
               <input type="radio" name="newRequests" checked={prefs.newRequests === 'digest'} onChange={() => setPrefs({ ...prefs, newRequests: 'digest' })} />
               <span>{t.digest}</span>
             </label>
@@ -70,7 +70,7 @@ function PreferencesForm({ saved, attendant }: { saved: NotificationPrefs; atten
 
         <fieldset>
           <legend>{t.quietHours}</legend>
-          <label className="check">
+          <label className="choice">
             <input
               type="checkbox"
               checked={quiet !== null}

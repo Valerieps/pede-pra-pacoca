@@ -13,4 +13,6 @@ export interface Env {
   readonly VAPID_PRIVATE_KEY?: string;
   /** "mailto:..." the push services may write to. */
   readonly VAPID_SUBJECT?: string;
+  /** "1" turns on the test sign-in on localhost (ADR-009). Only ever set in `.dev.vars`. */
+  readonly DEV_SIGN_IN?: string;
 }

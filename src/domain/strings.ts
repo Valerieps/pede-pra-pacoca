@@ -15,11 +15,19 @@ export const strings = {
     button: 'Entrar com Google',
     noInvite: 'A Paçoca não achou um convite pra esse e-mail. Pede pra um admin te convidar.',
     failed: 'A Paçoca tropeçou no login. Tenta de novo?',
+    devTitle: 'Entrar sem Google (só para testes neste computador)',
+    devEmail: 'E-mail',
+    devName: 'Nome',
+    devButton: 'Entrar para testar',
+    devHint: 'Precisa de DEV_SIGN_IN=1 no .dev.vars. As mesmas regras de convite valem.',
+    devOff: 'O login de teste está desligado. Põe DEV_SIGN_IN=1 no .dev.vars e reinicia o servidor.',
   },
 
   nav: {
     feed: 'Feed',
     invites: 'Convites',
+    members: 'Membros',
+    profile: 'Perfil',
     signOut: 'Sair',
   },
 
@@ -39,6 +47,42 @@ export const strings = {
     revoked: 'Revogado',
     invalidEmail: 'Esse e-mail não parece certo.',
     alreadyMember: 'Essa pessoa já está no grupo.',
+    empty: 'Nenhum convite ainda. A Paçoca adora gente nova.',
+  },
+
+  profile: {
+    firstAccessTitle: 'Oi! A Paçoca quer te conhecer.',
+    firstAccessIntro: 'Confirma como o grupo vai te ver. Dá pra mudar depois no Perfil.',
+    title: 'Perfil',
+    nameLabel: 'Nome',
+    invalidName: 'O nome precisa ter entre 1 e 40 letras.',
+    photoLabel: 'Foto',
+    googlePhoto: 'Foto da conta Google',
+    noPhoto: 'Sem foto',
+    noGooglePhoto: 'Sua conta Google não tem foto.',
+    confirm: 'Confirmar',
+    save: 'Salvar',
+    saved: 'A Paçoca guardou!',
+  },
+
+  members: {
+    title: 'Membros',
+    you: '(você)',
+    admin: 'Admin',
+    attendant: 'Atendente',
+    requester: 'Solicitante',
+    rolesOf: (name: string) => `Papéis de ${name}`,
+    lastAdmin: 'O grupo precisa de pelo menos um admin. Dá o papel a outra pessoa antes.',
+    empty: 'Só a Paçoca por aqui. Convida alguém!',
+  },
+
+  install: {
+    title: 'Põe a Paçoca na tela inicial',
+    ios: 'No Safari, toca em Compartilhar e depois em "Adicionar à Tela de Início".',
+    android: 'No menu do navegador (⋮), toca em "Instalar app" ou "Adicionar à tela inicial".',
+    other: 'Abre o app no celular e adiciona à tela inicial pelo menu do navegador.',
+    installButton: 'Instalar',
+    dismiss: 'Agora não',
   },
 
   petiscos: {

@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import type { MeView } from '../application/api-contract';
 import { canManageGroup } from '../domain/group/roles';
 import { strings } from '../domain/strings';
 import { useLiveStatus, useServices } from './backend-context';
+import { InstallGuide } from './components/InstallGuide';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Feed } from './screens/Feed';
@@ -9,6 +11,8 @@ import { Inbox } from './screens/Inbox';
 import { Invites } from './screens/Invites';
 import { NotificationPreferences } from './screens/NotificationPreferences';
 import { PushPermission } from './screens/PushPermission';
+import { Members } from './screens/Members';
+import { Profile } from './screens/Profile';
 import { SignIn } from './screens/SignIn';
 import { useQuery } from './use-query';
 
@@ -39,6 +43,13 @@ export function App() {
     );
   }
   if (!signedIn) return <SignIn />;
+  if (!me.data.profileConfirmed) {
+    return (
+      <main className="app">
+        <Profile me={me.data} firstAccess />
+      </main>
+    );
+  }
 
   async function signOut() {
     await backend.signOut();
@@ -53,24 +64,29 @@ export function App() {
         <span className="muted">{strings.petiscos.balance(me.data.petiscos.total)}</span>
       </header>
       <OfflineNotice />
+      <InstallGuide />
       <nav className="row">
         <Link to="/">{strings.nav.feed}</Link>
         <InboxLink />
+        <Link to="/membros">{strings.nav.members}</Link>
         {canManageGroup(me.data) && <Link to="/convites">{strings.nav.invites}</Link>}
+        <Link to="/perfil">{strings.nav.profile}</Link>
         <button type="button" className="link" onClick={() => void signOut()}>
           {strings.nav.signOut}
         </button>
       </nav>
       <main>
-        <Screen isAdmin={canManageGroup(me.data)} />
+        <Screen me={me.data} />
       </main>
     </div>
   );
 }
 
-function Screen({ isAdmin }: { isAdmin: boolean }) {
+function Screen({ me }: { me: MeView }) {
   const path = usePath();
-  if (path === '/convites' && isAdmin) return <Invites />;
+  if (path === '/convites' && canManageGroup(me)) return <Invites />;
+  if (path === '/membros') return <Members me={me} />;
+  if (path === '/perfil') return <Profile key={me.id} me={me} />;
   if (path === '/avisos') return <Inbox />;
   if (path === '/avisos/celular') return <PushPermission />;
   if (path === '/avisos/preferencias') return <NotificationPreferences />;

@@ -35,6 +35,21 @@ Nenhuma.
 - Os primeiros admins entram sem convite, pelos e-mails configurados no servidor, só enquanto o
   grupo não tem nenhum admin. *(1)*
 
+## Membros
+
+- Todos os membros veem a lista do grupo, com nome, foto e papéis. O e-mail de cada um só o admin
+  vê. *(1)*
+- Na mesma tela, o admin dá e tira os papéis de atendente e de admin, inclusive os dele, desde que
+  sobre um admin. *(1)*
+
+## Perfil
+
+- No primeiro acesso eu confirmo meu nome e escolho a foto: a da minha conta Google ou nenhuma.
+  Depois posso mudar os dois a qualquer hora, no Perfil. *(1)*
+- O nome tem de 1 a 40 caracteres. *(1)*
+- Se eu escolhi a foto do Google, ela se atualiza a cada login. Se escolhi ficar sem foto, o app
+  respeita, mesmo que eu ponha foto no Google. *(1)*
+
 ## Convites
 
 - O admin convida uma pessoa pelo e-mail dela. O convite fica ligado a esse e-mail e só vale para
