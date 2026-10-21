@@ -57,6 +57,13 @@ export const strings = {
     likeCount: (count: number) => (count === 1 ? '1 curtida' : `${count} curtidas`),
     likedBy: 'Quem curtiu',
     loadMore: 'Ver mais',
+    // How long ago, next to the likes: "agora", "5 min", "3 h", "2 d".
+    age: {
+      now: 'agora',
+      minutes: (count: number) => `${count} min`,
+      hours: (count: number) => `${count} h`,
+      days: (count: number) => `${count} d`,
+    },
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
     coRequest: (name: string) => `${name} também quer`,

@@ -16,6 +16,10 @@ Nenhuma.
 - Cada item leva ao detalhe do pedido, onde está "Eu também quero". Curtir fica no próprio item, e
   também no detalhe. *(1)*
 - O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
+- Cada item mostra o pôster com a foto de quem fez a ação no canto dele (sem título, só a foto), o
+  texto do evento ao lado e, embaixo, a patinha, as curtidas e há quanto tempo foi: "agora",
+  "5 min", "3 h", "2 d" e, depois de uma semana, o dia ("21 de out."). *(1)*
+  Por quê: a data importa pouco no feed; o que importa é quem fez o quê.
 
 | Evento | Exemplo de texto |
 | --- | --- |

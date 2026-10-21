@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FeedEventView } from '../../application/api-contract';
-import { FEED_FILTERS, FEED_PAGE_SIZE, type FeedFilter } from '../../domain/feed/feed';
+import { FEED_FILTERS, FEED_PAGE_SIZE, feedAge, type FeedFilter } from '../../domain/feed/feed';
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { Poster } from '../components/Poster';
@@ -124,25 +124,23 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
 
   return (
     <li className="card feed-item">
-      {event.requestId && (
-        <Link to={`/pedido/${event.requestId}`} className="feed-poster" tabIndex={-1} aria-hidden="true">
-          <Poster path={event.requestPosterPath} title={event.requestTitle ?? ''} />
-        </Link>
-      )}
+      {/* The poster with the actor's photo on its corner; events without a title show only the photo */}
+      <div className="feed-media">
+        {event.requestId ? (
+          <Link to={`/pedido/${event.requestId}`} className="feed-poster" tabIndex={-1} aria-hidden="true">
+            <Poster path={event.requestPosterPath} title={event.requestTitle ?? ''} />
+          </Link>
+        ) : null}
+        <Avatar name={event.actor.name} photoUrl={event.actor.photoUrl} />
+      </div>
       <div className="feed-body">
-        <div className="feed-line">
-          <Avatar name={event.actor.name} photoUrl={event.actor.photoUrl} />
-          {event.requestId ? (
-            <Link to={`/pedido/${event.requestId}`} className="grow feed-text">
-              {describe(event)}
-            </Link>
-          ) : (
-            <span className="grow feed-text">{describe(event)}</span>
-          )}
-          <time className="muted" dateTime={event.at}>
-            {new Date(event.at).toLocaleDateString('pt-BR')}
-          </time>
-        </div>
+        {event.requestId ? (
+          <Link to={`/pedido/${event.requestId}`} className="feed-text">
+            {describe(event)}
+          </Link>
+        ) : (
+          <p className="feed-text">{describe(event)}</p>
+        )}
         <div className="feed-actions">
           <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
           {event.likeCount > 0 && (
@@ -150,6 +148,9 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
               {strings.feed.likeCount(event.likeCount)}
             </button>
           )}
+          <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>
+            {feedAge(event.at, new Date())}
+          </time>
         </div>
         {showLikers && event.likeCount > 0 && <Likers eventId={event.id} />}
       </div>
