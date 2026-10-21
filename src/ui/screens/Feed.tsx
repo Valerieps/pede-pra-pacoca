@@ -5,6 +5,7 @@ import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { Link } from '../router';
 import { EmptyState } from '../components/EmptyState';
+import { PawLike } from '../components/PawLike';
 import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
@@ -133,9 +134,7 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
         </time>
       </div>
       <div className="feed-actions">
-        <button type="button" className="link" aria-pressed={event.likedByMe} disabled={busy} onClick={() => void toggleLike()}>
-          {event.likedByMe ? strings.feed.unlike : strings.feed.like}
-        </button>
+        <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
         {event.likeCount > 0 && (
           <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
             {strings.feed.likeCount(event.likeCount)}
