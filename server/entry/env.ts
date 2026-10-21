@@ -8,4 +8,6 @@ export interface Env {
   readonly GOOGLE_CLIENT_SECRET: string;
   /** Comma-separated. Only used while the group has no admin at all. */
   readonly BOOTSTRAP_ADMIN_EMAILS: string;
+  /** "1" turns on the test sign-in on localhost (ADR-009). Only ever set in `.dev.vars`. */
+  readonly DEV_SIGN_IN?: string;
 }

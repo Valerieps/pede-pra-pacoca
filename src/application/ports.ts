@@ -6,6 +6,8 @@ export interface Backend {
   query<N extends QueryName>(name: N, input: Queries[N]['input']): Promise<ApiResult<Queries[N]['output']>>;
   command<N extends CommandName>(name: N, input: Commands[N]['input']): Promise<ApiResult<Commands[N]['output']>>;
   signOut(): Promise<void>;
+  /** The test sign-in without Google; the server accepts it only on localhost (ADR-009). */
+  devSignIn(email: string, name: string): Promise<ApiResult<null>>;
   /** The address the browser navigates to for "Entrar com Google". */
   readonly signInUrl: string;
 }

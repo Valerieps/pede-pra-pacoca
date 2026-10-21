@@ -261,4 +261,12 @@ button.link.muted {
 .feed-more {
   display: block;
   margin: var(--space-4) auto 0;
+
+.dev-sign-in {
+  max-width: 320px;
+  margin: var(--space-8) auto 0;
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  text-align: left;
 }
