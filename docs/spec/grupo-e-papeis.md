@@ -8,14 +8,14 @@ Quem está no grupo, como entra e o que cada papel pode fazer.
 
 ## Em aberto
 
-- [ ] A Vesper também é admin, ou só solicitante com o papel de atendente quando o Cesar der?
+Nenhuma.
 
 ## O grupo
 
 - Existe um único grupo. Todos os pedidos, o feed e os históricos são visíveis para todos os
   membros. *(1)*
-- Hoje o Cesar é admin e o único atendente. A Vesper e os amigos são solicitantes. O Cesar pode dar
-  o papel de atendente a alguém de vez em quando e tirar depois. *(1)*
+- Hoje o Cesar e a Vesper são admins, e o Cesar é o único atendente. Os amigos são solicitantes. Um
+  admin pode dar o papel de atendente a alguém de vez em quando e tirar depois. *(1)*
 
 ## Papéis
 

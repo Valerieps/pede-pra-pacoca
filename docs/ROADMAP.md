@@ -20,7 +20,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Filas e ações do atendente, modo férias | 1 | `spec/atendente.md` | |
 | Feed e curtidas | 1 | `spec/feed.md` | |
 | Notificações | 1 | `spec/notificacoes.md` | |
-| Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Depende do Cesar (payload e segredo) |
+| Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
 | Perfil e estatísticas | 1 | `spec/estatisticas.md` | |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Ilustrações chegam depois; usar placeholders |
 | Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
@@ -31,6 +31,7 @@ Nenhum código de produto foi escrito ainda.
 
 ## Adiado
 
+- Conexão com o Jellyseerr (webhook, URL base, "Abrir no Jellyseerr") — a dona deixou para depois; até lá, o atendente marca os status à mão.
 - Login com Apple — exige conta paga de desenvolvedor; fica fora enquanto o app não estiver nas lojas.
 - App offline — o app só funciona com internet.
 

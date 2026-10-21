@@ -9,8 +9,7 @@ Como eu peço um filme ou uma série e o que acontece com o pedido até ele ser 
 
 ## Em aberto
 
-- [ ] Quando a solicitante cancela e há co-solicitantes, quanto tempo a próxima tem para responder
-  antes de a oferta passar para a seguinte? Sugestão: 48 horas.
+Nenhuma.
 
 ## Ciclo de vida
 
@@ -84,7 +83,7 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
 - Posso editar a observação e cancelar enquanto o status for Aguardando aprovação ou Aprovado. *(1)*
 - Se eu cancelo um pedido que tem co-solicitantes, o app oferece o pedido à co-solicitante mais
   antiga: ela confirma e diz se aceita gastar um petisco dela. Se aceitar, ela vira a solicitante.
-  Se recusar (ou não responder no prazo), a oferta passa à seguinte. Se ninguém aceitar, o pedido
+  Se recusar (ou não responder em 5 dias), a oferta passa à seguinte. Se ninguém aceitar, o pedido
   vira Cancelado para todos. *(1)*
 - Se quem aceitou não tem petisco, o pedido vai para Aguardando aprovação. *(1)*
 

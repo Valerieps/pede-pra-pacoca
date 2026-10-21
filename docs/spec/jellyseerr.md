@@ -8,8 +8,9 @@ A ligação do app com o Jellyseerr que roda na casa do Cesar.
 
 ## Em aberto
 
-- [ ] Confirmar com o Cesar qual programa roda lá (Jellyseerr ou Seerr, que o sucedeu) e a versão,
-  e o formato exato do payload do webhook: campos que trazem o ID do TMDB e o tipo.
+- [ ] Adiado por decisão da dona: toda a conexão com o Jellyseerr fica para depois. Quando chegar a vez,
+  confirmar com o Cesar qual programa roda lá (Jellyseerr ou Seerr, que o sucedeu), a versão e o
+  formato exato do payload do webhook: campos que trazem o ID do TMDB e o tipo.
 
 ## Princípios
 
