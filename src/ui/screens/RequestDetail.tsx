@@ -59,17 +59,15 @@ function Detail({ request }: { request: RequestDetailView }) {
       {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} onClose={() => setCelebrate(false)} />}
       <div className="media-header">
         <Poster path={request.posterPath} title={request.title} />
-        <div>
+        <div className="media-info">
           <h1>{request.title}</h1>
-          <p className="muted">{[request.year, strings.mediaType[request.mediaType]].filter(Boolean).join(' · ')}</p>
-          {isUnreleased(request.releaseDate, new Date()) && <span className="badge">{strings.confirm.unreleased}</span>}
-          <p>
+          {request.tmdbId !== null ? <MediaFacts request={request} tmdbId={request.tmdbId} /> : <p className="muted">{[request.year, strings.mediaType[request.mediaType]].filter(Boolean).join(' · ')}</p>}
+          <div className="media-status">
+            {isUnreleased(request.releaseDate, new Date()) && <span className="badge">{strings.confirm.unreleased}</span>}
             <StatusChip status={request.status} />
-          </p>
+          </div>
         </div>
       </div>
-
-      {request.tmdbId !== null && <Imdb type={request.mediaType} tmdbId={request.tmdbId} />}
 
       {request.reason && <p className="notice">{strings.request.reason(reasonText(request.reason))}</p>}
       {request.fulfillmentNote && <p className="notice">{strings.request.fulfillmentNote(request.fulfillmentNote)}</p>}
@@ -180,18 +178,51 @@ function Detail({ request }: { request: RequestDetailView }) {
   );
 }
 
-/** The IMDb rating and link; shown only once found, so a slow or failed lookup leaves no gap. */
-function Imdb({ type, tmdbId }: { type: RequestDetailView['mediaType']; tmdbId: number }) {
-  const imdb = useQuery('media.imdb', { type, tmdbId }, []);
-  if (!imdb.data?.imdbId) return null;
-  const { imdbId, rating } = imdb.data;
+/**
+ * The line under the title (year, type, runtime or episodes, up to two genres) and the line of
+ * scores. They are looked up apart from the request, so while the lookup runs or fails only the
+ * year and the type show, and a missing score leaves no gap.
+ */
+function MediaFacts({ request, tmdbId }: { request: RequestDetailView; tmdbId: number }) {
+  const extra = useQuery('media.imdb', { type: request.mediaType, tmdbId }, []).data;
+  const length = extra && (request.mediaType === 'movie' ? extra.runtime && strings.request.runtime(extra.runtime) : extra.episodes && strings.request.episodes(extra.episodes));
+  const line = [request.year, strings.mediaType[request.mediaType], length, ...(extra?.genres ?? [])].filter(Boolean).join(' · ');
   return (
-    <p>
-      {rating !== null && <>{strings.request.imdbRating(rating.toFixed(1))} · </>}
-      <a href={`https://www.imdb.com/title/${imdbId}/`} target="_blank" rel="noopener noreferrer">
-        {strings.request.openImdb}
-      </a>
-    </p>
+    <>
+      <p className="muted media-line">{line}</p>
+      {extra && (
+        <ul className="scores">
+          {extra.imdbId && (
+            <li>
+              <a href={`https://www.imdb.com/title/${extra.imdbId}/`} target="_blank" rel="noopener noreferrer" aria-label={strings.request.openImdb}>
+                <span className="logo-imdb" aria-hidden="true">
+                  IMDb
+                </span>
+                {extra.rating !== null && <span aria-label={strings.request.imdbScore}> {extra.rating.toFixed(1)}</span>}
+              </a>
+            </li>
+          )}
+          {extra.criticsScore !== null && (
+            <li aria-label={strings.request.criticsScore}>
+              <span aria-hidden="true">🍅</span> {extra.criticsScore}%
+            </li>
+          )}
+          {extra.audienceScore !== null && (
+            <li aria-label={strings.request.audienceScore}>
+              <span aria-hidden="true">🍿</span> {extra.audienceScore}%
+            </li>
+          )}
+          {extra.tmdbRating !== null && (
+            <li aria-label={strings.request.tmdbScore}>
+              <span className="logo-tmdb" aria-hidden="true">
+                TMDB
+              </span>{' '}
+              {extra.tmdbRating.toFixed(1)}
+            </li>
+          )}
+        </ul>
+      )}
+    </>
   );
 }
 

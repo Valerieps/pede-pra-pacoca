@@ -62,6 +62,19 @@ describe('tmdbClient', () => {
   });
 });
 
+describe('tmdbClient.facts', () => {
+  it('reads the runtime of a movie and at most two genres', async () => {
+    const body = { runtime: 166, vote_average: 8.1, vote_count: 100, genres: [{ name: 'A' }, { name: 'B' }, { name: 'C' }] };
+    expect(await tmdbClient('k', fakeFetch(body).fn).facts('movie', 1)).toEqual({ rating: 8.1, runtime: 166, episodes: null, genres: ['A', 'B'] });
+  });
+
+  it('reads the episode count of a series and drops an unrated score', async () => {
+    const body = { number_of_episodes: 73, runtime: 60, vote_average: 0, vote_count: 0, genres: [] };
+    expect(await tmdbClient('k', fakeFetch(body).fn).facts('tv', 1)).toEqual({ rating: null, runtime: null, episodes: 73, genres: [] });
+    expect(await tmdbClient('k', fakeFetch({}, 404).fn).facts('tv', 1)).toBeNull();
+  });
+});
+
 describe('tmdbClient.imdbId', () => {
   it('reads the IMDb id from external_ids and rejects anything else', async () => {
     const fake = fakeFetch({ imdb_id: 'tt0944947' });

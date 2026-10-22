@@ -182,10 +182,20 @@ export interface MediaCardView extends MediaView {
   readonly availability: Availability;
 }
 
-/** The IMDb side of a title: its page id (tt...) and its 0-10 rating; null when unknown. */
+/**
+ * What the media page shows beyond the request: the IMDb page id and 0-10 rating, the Rotten Tomatoes
+ * critics and audience scores (0-100), the TMDB 0-10 rating, and the facts (runtime in minutes for a
+ * movie, episode count for a series, up to two genres). Null or empty when unknown.
+ */
 export interface ImdbView {
   readonly imdbId: string | null;
   readonly rating: number | null;
+  readonly criticsScore: number | null;
+  readonly audienceScore: number | null;
+  readonly tmdbRating: number | null;
+  readonly runtime: number | null;
+  readonly episodes: number | null;
+  readonly genres: readonly string[];
 }
 
 export type SearchType = MediaType | 'all';

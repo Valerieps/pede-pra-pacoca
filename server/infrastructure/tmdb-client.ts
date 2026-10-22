@@ -91,6 +91,24 @@ export function tmdbClient(key: string, fetchFn: Fetch = (url, init) => fetch(ur
       return typeof id === 'string' && /^tt\d{5,10}$/.test(id) ? id : null;
     },
 
+    async facts(type: MediaType, tmdbId: number) {
+      const body = (await get(`/${type}/${tmdbId}`, {})) as {
+        vote_average?: unknown;
+        vote_count?: unknown;
+        runtime?: unknown;
+        episode_run_time?: unknown;
+        number_of_episodes?: unknown;
+        genres?: unknown;
+      } | null;
+      if (!body) return null;
+      const positive = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : null);
+      const runtime = type === 'movie' ? positive(body.runtime) : null;
+      const episodes = type === 'tv' && Number.isInteger(body.number_of_episodes) ? positive(body.number_of_episodes) : null;
+      const rating = typeof body.vote_average === 'number' && body.vote_average > 0 && body.vote_average <= 10 && positive(body.vote_count) ? body.vote_average : null;
+      const genres = (toMediaView({ id: tmdbId, title: 'x', name: 'x', genres: body.genres }, type)?.genres ?? []).slice(0, 2);
+      return { rating, runtime, episodes, genres };
+    },
+
     async findByImdbId(imdbId: string) {
       if (!/^tt\d{5,10}$/.test(imdbId)) return null;
       const body = (await get(`/find/${imdbId}`, { external_source: 'imdb_id' })) as { movie_results?: unknown; tv_results?: unknown } | null;

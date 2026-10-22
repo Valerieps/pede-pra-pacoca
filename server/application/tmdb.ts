@@ -11,12 +11,27 @@ export interface Tmdb {
   findByImdbId(imdbId: string): Promise<{ type: MediaType; tmdbId: number } | null>;
   /** The title's IMDb id (tt...), or null when TMDB does not know it. */
   imdbId(type: MediaType, tmdbId: number): Promise<string | null>;
+  /** The facts the media page shows; null when TMDB does not know the title. */
+  facts(type: MediaType, tmdbId: number): Promise<Facts | null>;
+}
+
+export interface Facts {
+  readonly rating: number | null;
+  readonly runtime: number | null;
+  readonly episodes: number | null;
+  readonly genres: readonly string[];
+}
+
+/** IMDb 0-10, Rotten Tomatoes critics and audience 0-100; null when unknown. */
+export interface Scores {
+  readonly imdb: number | null;
+  readonly critics: number | null;
+  readonly audience: number | null;
 }
 
 /** The port over OMDb; server/infrastructure/omdb-client.ts implements it. */
 export interface Ratings {
-  /** The IMDb rating (0-10) of an IMDb id, or null when unknown. */
-  imdbRating(imdbId: string): Promise<number | null>;
+  scores(imdbId: string): Promise<Scores>;
 }
 
 /** What the Worker looked up for the Group. Trusted: only the Worker sets it. */
@@ -69,10 +84,24 @@ async function create(tmdb: Tmdb, input: Input): Promise<LookupResult> {
 
 async function imdb(tmdb: Tmdb, input: Input, ratings: Ratings): Promise<LookupResult> {
   if (!isMediaType(input.type) || !isTmdbId(input.tmdbId)) return { ok: false, error: 'invalid' };
-  const imdbId = await tmdb.imdbId(input.type, input.tmdbId);
-  // The rating is a bonus: if OMDb is down or has no key, the link still shows.
-  const rating = imdbId ? await ratings.imdbRating(imdbId).catch(() => null) : null;
-  return { ok: true, value: { imdb: { imdbId, rating } } };
+  const [imdbId, facts] = await Promise.all([tmdb.imdbId(input.type, input.tmdbId), tmdb.facts(input.type, input.tmdbId).catch(() => null)]);
+  // The scores are a bonus: if OMDb is down or has no key, the link and the facts still show.
+  const scores = imdbId ? await ratings.scores(imdbId).catch(() => null) : null;
+  return {
+    ok: true,
+    value: {
+      imdb: {
+        imdbId,
+        rating: scores?.imdb ?? null,
+        criticsScore: scores?.critics ?? null,
+        audienceScore: scores?.audience ?? null,
+        tmdbRating: facts?.rating ?? null,
+        runtime: facts?.runtime ?? null,
+        episodes: facts?.episodes ?? null,
+        genres: facts?.genres ?? [],
+      },
+    },
+  };
 }
 
 /** The queries and commands that need TMDB first, by "query:<name>" or "command:<name>". */
