@@ -647,6 +647,8 @@ button.join-plus-one {
   width: var(--icon-size);
   height: var(--icon-size);
   padding: 0;
+  /* Same distance from the like count as the paw's drawing has (its touch area pads it) */
+  margin-left: calc((var(--touch-size) - var(--icon-size)) / 2);
   border-radius: 50%;
   background: var(--color-brand);
   color: var(--color-on-brand);
