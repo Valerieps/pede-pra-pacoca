@@ -1,7 +1,7 @@
 // TMDB lookups (docs/spec/pedidos.md). TMDB calls are asynchronous, so they run in the Worker
 // before it calls the Group Durable Object, whose methods stay synchronous (ADR-006). The Worker
 // hands the result to the Group as `Prefetched`, a separate argument the app can never fill in.
-import type { ApiError, MediaView, PreviewInput, SearchType } from '../../src/application/api-contract';
+import type { ApiError, ImdbView, MediaView, PreviewInput, SearchType } from '../../src/application/api-contract';
 import { parseSharedLink, type MediaType } from '../../src/domain/media/media';
 
 /** The port; server/infrastructure/tmdb-client.ts implements it over api.themoviedb.org. */
@@ -9,10 +9,19 @@ export interface Tmdb {
   search(query: string, type: SearchType): Promise<MediaView[]>;
   details(type: MediaType, tmdbId: number): Promise<MediaView | null>;
   findByImdbId(imdbId: string): Promise<{ type: MediaType; tmdbId: number } | null>;
+  /** The title's IMDb id (tt...), or null when TMDB does not know it. */
+  imdbId(type: MediaType, tmdbId: number): Promise<string | null>;
+}
+
+/** The port over OMDb; server/infrastructure/omdb-client.ts implements it. */
+export interface Ratings {
+  /** The IMDb rating (0-10) of an IMDb id, or null when unknown. */
+  imdbRating(imdbId: string): Promise<number | null>;
 }
 
 /** What the Worker looked up for the Group. Trusted: only the Worker sets it. */
 export interface Prefetched {
+  readonly imdb?: ImdbView;
   readonly media?: MediaView;
   readonly results?: readonly MediaView[];
 }
@@ -20,7 +29,7 @@ export interface Prefetched {
 export type LookupResult = { readonly ok: true; readonly value: Prefetched } | { readonly ok: false; readonly error: ApiError };
 
 type Input = Record<string, unknown>;
-type Lookup = (tmdb: Tmdb, input: Input) => Promise<LookupResult>;
+type Lookup = (tmdb: Tmdb, input: Input, ratings: Ratings) => Promise<LookupResult>;
 
 export const MAX_QUERY_LENGTH = 100;
 const MEDIA_TYPES: readonly unknown[] = ['movie', 'tv'];
@@ -58,8 +67,17 @@ async function create(tmdb: Tmdb, input: Input): Promise<LookupResult> {
   return details(tmdb, input.type, input.tmdbId);
 }
 
+async function imdb(tmdb: Tmdb, input: Input, ratings: Ratings): Promise<LookupResult> {
+  if (!isMediaType(input.type) || !isTmdbId(input.tmdbId)) return { ok: false, error: 'invalid' };
+  const imdbId = await tmdb.imdbId(input.type, input.tmdbId);
+  // The rating is a bonus: if OMDb is down or has no key, the link still shows.
+  const rating = imdbId ? await ratings.imdbRating(imdbId).catch(() => null) : null;
+  return { ok: true, value: { imdb: { imdbId, rating } } };
+}
+
 /** The queries and commands that need TMDB first, by "query:<name>" or "command:<name>". */
 const LOOKUPS: Record<string, Lookup> = {
+  'query:media.imdb': imdb,
   'query:media.search': search,
   'query:media.preview': preview,
   'command:request.create': create,
@@ -70,12 +88,12 @@ export function needsTmdb(kind: 'query' | 'command', name: string): boolean {
 }
 
 /** Runs the lookup a query or command needs. A TMDB failure is `unavailable`, never a crash. */
-export async function lookup(tmdb: Tmdb, kind: 'query' | 'command', name: string, input: unknown): Promise<LookupResult> {
+export async function lookup(tmdb: Tmdb, kind: 'query' | 'command', name: string, input: unknown, ratings: Ratings): Promise<LookupResult> {
   const run = Object.hasOwn(LOOKUPS, `${kind}:${name}`) ? LOOKUPS[`${kind}:${name}`] : undefined;
   if (!run) return { ok: true, value: {} };
   const asInput = typeof input === 'object' && input !== null && !Array.isArray(input) ? (input as Input) : {};
   try {
-    return await run(tmdb, asInput);
+    return await run(tmdb, asInput, ratings);
   } catch {
     return { ok: false, error: 'unavailable' };
   }

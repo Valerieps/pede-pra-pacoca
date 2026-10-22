@@ -69,6 +69,8 @@ function Detail({ request }: { request: RequestDetailView }) {
         </div>
       </div>
 
+      {request.tmdbId !== null && <Imdb type={request.mediaType} tmdbId={request.tmdbId} />}
+
       {request.reason && <p className="notice">{strings.request.reason(reasonText(request.reason))}</p>}
       {request.fulfillmentNote && <p className="notice">{strings.request.fulfillmentNote(request.fulfillmentNote)}</p>}
 
@@ -178,7 +180,22 @@ function Detail({ request }: { request: RequestDetailView }) {
   );
 }
 
-type Run = <N extends CommandName>(name: N, input: Commands[N]['input']) => Promise<boolean>;
+/** The IMDb rating and link; shown only once found, so a slow or failed lookup leaves no gap. */
+function Imdb({ type, tmdbId }: { type: RequestDetailView['mediaType']; tmdbId: number }) {
+  const imdb = useQuery('media.imdb', { type, tmdbId }, []);
+  if (!imdb.data?.imdbId) return null;
+  const { imdbId, rating } = imdb.data;
+  return (
+    <p>
+      {rating !== null && <>{strings.request.imdbRating(rating.toFixed(1))} · </>}
+      <a href={`https://www.imdb.com/title/${imdbId}/`} target="_blank" rel="noopener noreferrer">
+        {strings.request.openImdb}
+      </a>
+    </p>
+  );
+}
+
+type Run =<N extends CommandName>(name: N, input: Commands[N]['input']) => Promise<boolean>;
 
 /** "Dar retorno" on an Atendido request: "Assisti" with a rating, and "Obrigada, Paçoca". */
 function Feedback({ request, busy, run }: { request: RequestDetailView; busy: boolean; run: Run }) {

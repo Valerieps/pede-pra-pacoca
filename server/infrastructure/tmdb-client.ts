@@ -85,6 +85,12 @@ export function tmdbClient(key: string, fetchFn: Fetch = (url, init) => fetch(ur
       return body ? toMediaView(body as TmdbItem, type) : null;
     },
 
+    async imdbId(type: MediaType, tmdbId: number) {
+      const body = (await get(`/${type}/${tmdbId}/external_ids`, {})) as { imdb_id?: unknown } | null;
+      const id = body?.imdb_id;
+      return typeof id === 'string' && /^tt\d{5,10}$/.test(id) ? id : null;
+    },
+
     async findByImdbId(imdbId: string) {
       if (!/^tt\d{5,10}$/.test(imdbId)) return null;
       const body = (await get(`/find/${imdbId}`, { external_source: 'imdb_id' })) as { movie_results?: unknown; tv_results?: unknown } | null;

@@ -147,6 +147,8 @@ export const strings = {
     save: 'Salvar',
     cancelEdit: 'Desistir',
     openLink: 'Abrir o link',
+    imdbRating: (rating: string) => `★ ${rating}/10 no IMDb`,
+    openImdb: 'Abrir no IMDb',
     join: 'Eu também quero',
     leave: 'Não quero mais',
     cancel: 'Cancelar pedido',

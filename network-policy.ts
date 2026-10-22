@@ -10,6 +10,9 @@ export const ALLOWED_ORIGINS: readonly string[] = [];
 /** Where images may load from (CSP `img-src`): TMDB posters and Google profile photos (ADR-008). */
 export const IMAGE_ORIGINS: readonly string[] = ['https://image.tmdb.org', 'https://lh3.googleusercontent.com'];
 
+/** Pages the app links to (opened by the member in a new tab); the app never requests them. */
+export const LINK_ORIGINS: readonly string[] = ['https://www.imdb.com'];
+
 /**
  * The Web Push services of the phones' browsers (ADR-011): Chrome and Android (FCM), Safari on
  * iPhone and Mac (Apple), Firefox (Mozilla). A push subscription whose endpoint is anywhere else
@@ -21,10 +24,11 @@ export const PUSH_SERVICE_ORIGINS: readonly string[] = [
   'https://updates.push.services.mozilla.com',
 ];
 
-/** The only servers the Worker (server/) calls: Google sign-in, TMDB and the push services. */
+/** The only servers the Worker (server/) calls: Google sign-in, TMDB, OMDb and the push services. */
 export const SERVER_ORIGINS: readonly string[] = [
   'https://accounts.google.com',
   'https://oauth2.googleapis.com',
   'https://api.themoviedb.org',
+  'https://www.omdbapi.com',
   ...PUSH_SERVICE_ORIGINS,
 ];

@@ -182,6 +182,12 @@ export interface MediaCardView extends MediaView {
   readonly availability: Availability;
 }
 
+/** The IMDb side of a title: its page id (tt...) and its 0-10 rating; null when unknown. */
+export interface ImdbView {
+  readonly imdbId: string | null;
+  readonly rating: number | null;
+}
+
 export type SearchType = MediaType | 'all';
 
 /** What to preview: a pasted or shared text with a link, or a pick from the search. */
@@ -375,6 +381,7 @@ export interface Queries {
   'notifications.settings': { input: Record<string, never>; output: NotificationSettingsView };
   'media.search': { input: { query: string; type: SearchType }; output: MediaCardView[] };
   'media.preview': { input: PreviewInput; output: MediaCardView };
+  'media.imdb': { input: { type: MediaType; tmdbId: number }; output: ImdbView };
   'manual.availability': { input: { link: string }; output: Availability };
   'requests.mine': { input: Record<string, never>; output: RequestView[] };
   'request.detail': { input: { id: string }; output: RequestDetailView };
