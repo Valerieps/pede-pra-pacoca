@@ -22,20 +22,25 @@ Nenhuma.
 
 ## Navegação
 
-- No celular (menos de 600px de largura), eu navego por uma barra de abas embaixo: Feed, Filas,
-  Pedir, Meus e Perfil. Pedir fica no centro, como um botão cheio e mais alto que as outras abas.
-  *(1)*
-- Quem não é atendente não tem Filas: no lugar dela fica Números (Feed, Números, Pedir, Meus,
-  Perfil). Para o atendente, Números fica dentro do Perfil. *(1)*
-  Por quê: assim o Pedir fica sempre no centro da barra.
-- Membros, Números (para o atendente), Convites, Petiscos e Ajustes ficam dentro do Perfil, cada um
-  só para quem pode usar. "Sair" é o último item do Perfil. *(1)*
-- No cabeçalho, no canto direito, ficam um sino para os Avisos e o chip dos meus petiscos (o
-  ícone do petisco e quantos eu tenho). O sino ganha um número cereja quando há aviso não lido. O
-  chip leva para Petiscos. *(1)*
+- No celular (menos de 600px de largura), eu navego por uma barra de abas embaixo, igual para
+  todos: Feed, Números, Pedir, Pedidos e Perfil. Pedir fica no centro, como um botão cheio e mais
+  alto que as outras abas. *(1)*
+- No Perfil ficam meu nome e minha foto, o link para as preferências de avisos, o tema e Petiscos.
+  "Sair" é o último item. *(1)*
+- O tema pode ser Claro, Escuro ou Igual ao aparelho, que é o padrão. A escolha vale só para o
+  aparelho em que eu escolhi. *(1)*
+- No cabeçalho, no canto direito, ficam um sino para os Avisos e, para atendente e admin, uma
+  engrenagem que leva para Gerenciamento do App. O sino ganha um número cereja quando há aviso não
+  lido. *(1)*
+- Gerenciamento do App tem um botão para cada coisa que eu posso gerenciar: Gerenciar pedidos (as
+  filas e o modo férias) e Gerenciar petiscos (as regras, os bônus e o cashback manual) para
+  atendente e admin; Gerenciar membros, Gerenciar convites e Ajustes do grupo (baixar os dados) só
+  para o admin. *(1)*
+- Em Pedir eu vejo o chip dos meus petiscos (o ícone do petisco e quantos eu tenho). O chip leva
+  para o extrato, em Petiscos. *(1)*
 - No tablet (de 600px a 1023px), as abas viram uma coluna de ícones à esquerda. *(1)*
 - No computador (1024px ou mais), à esquerda fica uma barra lateral com as abas com nome, os Avisos,
-  um botão "+ Pedir" e o meu perfil embaixo. O conteúdo no meio nunca passa de 560px. À direita
+  Gerenciamento do App (para atendente e admin), um botão "+ Pedir" e o meu perfil embaixo. O conteúdo no meio nunca passa de 560px. À direita
   fica uma coluna com o card dos meus petiscos, um campo para colar um link do IMDb ou buscar (que
   leva ao Pedir) e meus pedidos em andamento. *(1)*
 - Meus pedidos em andamento são os mesmos ativos de Meus pedidos (Aguardando aprovação, Aprovado e

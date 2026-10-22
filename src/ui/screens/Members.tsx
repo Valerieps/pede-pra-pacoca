@@ -46,7 +46,7 @@ export function Members({ me }: { me: MeView }) {
 
   return (
     <section>
-      <h1>{strings.members.title}</h1>
+      <h1>{strings.nav.manageMembers}</h1>
       {members.error && !members.data && <p className="notice">{strings.genericError}</p>}
       {error && (
         <p className="notice" role="alert">
@@ -59,7 +59,7 @@ export function Members({ me }: { me: MeView }) {
           <li key={member.id} className="card member-card">
             <Avatar name={member.name} photoUrl={member.photoUrl} />
             <span className="grow">
-              <Link to={`/membro/${member.id}`}>{member.name}</Link> {member.id === me.id && <span className="muted">{strings.members.you}</span>}
+              <Link to={`/numeros/${member.id}`}>{member.name}</Link> {member.id === me.id && <span className="muted">{strings.members.you}</span>}
               <br />
               <span className="muted">{rolesLabel(member.roles)}</span>
               {member.email && (

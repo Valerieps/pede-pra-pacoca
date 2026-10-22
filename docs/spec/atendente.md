@@ -64,7 +64,7 @@ Nenhuma.
 
 ## Modo férias
 
-- O atendente liga o modo férias, com data de volta opcional. Todos veem "A Paçoca está dormindo" e
+- O atendente liga o modo férias em Gerenciar pedidos, com data de volta opcional. Todos veem "A Paçoca está dormindo" e
   continuam podendo pedir. *(1)*
 - Com mais de um atendente, o aviso só aparece quando todos estão de férias. *(1)*
 - A data de volta é o dia em que eu volto: as férias acabam sozinhas às 00:00 desse dia

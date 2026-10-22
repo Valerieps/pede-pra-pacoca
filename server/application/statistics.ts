@@ -211,6 +211,11 @@ export function groupStats(ctx: Context, input: { filter?: unknown; sort?: unkno
      FROM petisco_movements WHERE request_id IN (SELECT id FROM f)`,
     ...bindings,
   );
+  const perGenre = ctx.sql.all<{ genre: string; count: number }>(
+    `${cte} SELECT COALESCE(g.value, '') AS genre, COUNT(*) AS count FROM f LEFT JOIN json_each(f.genres) g
+     GROUP BY genre ORDER BY count DESC, genre`,
+    ...bindings,
+  );
   const mostLiked = ctx.sql.all<{ requestId: string; title: string; likes: number }>(
     `${cte} SELECT f.id AS requestId, f.title, SUM(e.like_count) AS likes
      FROM f JOIN feed_events e ON e.request_id = f.id
@@ -238,6 +243,8 @@ export function groupStats(ctx: Context, input: { filter?: unknown; sort?: unkno
     truncated,
     groups: buildGroups(ctx, groupBy, totals.total, cte, bindings, local, shown, member),
     metrics: {
+      fulfilled: totals.fulfilled ?? 0,
+      perGenre,
       perPerson: countBy('requester_id'),
       perAttendant: countBy('assignee_id'),
       averageMsToFulfilled: roundMs(totals.avg_ms),

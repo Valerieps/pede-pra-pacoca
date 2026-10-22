@@ -347,6 +347,9 @@ export interface GroupStatsView {
   readonly truncated: boolean;
   readonly groups: readonly HistoryGroupView[];
   readonly metrics: {
+    readonly fulfilled: number;
+    /** Every genre, most requested first; a request counts in each of its genres, '' is "Sem gênero". */
+    readonly perGenre: readonly { readonly genre: string; readonly count: number }[];
     readonly perPerson: readonly { readonly member: MemberView; readonly count: number }[];
     readonly perAttendant: readonly { readonly member: MemberView; readonly count: number }[];
     readonly averageMsToFulfilled: number | null;

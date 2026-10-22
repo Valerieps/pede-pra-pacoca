@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import type { ApiResult, MeView, PetiscoSettingsView } from '../../application/api-contract';
-import { canAttend, isAdmin, isAttendant } from '../../domain/group/roles';
+import type { ApiResult, PetiscoSettingsView } from '../../application/api-contract';
 import { MAX_BONUS_PER_GRANT, MAX_CASHBACK_THRESHOLD, MAX_MONTHLY_PETISCOS, REASON_MAX_LENGTH } from '../../domain/petisco/settings';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
@@ -30,19 +29,28 @@ function useFeedback() {
 
 const toNumber = (text: string) => (text.trim() === '' ? null : Number(text));
 
-/** Petisco settings and vacation for attendants; the data download for admins. */
-export function Settings({ me }: { me: MeView }) {
+/** Gerenciar petiscos, for attendants and admins: the rules, the bonuses and the manual cashback. */
+export function ManagePetiscos() {
   return (
     <section className="stack">
-      <h1>{t.title}</h1>
-      {isAttendant(me) && <VacationSettings />}
-      {canAttend(me) && <PetiscoSettings />}
-      {isAdmin(me) && <ExportData />}
+      <h1>{strings.nav.managePetiscos}</h1>
+      <PetiscoSettings />
     </section>
   );
 }
 
-function VacationSettings() {
+/** Ajustes do grupo, for admins: the data download. */
+export function GroupSettings() {
+  return (
+    <section className="stack">
+      <h1>{strings.nav.groupSettings}</h1>
+      <ExportData />
+    </section>
+  );
+}
+
+/** My vacation, in Gerenciar pedidos; only who has the attendant role has one. */
+export function VacationSettings() {
   const { backend } = useServices();
   const vacation = useQuery('vacation', {}, ['vacation']);
   const mine = vacation.data?.mine;
@@ -83,7 +91,6 @@ function PetiscoSettings() {
   if (!settings.data) return null;
   return (
     <>
-      <h2>{t.petiscosTitle}</h2>
       <MonthlyNumber key={`m${settings.data.monthlyPetiscos}`} current={settings.data.monthlyPetiscos} />
       <PerMember settings={settings.data} />
       <Cashback key={JSON.stringify(settings.data.cashback)} settings={settings.data} />

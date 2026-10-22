@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
-import type { MeView, PetiscoBalanceView } from '../application/api-contract';
+import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
+import type { MeView } from '../application/api-contract';
 import { canAttend, canManageGroup } from '../domain/group/roles';
 import { askDraftVersion, submitAskDraft, subscribeAskDraft } from './ask-draft';
 import { strings } from '../domain/strings';
@@ -9,15 +9,14 @@ import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
 import { StatusChip } from './components/StatusChip';
-import { activeTab, inProgress, tabsFor } from './navigation';
-import { cashbackArrived } from './petisco-drop';
+import { activeTab, inProgress, manageLinksFor, statsMemberOf, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
 import { GroupStats } from './screens/GroupStats';
-import { MemberStats } from './screens/MemberStats';
 import { Inbox } from './screens/Inbox';
+import { ManageApp } from './screens/ManageApp';
 import { Invites } from './screens/Invites';
 import { NotificationPreferences } from './screens/NotificationPreferences';
 import { PushPermission } from './screens/PushPermission';
@@ -27,7 +26,7 @@ import { Members } from './screens/Members';
 import { Petiscos } from './screens/Petiscos';
 import { Queues } from './screens/Queues';
 import { Profile } from './screens/Profile';
-import { Settings } from './screens/Settings';
+import { GroupSettings, ManagePetiscos } from './screens/Settings';
 import { SignIn } from './screens/SignIn';
 import { offersPushAtFirstAccess } from '../infrastructure/push-device';
 import { ASK_PATH, browserShareEnvironment, pendingShare } from '../infrastructure/share-target';
@@ -91,7 +90,7 @@ export function App() {
       <header className="topbar">
         <strong className="grow">{strings.appName}</strong>
         <InboxLink />
-        <PetiscoChip me={me.data} />
+        <ManageLink me={me.data} />
       </header>
       <Navigation me={me.data} />
       <main className="content">
@@ -111,7 +110,7 @@ export function App() {
  */
 function Navigation({ me }: { me: MeView }) {
   const path = usePath();
-  const tabs = tabsFor(me);
+  const tabs = tabsFor();
   const current = activeTab(path, tabs);
   return (
     <nav className="tabs" aria-label={strings.nav.main}>
@@ -135,6 +134,7 @@ function Navigation({ me }: { me: MeView }) {
         </Link>
       ))}
       <InboxLink sidebar />
+      <ManageLink me={me} sidebar />
       <Link to={ASK_PATH} className="button sidebar-ask">
         {strings.nav.askButton}
       </Link>
@@ -143,26 +143,6 @@ function Navigation({ me }: { me: MeView }) {
         <span className="grow">{me.name}</span>
       </Link>
     </nav>
-  );
-}
-
-/** The petisco counter in the header; it opens Petiscos. On a cashback a petisco drops into it. */
-function PetiscoChip({ me }: { me: MeView }) {
-  const previous = useRef<PetiscoBalanceView>(undefined);
-  const [drops, setDrops] = useState(0);
-  useEffect(() => {
-    if (cashbackArrived(previous.current, me.petiscos)) setDrops((n) => n + 1);
-    previous.current = me.petiscos;
-  }, [me.petiscos]);
-
-  return (
-    <Link to="/petiscos" className="petisco-chip" aria-label={strings.petiscos.balance(me.petiscos.total)}>
-      {/* A new key restarts the drop animation for each cashback */}
-      <span key={drops} className={drops > 0 ? 'petisco-drop' : 'petisco-slot'}>
-        <PetiscoIcon />
-      </span>
-      <span aria-hidden="true">{me.petiscos.total}</span>
-    </Link>
   );
 }
 
@@ -225,19 +205,22 @@ function SideColumn({ me }: { me: MeView }) {
 function Screen({ me, onSignOut }: { me: MeView; onSignOut: () => void }) {
   const path = usePath();
   const askVersion = useSyncExternalStore(subscribeAskDraft, askDraftVersion);
-  if (path === '/convites' && canManageGroup(me)) return <Invites />;
   if (path === '/pedir') return <Ask key={askVersion} me={me} />;
   if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
-  if (path === '/membros') return <Members me={me} />;
-  const member = /^\/membro\/([\w-]+)$/.exec(path);
-  if (member) return <MemberStats key={member[1]} memberId={member[1]} />;
-  if (path === '/numeros') return <GroupStats />;
+  if (path === '/numeros' || path.startsWith('/numeros/')) {
+    const memberId = statsMemberOf(path) ?? me.id;
+    return <GroupStats key={memberId} memberId={memberId} />;
+  }
   if (path === '/perfil') return <Profile key={me.id} me={me} onSignOut={onSignOut} />;
   if (path === '/petiscos') return <Petiscos />;
-  if (path === '/ajustes' && canAttend(me)) return <Settings me={me} />;
+  if (path === '/gerenciar' && manageLinksFor(me).length > 0) return <ManageApp me={me} />;
   if (path === '/filas' && canAttend(me)) return <Queues me={me} />;
+  if (path === '/gerenciar/petiscos' && canAttend(me)) return <ManagePetiscos />;
+  if (path === '/membros' && canManageGroup(me)) return <Members me={me} />;
+  if (path === '/convites' && canManageGroup(me)) return <Invites />;
+  if (path === '/ajustes' && canManageGroup(me)) return <GroupSettings />;
   if (path === '/avisos') return <Inbox />;
   if (path === '/avisos/celular') return <PushPermission />;
   if (path === '/avisos/preferencias') return <NotificationPreferences />;
@@ -282,6 +265,29 @@ function InboxLink({ sidebar = false }: { sidebar?: boolean }) {
       {unread > 0 && (
         <span className="unread-count" aria-hidden="true">
           {unread}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/** Gerenciamento do App: a gear in the header, a named link in the sidebar; only for who manages something. */
+function ManageLink({ me, sidebar = false }: { me: MeView; sidebar?: boolean }) {
+  const path = usePath();
+  if (manageLinksFor(me).length === 0) return null;
+  const label = strings.nav.manage;
+  return (
+    <Link
+      to="/gerenciar"
+      className={sidebar ? 'tab sidebar-manage' : 'bell'}
+      aria-label={label}
+      title={label}
+      aria-current={sidebar && path === '/gerenciar' ? 'page' : undefined}
+    >
+      <Icon name="gear" />
+      {sidebar && (
+        <span className="tab-long-label" aria-hidden="true">
+          {label}
         </span>
       )}
     </Link>

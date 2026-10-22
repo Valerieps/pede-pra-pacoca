@@ -67,7 +67,13 @@
   text-align: center;
 }
 
-/* Caramel: the petiscos */
+/* Caramel: the petiscos. In Pedir, the chip sits on the right, above the screen */
+.ask-balance {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 var(--space-2);
+}
+
 .petisco-chip {
   display: inline-flex;
   align-items: center;
@@ -133,6 +139,7 @@
 .tab-long-label,
 .sidebar-name,
 .sidebar-inbox,
+.sidebar-manage,
 .sidebar-ask,
 .sidebar-profile,
 .side-column {
@@ -231,7 +238,8 @@
   }
 
   .tab,
-  .sidebar-inbox {
+  .sidebar-inbox,
+  .sidebar-manage {
     flex-direction: row;
     justify-content: flex-start;
     gap: var(--space-3);
@@ -240,7 +248,8 @@
     font-size: var(--font-size-base);
   }
 
-  .sidebar-inbox {
+  .sidebar-inbox,
+  .sidebar-manage {
     display: flex;
   }
 

@@ -84,6 +84,6 @@ de cada cor; os valores ficam em `src/ui/theme/tokens.css`, e as artes seguem o
 ## Ícones
 
 - O petisco tem um ícone: um quadradinho arredondado cor de caramelo, com uns farelinhos. Ele
-  aparece no chip de petiscos do cabeçalho, no card de petiscos do computador e na tela de
+  aparece no chip de petiscos em Pedir, no card de petiscos do computador e na tela de
   Petiscos. *(1)*
   Por quê: o caramelo é só da Paçoca e dos petiscos, então o ícone já diz do que se trata.

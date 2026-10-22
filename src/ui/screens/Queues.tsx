@@ -11,6 +11,7 @@ import { Poster } from '../components/Poster';
 import { formatDate, formatDateKey } from '../format';
 import { Link } from '../router';
 import { useQuery } from '../use-query';
+import { VacationSettings } from './Settings';
 
 const t = strings.queues;
 
@@ -97,7 +98,7 @@ export function Queues({ me }: { me: MeView }) {
 
   return (
     <section>
-      <h1>{t.title}</h1>
+      <h1>{strings.nav.manageRequests}</h1>
       <div className="chips" role="tablist">
         {QUEUES.map((name) => (
           <button key={name} type="button" role="tab" aria-selected={name === queue} className={name === queue ? '' : 'chip'} onClick={() => switchQueue(name)}>
@@ -176,6 +177,7 @@ export function Queues({ me }: { me: MeView }) {
           </ul>
         </div>
       ))}
+      <VacationSettings />
     </section>
   );
 }

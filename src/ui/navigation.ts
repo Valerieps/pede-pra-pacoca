@@ -1,5 +1,5 @@
-// The navigation shell (docs/spec/app-e-instalacao.md, "Navegação"): which tabs and which Perfil
-// links each person gets, and which requests the desktop's right column shows.
+// The navigation shell (docs/spec/app-e-instalacao.md, "Navegação"): the tabs, the links in
+// Gerenciamento do App each person gets, and which requests the desktop's right column shows.
 import type { RequestView } from '../application/api-contract';
 import { canAttend, canManageGroup, type MemberRoles } from '../domain/group/roles';
 import { isActive } from '../domain/request/lifecycle';
@@ -16,44 +16,50 @@ export interface Tab {
   readonly longLabel: string;
 }
 
-export interface ProfileLink {
+export interface ManageLink {
   readonly path: string;
   readonly label: string;
 }
 
 const tab = (path: string, icon: TabIcon, label: string, longLabel = label): Tab => ({ path, icon, label, longLabel });
 
-/** Five tabs with Pedir in the center: Filas for an attendant, Números for everyone else. */
-export function tabsFor(me: MemberRoles): Tab[] {
+/** The same five tabs for everyone, with Pedir in the center. */
+export function tabsFor(): Tab[] {
   const n = strings.nav;
   return [
     tab('/', 'feed', n.feed),
-    canAttend(me) ? tab('/filas', 'queues', n.queues) : tab('/numeros', 'stats', n.stats),
+    tab('/numeros', 'stats', n.stats, n.statsLong),
     tab('/pedir', 'ask', n.ask),
     tab('/meus-pedidos', 'requests', n.myRequestsShort, n.myRequests),
     tab('/perfil', 'profile', n.profile),
   ];
 }
 
-/** What lives inside Perfil, each only for who can use it; "Sair" follows them. */
-export function profileLinksFor(me: MemberRoles): ProfileLink[] {
+/** Gerenciamento do App: what I can manage, each only for who can use it. */
+export function manageLinksFor(me: MemberRoles): ManageLink[] {
   const n = strings.nav;
-  const links: (ProfileLink | false)[] = [
-    { path: '/membros', label: n.members },
-    canAttend(me) && { path: '/numeros', label: n.stats },
-    canManageGroup(me) && { path: '/convites', label: n.invites },
-    { path: '/petiscos', label: n.petiscos },
-    canAttend(me) && { path: '/ajustes', label: n.settings },
+  const links: (ManageLink | false)[] = [
+    canAttend(me) && { path: '/filas', label: n.manageRequests },
+    canManageGroup(me) && { path: '/membros', label: n.manageMembers },
+    canManageGroup(me) && { path: '/convites', label: n.manageInvites },
+    canAttend(me) && { path: '/gerenciar/petiscos', label: n.managePetiscos },
+    canManageGroup(me) && { path: '/ajustes', label: n.groupSettings },
   ];
-  return links.filter((l): l is ProfileLink => l !== false);
+  return links.filter((l): l is ManageLink => l !== false);
 }
 
-/** The tab a screen belongs to: a request belongs to Meus, the Perfil links to Perfil. */
+/** The tab a screen belongs to: a request belongs to Pedidos, a member's numbers and Petiscos to theirs. */
 export function activeTab(path: string, tabs: readonly Tab[]): string | null {
   if (tabs.some((t) => t.path === path)) return path;
   if (path.startsWith('/pedido/')) return '/meus-pedidos';
-  if (['/membros', '/numeros', '/convites', '/petiscos', '/ajustes'].includes(path) || path.startsWith('/membro/')) return '/perfil';
+  if (path.startsWith('/numeros/')) return '/numeros';
+  if (path === '/petiscos') return '/perfil';
   return null;
+}
+
+/** The member a "/numeros/<id>" path opens Números do Grupo filtered by, if any. */
+export function statsMemberOf(path: string): string | null {
+  return /^\/numeros\/([\w-]+)$/.exec(path)?.[1] ?? null;
 }
 
 export const IN_PROGRESS_LIMIT = 5;
