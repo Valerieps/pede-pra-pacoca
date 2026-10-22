@@ -207,8 +207,8 @@ describe('sending and closing', () => {
     expect(detail(request.id)).toMatchObject({ status: 'fulfilled', fulfillmentNote: 'Legendado em PT' });
     expect(petiscos('s-ana')).toBe(2);
     expect(sql.all("SELECT operation FROM petisco_movements WHERE request_id = ? ORDER BY rowid", request.id)).toEqual([{ operation: 'reserve' }, { operation: 'debit' }]);
-    const feed = service.query('s-ana', 'feed', { filter: 'fulfilled' });
-    expect(feed.ok && (feed.value as FeedEventView[])).toMatchObject([{ type: 'request_fulfilled', requestTitle: 'Duna', fulfilledFor: ['ana', 'bia'] }]);
+    const feed = service.query('s-ana', 'feed', {});
+    expect(feed.ok && (feed.value as FeedEventView[]).map((e) => e.type)).not.toContain('request_fulfilled');
     for (const session of ['s-ana', 's-bia']) {
       expect(inbox(session).items.find((i) => i.type === 'request_fulfilled')?.body).toContain('Legendado em PT');
     }

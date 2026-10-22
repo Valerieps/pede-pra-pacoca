@@ -5,7 +5,7 @@ import { strings } from '../strings';
 export const FEED_PAGE_SIZE = 30;
 
 /** The chips, in screen order: Tudo, Pedidos, Atendidos, Meus. */
-export const FEED_FILTERS = ['all', 'requests', 'fulfilled', 'mine'] as const;
+export const FEED_FILTERS = ['all', 'requests', 'mine'] as const;
 export type FeedFilter = (typeof FEED_FILTERS)[number];
 
 /** Anything that is not a known filter means Tudo. */

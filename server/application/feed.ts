@@ -1,11 +1,13 @@
 // The group's public timeline and its likes (docs/spec/feed.md).
 import type { FeedEventType, FeedEventView, LikeToggleView, MemberView } from '../../src/application/api-contract';
 import { FEED_PAGE_SIZE, toFeedFilter } from '../../src/domain/feed/feed';
+import { isActive, type RequestStatus } from '../../src/domain/request/lifecycle';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import { memberView, toMember, type Member, type MemberRow } from './members';
 import { notify } from './notifications';
 
-const REQUEST_EVENTS: readonly FeedEventType[] = ['request_created', 'co_request'];
+// Recorded, but not shown: "Fulano também quer" and "A Paçoca buscou" are noise in the timeline.
+const HIDDEN_EVENTS: readonly FeedEventType[] = ['co_request', 'request_fulfilled'];
 
 export function recordFeedEvent(ctx: Context, event: { type: FeedEventType; actorId: string; requestId: string | null; data?: object }): string {
   const id = ctx.ids.next();
@@ -27,6 +29,9 @@ interface FeedRow extends MemberRow {
   request_id: string | null;
   request_title: string | null;
   request_poster_path: string | null;
+  request_status: RequestStatus | null;
+  requester_id: string | null;
+  joined_by_me: number;
   like_count: number;
   liked_by_me: number;
   data: string;
@@ -42,13 +47,10 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
   const beforeId = typeof input.beforeId === 'string' ? input.beforeId : null;
   const filter = toFeedFilter(input.filter);
 
-  const where = [beforeId === null ? 'e.at < ?' : '(e.at < ? OR (e.at = ? AND e.id < ?))'];
-  const bindings: (string | number)[] = beforeId === null ? [before] : [before, before, beforeId];
+  const where = [beforeId === null ? 'e.at < ?' : '(e.at < ? OR (e.at = ? AND e.id < ?))', `e.type NOT IN (${HIDDEN_EVENTS.map(() => '?').join(', ')})`];
+  const bindings: (string | number)[] = beforeId === null ? [before, ...HIDDEN_EVENTS] : [before, before, beforeId, ...HIDDEN_EVENTS];
   if (filter === 'requests') {
-    where.push(`e.type IN (${REQUEST_EVENTS.map(() => '?').join(', ')})`);
-    bindings.push(...REQUEST_EVENTS);
-  } else if (filter === 'fulfilled') {
-    where.push("e.type = 'request_fulfilled'");
+    where.push("e.type = 'request_created'");
   } else if (filter === 'mine') {
     // Mine: what I did, and anything about a request I asked for or also want.
     where.push(`(e.actor_id = ?
@@ -60,11 +62,14 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
   const events = ctx.sql
     .all<FeedRow>(
       `SELECT members.*, e.id AS event_id, e.type, e.request_id, requests.title AS request_title, requests.poster_path AS request_poster_path,
+              requests.status AS request_status, requests.requester_id,
+              EXISTS (SELECT 1 FROM co_requests c WHERE c.request_id = e.request_id AND c.member_id = ?) AS joined_by_me,
               e.like_count, e.at, e.data,
               EXISTS (SELECT 1 FROM likes WHERE likes.event_id = e.id AND likes.member_id = ?) AS liked_by_me
        FROM feed_events e JOIN members ON members.id = e.actor_id
        LEFT JOIN requests ON requests.id = e.request_id
        WHERE ${where.join(' AND ')} ORDER BY e.at DESC, e.id DESC LIMIT ?`,
+      actor.id,
       actor.id,
       ...bindings,
       FEED_PAGE_SIZE,
@@ -79,23 +84,12 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       at: row.at,
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,
+      ...(row.type === 'request_created' && row.request_status && row.requester_id !== actor.id && row.joined_by_me === 0 && isActive(row.request_status)
+        ? { canJoin: true }
+        : {}),
       ...(row.type === 'watched' ? { rating: (JSON.parse(row.data) as { rating?: number | null }).rating ?? null } : {}),
     }));
-  return events.map((e) => (e.type === 'request_fulfilled' && e.requestId ? { ...e, fulfilledFor: requesterNames(ctx, e.requestId) } : e));
-}
-
-/** The requester, then the co-requesters in the order they joined. */
-function requesterNames(ctx: Context, requestId: string): string[] {
-  return ctx.sql
-    .all<{ name: string }>(
-      `SELECT members.name FROM requests JOIN members ON members.id = requests.requester_id WHERE requests.id = ?
-       UNION ALL
-       SELECT * FROM (SELECT members.name FROM co_requests JOIN members ON members.id = co_requests.member_id
-                      WHERE co_requests.request_id = ? ORDER BY co_requests.at, members.id)`,
-      requestId,
-      requestId,
-    )
-    .map((r) => r.name);
+  return events;
 }
 
 /** One like per person per event; liking again undoes it. Likes never subscribe anyone to a request. */

@@ -53,7 +53,7 @@ export const strings = {
     empty: 'Nada por aqui ainda. A Paçoca está de orelha em pé.',
     memberJoined: (name: string) => `${name} entrou no grupo`,
     cashback: (name: string) => `A Paçoca devolveu um petisco para ${name}`,
-    filters: { all: 'Tudo', requests: 'Pedidos', fulfilled: 'Atendidos', mine: 'Meus' },
+    filters: { all: 'Tudo', requests: 'Pedidos', mine: 'Meus' },
     emptyFiltered: 'Nada com esse filtro por enquanto. A Paçoca segue farejando.',
     like: 'Curtir',
     unlike: 'Descurtir',
@@ -69,10 +69,6 @@ export const strings = {
     },
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
-    coRequest: (name: string) => `${name} também quer`,
-    // "A Paçoca buscou *Duna* para Ana e Bia".
-    fulfilledBefore: 'A Paçoca buscou',
-    fulfilledFor: (names: readonly string[]) => `para ${listNames(names)}`,
     // "Ana assistiu *Duna* e deu 4 de 5".
     watched: (name: string) => `${name} assistiu`,
     rated: (rating: number) => `e deu ${rating} de 5`,

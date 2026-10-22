@@ -135,7 +135,7 @@ describe('removing a member', () => {
     service.command('s-cesar', 'request.act', { ids: [request.id], action: { type: 'mark_fulfilled' } });
     remove('s-cesar', 'bia');
     expect(detail(request.id)).toMatchObject({ status: 'fulfilled', requester: { name: 'bia' } });
-    expect(feed()).toContain('bia:request_fulfilled');
+    expect(feed()).toContain('bia:request_created');
 
     const bia = { sub: 'g-bia', email: 'bia@example.com', name: 'bia', picture: null };
     expect(service.signIn(bia, 's-bia2', [])).toEqual({ ok: false, error: 'no_invite' });

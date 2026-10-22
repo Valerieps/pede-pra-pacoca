@@ -24,13 +24,14 @@ Nenhuma.
 | Evento | Exemplo de texto |
 | --- | --- |
 | Pedido criado | Ana pediu *Duna: Parte Três* |
-| Eu também quero | Bia também quer *Duna: Parte Três* |
-| Atendido | Paçoca buscou *Duna: Parte Três* para Ana e Bia |
 | Assisti e nota | Ana assistiu *Duna: Parte Três* e deu 4 de 5 |
 | Obrigada | Ana agradeceu à Paçoca |
 | Cashback | A Paçoca devolveu um petisco para Ana |
 | Novo membro | Carla entrou no grupo |
 
+- "Eu também quero" e Atendido continuam registrados, mas não aparecem no feed: eram ruído. *(1)*
+- Num item "Ana pediu" cujo pedido ainda não foi atendido (nem cancelado ou recusado), e que não é meu
+  nem já tenho "Eu também quero", aparece o botão "Eu também quero". *(1)*
 - Recusado, Não foi possível, Cancelado e bônus avulso não geram evento: são informação da pessoa,
   não do grupo. *(1)*
 - Quando um pedido vira Cancelado, os eventos dele saem do feed ("Ana pediu", "Bia também quer"),
@@ -51,9 +52,8 @@ Nenhuma.
 
 ## Filtros
 
-- Abas ou chips: Tudo, Pedidos, Atendidos, Meus. *(1)*
-- **Pedidos** mostra os pedidos criados e os "Eu também quero"; **Atendidos**, os pedidos atendidos.
-  *(1)*
+- Abas ou chips: Tudo, Pedidos, Meus. *(1)*
+- **Pedidos** mostra os pedidos criados. *(1)*
 - **Meus** mostra o que eu fiz e tudo o que aconteceu com os pedidos que eu pedi ou em que cliquei
   "Eu também quero". *(1)*
 - Trocar de filtro volta para o topo do feed. *(1)*

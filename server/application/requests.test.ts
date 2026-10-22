@@ -180,12 +180,11 @@ describe('Eu também quero', () => {
     expect(service.command('s-bia', 'request.join', { id: request.id })).toMatchObject({ ok: true, changed: ['requests', 'feed', 'notifications'] });
     expect(petiscos('s-bia')).toBe(3);
     expect(detail('s-bia', request.id)).toMatchObject({ coRequesters: [{ name: 'bia' }], viewer: { isCoRequester: true, canLeave: true, canJoin: false } });
-    expect(feedTypes('s-bia')).toContain('co_request');
+    expect(feedTypes('s-bia')).not.toContain('co_request'); // recorded, never listed
     expect(service.query('s-bia', 'media.preview', {}, { media: dune })).toMatchObject({ value: { availability: { joined: true } } });
 
     expect(service.command('s-bia', 'request.leave', { id: request.id }).ok).toBe(true);
     expect(detail('s-bia', request.id).coRequesters).toEqual([]);
-    expect(feedTypes('s-bia')).not.toContain('co_request');
   });
 
   it('not on my own request, not twice, not on a closed one', () => {
