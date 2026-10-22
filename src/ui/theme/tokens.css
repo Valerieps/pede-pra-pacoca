@@ -124,6 +124,11 @@
   --color-shimmer: #f3dbe3;
   --shimmer-duration: 1.2s;
 
+  /* Brand colors of the rating sources, the same in light and dark */
+  --color-imdb: #f5c518;
+  --color-imdb-text: #000;
+  --color-tmdb: #01b4e4;
+  --color-tmdb-text: #fff;
   --poster-width: 128px;
   --poster-width-small: 48px;
   /* Feed cards: 62×92 on a phone, 84×126 on a computer (the poster keeps 2:3) */

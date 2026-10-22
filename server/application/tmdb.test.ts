@@ -21,11 +21,14 @@ function fakeTmdb(overrides: Partial<Tmdb> = {}): Tmdb & { calls: string[] } {
       return imdbId === 'tt15239678' ? { type: 'movie', tmdbId: dune.tmdbId } : null;
     },
     imdbId: async (_type, id) => (id === dune.tmdbId ? 'tt15239678' : null),
+    facts: async (_type, id) => (id === dune.tmdbId ? { rating: 8.1, runtime: 166, episodes: null, genres: ['Ficção científica', 'Aventura'] } : null),
     ...overrides,
   };
 }
 
-const noRatings: Ratings = { imdbRating: async () => null };
+const none = { imdb: null, critics: null, audience: null };
+const noRatings: Ratings = { scores: async () => none };
+const noExtras = { criticsScore: null, audienceScore: null, tmdbRating: null, runtime: null, episodes: null, genres: [] };
 
 describe('TMDB lookups in the Worker', () => {
   it('only some queries and commands need TMDB', () => {
@@ -81,23 +84,25 @@ describe('TMDB lookups in the Worker', () => {
     expect(await lookup(tmdb, 'query', 'media.search', { query: 'duna', type: 'all' }, noRatings)).toEqual({ ok: false, error: 'unavailable' });
   });
 
-  it('the IMDb id and rating come from TMDB and OMDb', async () => {
-    const ratings: Ratings = { imdbRating: async () => 8.6 };
+  it('the media page data comes from TMDB and OMDb', async () => {
+    const ratings: Ratings = { scores: async () => ({ imdb: 8.6, critics: 90, audience: 97 }) };
     expect(await lookup(fakeTmdb(), 'query', 'media.imdb', { type: 'movie', tmdbId: 693134 }, ratings)).toEqual({
       ok: true,
-      value: { imdb: { imdbId: 'tt15239678', rating: 8.6 } },
+      value: {
+        imdb: { imdbId: 'tt15239678', rating: 8.6, criticsScore: 90, audienceScore: 97, tmdbRating: 8.1, runtime: 166, episodes: null, genres: ['Ficção científica', 'Aventura'] },
+      },
     });
   });
 
-  it('the IMDb link survives a failing rating lookup', async () => {
-    const ratings: Ratings = { imdbRating: async () => Promise.reject(new Error('down')) };
+  it('the facts and the link survive a failing score lookup', async () => {
+    const ratings: Ratings = { scores: async () => Promise.reject(new Error('down')) };
     expect(await lookup(fakeTmdb(), 'query', 'media.imdb', { type: 'movie', tmdbId: 693134 }, ratings)).toEqual({
       ok: true,
-      value: { imdb: { imdbId: 'tt15239678', rating: null } },
+      value: { imdb: { imdbId: 'tt15239678', rating: null, criticsScore: null, audienceScore: null, tmdbRating: 8.1, runtime: 166, episodes: null, genres: ['Ficção científica', 'Aventura'] } },
     });
     expect(await lookup(fakeTmdb(), 'query', 'media.imdb', { type: 'movie', tmdbId: 1 }, noRatings)).toEqual({
       ok: true,
-      value: { imdb: { imdbId: null, rating: null } },
+      value: { imdb: { imdbId: null, rating: null, ...noExtras } },
     });
     expect(await lookup(fakeTmdb(), 'query', 'media.imdb', { type: 'x', tmdbId: 1 }, noRatings)).toEqual({ ok: false, error: 'invalid' });
   });
