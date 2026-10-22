@@ -6,8 +6,8 @@ import { failure, nowIso, type CommandResult, type Context } from './context';
 import { memberView, toMember, type Member, type MemberRow } from './members';
 import { notify } from './notifications';
 
-// Recorded, but not shown: "Fulano também quer" and "A Paçoca buscou" are noise in the timeline.
-const HIDDEN_EVENTS: readonly FeedEventType[] = ['co_request', 'request_fulfilled'];
+// Recorded, but not shown: "Fulano também quer" and "A Paçoca buscou" and "Fulano agradeceu" are noise in the timeline.
+const HIDDEN_EVENTS: readonly FeedEventType[] = ['co_request', 'request_fulfilled', 'thanked'];
 
 export function recordFeedEvent(ctx: Context, event: { type: FeedEventType; actorId: string; requestId: string | null; data?: object }): string {
   const id = ctx.ids.next();

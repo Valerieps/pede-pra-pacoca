@@ -204,7 +204,7 @@ export function GroupStats({ memberId }: { memberId: string }) {
               <ol>
                 {data.metrics.mostLiked.map((r) => (
                   <li key={r.requestId}>
-                    <Link to={`/pedido/${r.requestId}`}>{r.title}</Link> <span className="muted">· {strings.feed.likeCount(r.likes)}</span>
+                    <Link to={`/pedido/${r.requestId}`}>{r.title}</Link> <span className="muted">· {strings.feed.likesTotal(r.likes)}</span>
                   </li>
                 ))}
               </ol>
@@ -238,7 +238,7 @@ export function GroupStats({ memberId }: { memberId: string }) {
                         <time className="muted" dateTime={r.createdAt}>
                           {formatDate(r.createdAt)}
                         </time>
-                        {r.likes > 0 && <span className="muted"> · {strings.feed.likeCount(r.likes)}</span>}
+                        {r.likes > 0 && <span className="muted"> · {strings.feed.likesTotal(r.likes)}</span>}
                       </span>
                     </Link>
                   </li>

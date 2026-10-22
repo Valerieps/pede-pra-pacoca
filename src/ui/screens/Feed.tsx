@@ -148,8 +148,15 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
             </button>
           )}
           {event.canJoin && event.requestId && (
-            <button type="button" className="link" disabled={busy} onClick={() => void join(event.requestId!)}>
-              {strings.request.join}
+            <button
+              type="button"
+              className="join-plus-one"
+              disabled={busy}
+              title={strings.request.joinTooltip}
+              aria-label={strings.request.joinTooltip}
+              onClick={() => void join(event.requestId!)}
+            >
+              +1
             </button>
           )}
           <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>

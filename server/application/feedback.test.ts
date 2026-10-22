@@ -98,7 +98,7 @@ describe('Dar retorno', () => {
       changed: ['requests', 'feed', 'notifications'],
     });
     expect(service.command('s-bia', 'request.thank', { id: request.id })).toEqual({ ok: false, error: 'conflict' });
-    expect(feed().find((e) => e.type === 'thanked')).toMatchObject({ type: 'thanked', actor: { name: 'bia' }, requestId: request.id });
+    expect(feed().map((e) => e.type)).not.toContain('thanked'); // recorded, never listed
     expect(thanksFor(ids.dani)).toEqual([{ requestId: request.id, title: 'Duna', memberName: 'bia' }]);
     expect(thanksFor(ids.cesar)).toEqual([]);
   });

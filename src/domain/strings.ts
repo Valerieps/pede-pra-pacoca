@@ -57,7 +57,8 @@ export const strings = {
     emptyFiltered: 'Nada com esse filtro por enquanto. A Paçoca segue farejando.',
     like: 'Curtir',
     unlike: 'Descurtir',
-    likeCount: (count: number) => (count === 1 ? '1 curtida' : `${count} curtidas`),
+    likeCount: (count: number) => String(count),
+    likesTotal: (count: number) => (count === 1 ? '1 curtida' : `${count} curtidas`),
     likedBy: 'Quem curtiu',
     loadMore: 'Ver mais',
     // How long ago, next to the likes: "agora", "5 min", "3 h", "2 d".
@@ -150,6 +151,7 @@ export const strings = {
     imdbRating: (rating: string) => `★ ${rating}/10 no IMDb`,
     openImdb: 'Abrir no IMDb',
     join: 'Eu também quero',
+    joinTooltip: 'Eu também quero!',
     leave: 'Não quero mais',
     cancel: 'Cancelar pedido',
     cancelConfirm: 'Cancelar esse pedido? O petisco volta pra você.',
