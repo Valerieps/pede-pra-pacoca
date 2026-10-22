@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ALLOWED_ORIGINS, IMAGE_ORIGINS, PUSH_SERVICE_ORIGINS, SERVER_ORIGINS } from '../network-policy.ts';
+import { ALLOWED_ORIGINS, IMAGE_ORIGINS, LINK_ORIGINS, PUSH_SERVICE_ORIGINS, SERVER_ORIGINS } from '../network-policy.ts';
 import { CONTENT_SECURITY_POLICY } from '../vite.config';
 
 /**
@@ -64,7 +64,7 @@ describe('security rules', () => {
   });
 
   it('every URL in the app source points to an allowed origin', () => {
-    expect(urlsOutside(files, [...ALLOWED_ORIGINS, ...IMAGE_ORIGINS], SOURCE_ROOT)).toEqual([]);
+    expect(urlsOutside(files, [...ALLOWED_ORIGINS, ...IMAGE_ORIGINS, ...LINK_ORIGINS], SOURCE_ROOT)).toEqual([]);
   });
 
   it('every URL in the server source points to a server origin', () => {

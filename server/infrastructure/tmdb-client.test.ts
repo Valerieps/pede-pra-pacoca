@@ -61,3 +61,13 @@ describe('tmdbClient', () => {
     expect(await tmdbClient('k', fake.fn).findByImdbId('../x')).toBeNull();
   });
 });
+
+describe('tmdbClient.imdbId', () => {
+  it('reads the IMDb id from external_ids and rejects anything else', async () => {
+    const fake = fakeFetch({ imdb_id: 'tt0944947' });
+    expect(await tmdbClient('k', fake.fn).imdbId('tv', 1399)).toBe('tt0944947');
+    expect(fake.calls[0].url.pathname).toBe('/3/tv/1399/external_ids');
+    expect(await tmdbClient('k', fakeFetch({ imdb_id: '' }).fn).imdbId('movie', 1)).toBeNull();
+    expect(await tmdbClient('k', fakeFetch({}, 404).fn).imdbId('movie', 1)).toBeNull();
+  });
+});

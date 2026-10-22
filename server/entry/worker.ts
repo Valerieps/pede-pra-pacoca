@@ -14,6 +14,7 @@ import {
   newPendingLogin,
   profileFromIdToken,
 } from '../infrastructure/google-oauth';
+import { omdbClient } from '../infrastructure/omdb-client';
 import { tmdbClient } from '../infrastructure/tmdb-client';
 import type { Env } from './env';
 import { Group, SESSION_HASH_HEADER } from './group-object';
@@ -146,7 +147,7 @@ async function api(request: Request, env: Env, url: URL): Promise<Response> {
   let prefetched: Prefetched = {};
   if (needsTmdb(kind, name)) {
     if (!(await group(env).isSignedIn(hash))) return json({ error: 'unauthenticated' }, 401);
-    const found = await lookup(tmdbClient(env.TMDB_API_KEY ?? ''), kind, name, input);
+    const found = await lookup(tmdbClient(env.TMDB_API_KEY ?? ''), kind, name, input, omdbClient(env.OMDB_API_KEY ?? ''));
     if (!found.ok) return json({ error: found.error }, STATUS[found.error]);
     prefetched = found.value;
   }

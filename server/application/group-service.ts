@@ -68,6 +68,7 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   'notifications.settings': (ctx, actor) => notificationSettings(ctx, actor, ctx.options.pushPublicKey || null),
   'media.search': searchMedia,
   'media.preview': previewMedia,
+  'media.imdb': (_ctx, _actor, _input, prefetched) => prefetched.imdb ?? new QueryError('invalid'),
   'manual.availability': manualAvailability,
   'requests.mine': (ctx, actor) => myRequests(ctx, actor),
   'request.detail': requestDetail,
