@@ -640,6 +640,21 @@ button.chip[aria-pressed='true'] {
   margin-left: calc((var(--icon-size) - var(--touch-size)) / 2);
 }
 
+/* "Eu também quero" as a round +1 in the theme's dark color */
+button.join-plus-one {
+  display: inline-grid;
+  place-items: center;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  padding: 0;
+  border-radius: 50%;
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  font-size: var(--font-size-small);
+  font-weight: 700;
+  line-height: 1;
+}
+
 .feed-age {
   margin-left: auto;
   color: var(--color-text-muted);
