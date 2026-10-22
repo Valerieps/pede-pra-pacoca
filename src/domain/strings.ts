@@ -44,7 +44,7 @@ export const strings = {
     inProgress: 'Em andamento',
     noneInProgress: 'Nada em andamento.',
     seeAll: 'Ver todos',
-    quickAskLabel: 'Cole um link do IMDb ou busque',
+    quickAskLabel: 'Compartilhe do app do IMDb, cole um link ou busque',
     quickAskButton: 'Pedir',
   },
 
@@ -93,7 +93,7 @@ export const strings = {
 
   ask: {
     title: 'Pedir pra Paçoca',
-    linkLabel: 'Cole um link do IMDb ou do TMDB',
+    linkLabel: 'Compartilhe direto do app do IMDb, ou cole um link do IMDb ou do TMDB',
     linkButton: 'Abrir',
     unrecognizedLink: 'A Paçoca não reconheceu esse link. Tenta buscar pelo nome ou faz um pedido manual.',
     notFound: 'A Paçoca não achou essa mídia no TMDB.',
