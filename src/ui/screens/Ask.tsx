@@ -7,6 +7,7 @@ import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
 import { browserShareEnvironment, clearPendingShare, pendingShare } from '../../infrastructure/share-target';
 import { PacocaCelebration } from '../components/PacocaCelebration';
+import { PetiscoChip } from '../components/PetiscoChip';
 import { Poster } from '../components/Poster';
 import { StatusChip } from '../components/StatusChip';
 import { takeAskDraft } from '../ask-draft';
@@ -53,18 +54,24 @@ export function Ask({ me }: { me: MeView }) {
   // The shared text is taken once: going back or opening Pedir again starts empty.
   useEffect(() => clearPendingShare(browserShareEnvironment()), []);
 
-  if (step.kind === 'confirm') {
-    const text = 'text' in step.input ? step.input.text : undefined;
-    return <Confirm me={me} input={step.input} onBack={back} onManual={() => manual('', text)} />;
-  }
-  if (step.kind === 'manual') return <ManualForm me={me} initialTitle={step.title} initialLink={step.link} onBack={back} />;
   return (
-    <Search
-      unrecognized={step.unrecognized}
-      initialQuery={step.query}
-      onPick={(input) => setStep({ kind: 'confirm', input })}
-      onManual={(title) => manual(title, step.unrecognized)}
-    />
+    <>
+      <p className="ask-balance">
+        <PetiscoChip balance={me.petiscos} />
+      </p>
+      {step.kind === 'confirm' ? (
+        <Confirm me={me} input={step.input} onBack={back} onManual={() => manual('', 'text' in step.input ? step.input.text : undefined)} />
+      ) : step.kind === 'manual' ? (
+        <ManualForm me={me} initialTitle={step.title} initialLink={step.link} onBack={back} />
+      ) : (
+        <Search
+          unrecognized={step.unrecognized}
+          initialQuery={step.query}
+          onPick={(input) => setStep({ kind: 'confirm', input })}
+          onManual={(title) => manual(title, step.unrecognized)}
+        />
+      )}
+    </>
   );
 }
 

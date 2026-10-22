@@ -10,7 +10,8 @@ import { StatusChip } from '../components/StatusChip';
 import { formatDate } from '../format';
 import { Link } from '../router';
 import { useQuery } from '../use-query';
-import { Bars, formatMonth, Stat } from './MemberStats';
+import { Avatar } from '../components/Avatar';
+import { Bars, formatMonth, Stat } from '../components/StatParts';
 
 const t = strings.stats;
 const STATUSES = Object.keys(strings.requestStatus) as RequestStatus[];
@@ -67,9 +68,36 @@ function groupTitle(group: HistoryGroupView, groupBy: StatsGroupBy): string {
 
 const people = (members: readonly MemberView[]) => members.map((m) => ({ value: m.id, label: m.name }));
 
-/** The group's history and numbers (docs/spec/estatisticas.md). */
-export function GroupStats() {
-  const [filter, setFilter] = useState<StatsFilter>({});
+/** The numbers of a person that no filter changes: cashbacks, likes received and the last 12 months. */
+function PersonNumbers({ memberId }: { memberId: string }) {
+  const profile = useQuery('stats.profile', { memberId }, ['requests', 'feed', 'petiscos', 'members']);
+  const data = profile.data;
+  if (profile.error && !data) return <p className="notice">{profile.error === 'not_found' ? t.notFound : strings.genericError}</p>;
+  if (!data) return null;
+  return (
+    <>
+      <h2 className="row">
+        <Avatar name={data.member.name} photoUrl={data.member.photoUrl} />
+        {t.profileTitle(data.member.name)}
+      </h2>
+      {data.totalRequests === 0 && <EmptyState text={t.profileEmpty(data.member.name)} />}
+      <div className="stat-grid">
+        <Stat label={t.cashbacks} value={data.cashbacks} />
+        <Stat label={t.likesReceived} value={data.likesReceived} />
+      </div>
+      {data.totalRequests > 0 && (
+        <div>
+          <h3>{t.perMonth}</h3>
+          <Bars rows={data.perMonth.map((m) => ({ label: formatMonth(m.month), value: m.count }))} />
+        </div>
+      )}
+    </>
+  );
+}
+
+/** Números do Grupo (docs/spec/estatisticas.md): opens filtered by a person, by default me. */
+export function GroupStats({ memberId }: { memberId: string }) {
+  const [filter, setFilter] = useState<StatsFilter>({ memberId });
   const [sort, setSort] = useState<StatsSort>('newest');
   const [groupBy, setGroupBy] = useState<StatsGroupBy>('none');
   const stats = useQuery('stats.group', { filter, sort, groupBy }, ['requests', 'feed', 'petiscos', 'members']);
@@ -80,11 +108,11 @@ export function GroupStats() {
   return (
     <section className="stack">
       <h1>{t.groupTitle}</h1>
+      <Pick label={t.person} any={t.anyone} value={filter.memberId} options={people(members.data ?? [])} onChange={(v) => set('memberId', v)} />
 
       <details>
         <summary>{t.filters}</summary>
         <div className="stack">
-          <Pick label={t.person} any={t.anyone} value={filter.memberId} options={people(members.data ?? [])} onChange={(v) => set('memberId', v)} />
           <div className="row">
             <label>
               <span className="muted">{t.from}</span>
@@ -112,7 +140,7 @@ export function GroupStats() {
             onChange={(v) => set('origin', v)}
           />
           <Pick label={t.attendant} any={t.anyAttendant} value={filter.attendantId} options={people(data?.options.attendants ?? [])} onChange={(v) => set('attendantId', v)} />
-          <button type="button" onClick={() => setFilter({})}>
+          <button type="button" onClick={() => setFilter((f) => ({ memberId: f.memberId }))}>
             {t.clear}
           </button>
         </div>
@@ -141,6 +169,8 @@ export function GroupStats() {
         </label>
       </div>
 
+      {filter.memberId && <PersonNumbers key={filter.memberId} memberId={filter.memberId} />}
+
       {stats.error && !data && <p className="notice">{strings.genericError}</p>}
       {data?.total === 0 && <EmptyState text={t.empty} />}
       {data && data.total > 0 && (
@@ -148,10 +178,15 @@ export function GroupStats() {
           <h2>{t.metrics}</h2>
           <div className="stat-grid">
             <Stat label={t.totalRequests} value={data.total} />
+            <Stat label={t.fulfilled} value={data.metrics.fulfilled} />
             <Stat label={t.averageTime} value={data.metrics.averageMsToFulfilled === null ? t.none : t.duration(data.metrics.averageMsToFulfilled)} />
             <Stat label={t.unavailableRate} value={data.metrics.unavailableRate === null ? t.none : t.percent(data.metrics.unavailableRate)} />
             <Stat label={t.petiscosConsumed} value={data.metrics.petiscosConsumed} />
             <Stat label={t.petiscosReturned} value={data.metrics.petiscosReturned} />
+          </div>
+          <div>
+            <h3>{t.perGenre}</h3>
+            <Bars rows={data.metrics.perGenre.map((g) => ({ label: g.genre || t.noGenre, value: g.count }))} />
           </div>
           <div>
             <h3>{t.perPerson}</h3>

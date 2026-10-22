@@ -2,62 +2,65 @@ import { describe, expect, it } from 'vitest';
 import type { RequestView } from '../application/api-contract';
 import type { RequestStatus } from '../domain/request/lifecycle';
 import { askDraftVersion, draftFor, submitAskDraft, takeAskDraft } from './ask-draft';
-import { activeTab, inProgress, profileLinksFor, tabsFor } from './navigation';
+import { activeTab, inProgress, manageLinksFor, statsMemberOf, tabsFor } from './navigation';
 
 const member = { roles: [] } as const;
 const attendant = { roles: ['attendant'] } as const;
 const admin = { roles: ['admin'] } as const;
 
 describe('tabsFor', () => {
-  it('gives an attendant Filas and keeps Pedir in the center', () => {
-    const tabs = tabsFor(attendant);
-    expect(tabs.map((t) => t.path)).toEqual(['/', '/filas', '/pedir', '/meus-pedidos', '/perfil']);
+  it('gives everyone the same tabs, with Pedir in the center', () => {
+    const tabs = tabsFor();
+    expect(tabs.map((t) => t.path)).toEqual(['/', '/numeros', '/pedir', '/meus-pedidos', '/perfil']);
     expect(tabs[2].icon).toBe('ask');
   });
 
-  it('gives everyone else Números where Filas would be', () => {
-    expect(tabsFor(member).map((t) => t.path)).toEqual(['/', '/numeros', '/pedir', '/meus-pedidos', '/perfil']);
-  });
-
-  it('shortens Meus pedidos in the tab bar only', () => {
-    const mine = tabsFor(member)[3];
-    expect(mine.label).toBe('Meus');
+  it('names Meus pedidos Pedidos in the tab bar only', () => {
+    const mine = tabsFor()[3];
+    expect(mine.label).toBe('Pedidos');
     expect(mine.longLabel).toBe('Meus pedidos');
   });
 });
 
-describe('profileLinksFor', () => {
-  const paths = (roles: { roles: readonly ('admin' | 'attendant')[] }) => profileLinksFor(roles).map((l) => l.path);
+describe('manageLinksFor', () => {
+  const paths = (roles: { roles: readonly ('admin' | 'attendant')[] }) => manageLinksFor(roles).map((l) => l.path);
 
-  it('shows a member only Membros and Petiscos (Números is a tab)', () => {
-    expect(paths(member)).toEqual(['/membros', '/petiscos']);
+  it('gives a member nothing to manage', () => {
+    expect(paths(member)).toEqual([]);
   });
 
-  it('adds Números and Ajustes for an attendant', () => {
-    expect(paths(attendant)).toEqual(['/membros', '/numeros', '/petiscos', '/ajustes']);
+  it('gives an attendant the requests and the petiscos', () => {
+    expect(paths(attendant)).toEqual(['/filas', '/gerenciar/petiscos']);
   });
 
-  it('adds Convites for an admin, who also attends', () => {
-    expect(paths(admin)).toEqual(['/membros', '/numeros', '/convites', '/petiscos', '/ajustes']);
+  it('adds members, invites and the group settings for an admin, who also attends', () => {
+    expect(paths(admin)).toEqual(['/filas', '/membros', '/convites', '/gerenciar/petiscos', '/ajustes']);
   });
 });
 
 describe('activeTab', () => {
-  const tabs = tabsFor(attendant);
+  const tabs = tabsFor();
 
   it('marks the tab of its own screen', () => {
-    expect(activeTab('/filas', tabs)).toBe('/filas');
+    expect(activeTab('/numeros', tabs)).toBe('/numeros');
   });
 
-  it('marks Meus on a request and Perfil on the screens inside it', () => {
+  it('marks Pedidos on a request, Números on a member and Perfil on Petiscos', () => {
     expect(activeTab('/pedido/abc', tabs)).toBe('/meus-pedidos');
+    expect(activeTab('/numeros/m1', tabs)).toBe('/numeros');
     expect(activeTab('/petiscos', tabs)).toBe('/perfil');
-    expect(activeTab('/numeros', tabs)).toBe('/perfil');
-    expect(activeTab('/membro/m1', tabs)).toBe('/perfil');
   });
 
-  it('marks nothing on Avisos', () => {
+  it('marks nothing on Avisos or the management screens', () => {
     expect(activeTab('/avisos', tabs)).toBeNull();
+    expect(activeTab('/filas', tabs)).toBeNull();
+  });
+});
+
+describe('statsMemberOf', () => {
+  it('reads the member from a Números path', () => {
+    expect(statsMemberOf('/numeros/m-1')).toBe('m-1');
+    expect(statsMemberOf('/numeros')).toBeNull();
   });
 });
 

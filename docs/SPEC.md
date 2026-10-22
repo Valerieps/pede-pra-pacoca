@@ -52,7 +52,7 @@ o Sonarr); mais de um grupo; chat entre membros; app nas lojas de aplicativos; l
 | [spec/feed.md](spec/feed.md) | Feed, eventos, curtidas e filtros |
 | [spec/notificacoes.md](spec/notificacoes.md) | Push, caixa de entrada, resumo diário e silêncio |
 | [spec/jellyseerr.md](spec/jellyseerr.md) | Webhook, configuração do admin e a porta "enviar pedido aprovado" |
-| [spec/estatisticas.md](spec/estatisticas.md) | Perfil, estatísticas e histórico do grupo |
+| [spec/estatisticas.md](spec/estatisticas.md) | Números do Grupo: estatísticas e histórico |
 | [spec/identidade.md](spec/identidade.md) | A voz, os textos e as ilustrações da Paçoca |
 | [spec/criterios-de-aceite.md](spec/criterios-de-aceite.md) | O que precisa ser verdade para a fase 1 estar pronta |
 | [spec/_modelo.md](spec/_modelo.md) | Modelo para um arquivo de feature novo |

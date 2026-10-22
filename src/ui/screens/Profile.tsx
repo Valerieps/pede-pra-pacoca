@@ -4,12 +4,32 @@ import { NAME_MAX_LENGTH, normalizeName, type PhotoChoice } from '../../domain/g
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { useServices } from '../backend-context';
-import { profileLinksFor } from '../navigation';
+import { readTheme, saveTheme, THEME_CHOICES, type ThemeChoice } from '../../infrastructure/theme';
 import { Link } from '../router';
+
+/** Claro, Escuro or Igual ao aparelho, for this device only. */
+function ThemePicker() {
+  const [theme, setTheme] = useState<ThemeChoice>(readTheme);
+  function choose(choice: ThemeChoice) {
+    setTheme(choice);
+    saveTheme(choice);
+  }
+  return (
+    <fieldset>
+      <legend className="muted">{strings.profile.themeLabel}</legend>
+      {THEME_CHOICES.map((choice) => (
+        <label key={choice} className="choice">
+          <input type="radio" name="theme" checked={theme === choice} onChange={() => choose(choice)} />
+          {strings.profile.themes[choice]}
+        </label>
+      ))}
+    </fieldset>
+  );
+}
 
 /**
  * Name and photo: the first-access screen, and later the Perfil screen, which also holds the
- * screens that are not tabs and "Sair" (docs/spec/app-e-instalacao.md, "Navegação").
+ * notification preferences, the theme, Petiscos and "Sair" (docs/spec/app-e-instalacao.md, "Navegação").
  */
 export function Profile({
   me,
@@ -48,11 +68,6 @@ export function Profile({
     <section>
       <h1>{firstAccess ? strings.profile.firstAccessTitle : strings.profile.title}</h1>
       {firstAccess && <p>{strings.profile.firstAccessIntro}</p>}
-      {!firstAccess && (
-        <p>
-          <Link to={`/membro/${me.id}`}>{strings.stats.myNumbers}</Link>
-        </p>
-      )}
       <form className="stack" onSubmit={submit}>
         <label>
           <span className="muted">{strings.profile.nameLabel}</span>
@@ -85,16 +100,14 @@ export function Profile({
         </button>
       </form>
       {!firstAccess && (
-        <nav className="profile-links" aria-label={strings.profile.title}>
-          <ul className="list">
-            {profileLinksFor(me).map((link) => (
-              <li key={link.path}>
-                <Link to={link.path} className="card">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <nav className="profile-links stack" aria-label={strings.profile.title}>
+          <Link to="/avisos/preferencias" className="card">
+            {strings.profile.notificationPreferences}
+          </Link>
+          <ThemePicker />
+          <Link to="/petiscos" className="card">
+            {strings.nav.petiscos}
+          </Link>
           {onSignOut && (
             <button type="button" className="secondary sign-out" onClick={onSignOut}>
               {strings.nav.signOut}

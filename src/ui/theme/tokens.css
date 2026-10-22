@@ -152,31 +152,30 @@
   --celebration-hops: 3;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+/* The dark theme: set on <html> by the theme preference ("Igual ao aparelho" follows the phone) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
 
-    /* "Sala de cinema": a dark wine room, not black */
-    --color-bg: #1a0f14;
-    --color-surface: #26161d;
-    --color-text: #f3eaee;
-    --color-text-muted: #bfa9b3;
-    --color-border: #3d2530;
-    --color-brand: #f2a7bd;
-    --color-brand-soft: #3a1a26;
-    --color-on-brand: #1a0f14;
-    --color-pop: #ff8fa8;
-    --color-pop-soft: #3a1828;
-    --color-pop-text: #ff8fa8;
-    --color-danger: #f5b99a;
-    --color-danger-soft: #3a2016;
-    --color-success: #7fd6a6;
-    --color-success-soft: #13342a;
-    --color-accent-surface: #2e2618;
-    --color-accent-text: #e6b572;
-    --color-celebration: #e6b572;
-    --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
-    --color-backdrop: rgb(0 0 0 / 0.6);
-    --color-shimmer: #4a2836;
-  }
+  /* "Sala de cinema": a dark wine room, not black */
+  --color-bg: #1a0f14;
+  --color-surface: #26161d;
+  --color-text: #f3eaee;
+  --color-text-muted: #bfa9b3;
+  --color-border: #3d2530;
+  --color-brand: #f2a7bd;
+  --color-brand-soft: #3a1a26;
+  --color-on-brand: #1a0f14;
+  --color-pop: #ff8fa8;
+  --color-pop-soft: #3a1828;
+  --color-pop-text: #ff8fa8;
+  --color-danger: #f5b99a;
+  --color-danger-soft: #3a2016;
+  --color-success: #7fd6a6;
+  --color-success-soft: #13342a;
+  --color-accent-surface: #2e2618;
+  --color-accent-text: #e6b572;
+  --color-celebration: #e6b572;
+  --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
+  --color-backdrop: rgb(0 0 0 / 0.6);
+  --color-shimmer: #4a2836;
 }

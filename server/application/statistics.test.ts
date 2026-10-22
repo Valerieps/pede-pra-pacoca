@@ -183,6 +183,13 @@ describe('group statistics', () => {
     const view = stats();
     expect(view.total).toBe(4);
     expect(view.metrics).toEqual({
+      fulfilled: 2,
+      perGenre: [
+        { genre: 'Ficção', count: 2 },
+        { genre: '', count: 1 },
+        { genre: 'Animação', count: 1 },
+        { genre: 'Ação', count: 1 },
+      ],
       perPerson: [
         { member: expect.objectContaining({ name: 'Ana' }), count: 2 },
         { member: expect.objectContaining({ name: 'Bia' }), count: 2 },
@@ -210,6 +217,13 @@ describe('group statistics', () => {
     expect(titles(stats({ filter: { status: 'canceled' } }))).toEqual(['Cancelado']);
     expect(titles(stats({ filter: { origin: 'manual' } }))).toEqual(['Filme raro']);
     expect(titles(stats({ filter: { attendantId: ids.cesar, status: 'fulfilled' } }))).toEqual(['Bluey', 'Duna']);
+  });
+
+  it('counts the genres of the filtered requests only', () => {
+    expect(stats({ filter: { memberId: ids.ana } }).metrics.perGenre).toEqual([
+      { genre: 'Ficção', count: 2 },
+      { genre: 'Ação', count: 1 },
+    ]);
   });
 
   it('reads the period in São Paulo: 01:00 UTC on Oct 6th is still Oct 5th', () => {

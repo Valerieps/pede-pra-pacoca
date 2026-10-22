@@ -34,5 +34,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 - [ ] `spec/identidade.md`: o petisco cai no contador só no cashback; bônus e a renovação do mês não têm animação.
 - [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Atendidos mais recentes elegíveis. (troque 10)
+- [ ] `spec/estatisticas.md`: em Números do Grupo, "Limpar" limpa os filtros mas mantém a pessoa escolhida; "Atendidos" entrou nas métricas; com uma pessoa escolhida, os cashbacks, as curtidas e os pedidos por mês dela não seguem os outros filtros.
+- [ ] `spec/app-e-instalacao.md`: o modo férias foi para Gerenciar pedidos; Ajustes do grupo (só o admin) tem só o download dos dados.
 
 

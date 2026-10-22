@@ -43,8 +43,7 @@ Nenhuma.
 
 ## Membros
 
-- Todos os membros veem a lista do grupo, com nome, foto e papéis. O e-mail de cada um só o admin
-  vê. *(1)*
+- Só o admin vê a lista do grupo, em Gerenciar membros, com nome, foto, e-mail e papéis. *(1)*
 - Na mesma tela, o admin dá e tira os papéis de atendente e de admin, inclusive os dele, desde que
   sobre um admin. *(1)*
 

@@ -12,7 +12,7 @@ const manifest = JSON.parse(read('public/manifest.webmanifest')) as {
   icons: { src: string; type: string; purpose: string }[];
 };
 const tokens = read('src/ui/theme/tokens.css');
-const [light, dark] = tokens.split('@media (prefers-color-scheme: dark)');
+const [light, dark] = tokens.split(":root[data-theme='dark']");
 
 function token(css: string, name: string) {
   return new RegExp(`--${name}: *(#[0-9a-f]{6})`).exec(css)?.[1];
