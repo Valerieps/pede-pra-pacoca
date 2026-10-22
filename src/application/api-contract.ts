@@ -116,8 +116,8 @@ export interface FeedEventView {
   readonly at: string;
   readonly likeCount: number;
   readonly likedByMe: boolean;
-  /** "Atendido" only: the requester and co-requesters' names, for "A Paçoca buscou X para Ana e Bia". */
-  readonly fulfilledFor?: readonly string[];
+  /** "Pediu" only: I can still say "Eu também quero" (active, not mine, not joined yet). */
+  readonly canJoin?: boolean;
   /** "Assisti" only: the rating from 1 to 5, or null when the member gave none. */
   readonly rating?: number | null;
 }

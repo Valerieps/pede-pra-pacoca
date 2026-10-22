@@ -136,26 +136,28 @@ describe('filters', () => {
     sql.run('INSERT INTO co_requests (request_id, member_id, at) VALUES (?, ?, ?)', 'r-ana', ids.bia, at(32));
   });
 
-  it('Tudo shows every event, and so does an unknown filter', () => {
-    expect(feed('ana', { filter: 'all' })).toHaveLength(8);
-    expect(feed('ana', { filter: 'whatever' })).toHaveLength(8);
+  it('Tudo shows every event but co-requests and fulfilled requests, and so does an unknown filter', () => {
+    expect(feed('ana', { filter: 'all' })).toHaveLength(5);
+    expect(feed('ana', { filter: 'whatever' })).toHaveLength(5);
   });
 
-  it('Pedidos shows new requests and co-requests', () => {
-    expect(idsOf(feed('ana', { filter: 'requests' }))).toEqual(['e-cesar-asks', 'e-bia-too', 'e-ana-asks']);
+  it('Pedidos shows new requests', () => {
+    expect(idsOf(feed('ana', { filter: 'requests' }))).toEqual(['e-cesar-asks', 'e-ana-asks']);
   });
 
-  it('Atendidos shows fulfilled requests', () => {
-    expect(idsOf(feed('ana', { filter: 'fulfilled' }))).toEqual(['e-cesar-done', 'e-ana-done']);
+  it('offers Eu também quero on active requests that are not mine and not joined yet', () => {
+    const canJoin = (person: Person) => feed(person, { filter: 'requests' }).map((e) => [e.id, e.canJoin ?? false]);
+    expect(canJoin('ana')).toEqual([['e-cesar-asks', true], ['e-ana-asks', false]]);
+    expect(canJoin('bia')).toEqual([['e-cesar-asks', true], ['e-ana-asks', false]]);
   });
 
   it('Meus shows what I did and what happened to the requests I asked for or also want', () => {
     const ana = feed('ana', { filter: 'mine' });
-    expect(idsOf(ana).slice(0, 3)).toEqual(['e-ana-done', 'e-bia-too', 'e-ana-asks']);
-    expect(ana.slice(3)).toMatchObject([{ type: 'member_joined', actor: { name: 'Ana' } }]);
+    expect(idsOf(ana).slice(0, 1)).toEqual(['e-ana-asks']);
+    expect(ana.slice(1)).toMatchObject([{ type: 'member_joined', actor: { name: 'Ana' } }]);
     const bia = feed('bia', { filter: 'mine' });
-    expect(idsOf(bia).slice(0, 3)).toEqual(['e-ana-done', 'e-bia-too', 'e-ana-asks']);
-    expect(bia.slice(3)).toMatchObject([{ type: 'member_joined', actor: { name: 'Bia' } }]);
+    expect(idsOf(bia).slice(0, 1)).toEqual(['e-ana-asks']);
+    expect(bia.slice(1)).toMatchObject([{ type: 'member_joined', actor: { name: 'Bia' } }]);
   });
 });
 

@@ -24,18 +24,10 @@ function describe(event: FeedEventView) {
           {strings.feed.requestCreated(event.actor.name)} {title}
         </>
       );
+    // Recorded, but the server never lists them.
     case 'co_request':
-      return (
-        <>
-          {strings.feed.coRequest(event.actor.name)} {title}
-        </>
-      );
     case 'request_fulfilled':
-      return (
-        <>
-          {strings.feed.fulfilledBefore} {title} {strings.feed.fulfilledFor(event.fulfilledFor ?? [event.actor.name])}
-        </>
-      );
+      return null;
     case 'watched':
       return (
         <>
@@ -122,6 +114,13 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
     if (result.ok) onChanged();
   }
 
+  async function join(requestId: string) {
+    setBusy(true);
+    const result = await backend.command('request.join', { id: requestId });
+    setBusy(false);
+    if (result.ok) onChanged();
+  }
+
   return (
     <li className="card feed-item">
       {/* The poster with the actor's photo on its corner; events without a title show only the photo */}
@@ -146,6 +145,11 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
           {event.likeCount > 0 && (
             <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
               {strings.feed.likeCount(event.likeCount)}
+            </button>
+          )}
+          {event.canJoin && event.requestId && (
+            <button type="button" className="link" disabled={busy} onClick={() => void join(event.requestId!)}>
+              {strings.request.join}
             </button>
           )}
           <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>
