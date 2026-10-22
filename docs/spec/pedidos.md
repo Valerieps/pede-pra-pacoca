@@ -38,6 +38,10 @@ Recusado, Não foi possível e Cancelado. "Pedido criado" é só o ponto de part
   aprovação só com contorno, apagado; Aprovado em vinho claro; No Jellyseerr em vinho cheio;
   Atendido em verde; Recusado e Não foi possível em laranja-tijolo; Cancelado apagado e riscado.
   *(1)*
+- O chip diz o que o pedido está esperando, não o nome do estado: Aguardando aprovação mostra "Ag.
+  aprovação", Aprovado mostra "Ag. Cesar", No Jellyseerr mostra "Ag. download" e Atendido mostra
+  "Pronto pra assistir". Recusado, Não foi possível e Cancelado ficam como são. *(1)*
+  Por quê: quem pediu quer saber com quem está a bola, e para ela "adicionar" não diz nada.
   Por quê: a cor ajuda a bater o olho, mas o nome escrito garante que ninguém depende só da cor.
 
 ## Pedir por link compartilhado

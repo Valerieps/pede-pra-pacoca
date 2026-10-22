@@ -79,10 +79,10 @@ export const strings = {
   mediaType: { movie: 'Filme', tv: 'Série' },
 
   requestStatus: {
-    awaiting_approval: 'Aguardando aprovação',
-    approved: 'Aprovado',
-    in_jellyseerr: 'No Jellyseerr',
-    fulfilled: 'Atendido',
+    awaiting_approval: 'Ag. aprovação',
+    approved: 'Ag. Cesar',
+    in_jellyseerr: 'Ag. download',
+    fulfilled: 'Pronto pra assistir',
     rejected: 'Recusado',
     unavailable: 'Não foi possível',
     canceled: 'Cancelado',
