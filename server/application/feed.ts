@@ -94,8 +94,10 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       at: row.at,
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,
-      ...(row.type === 'request_created' && row.request_status && row.requester_id !== actor.id && row.joined_by_me === 0 && isActive(row.request_status)
-        ? { canJoin: true }
+      ...(row.type === 'request_created' && row.request_status && row.requester_id !== actor.id && isActive(row.request_status)
+        ? row.joined_by_me === 0
+          ? { canJoin: true }
+          : { joinedByMe: true }
         : {}),
     }));
   return events;

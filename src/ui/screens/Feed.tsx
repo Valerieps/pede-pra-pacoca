@@ -113,9 +113,9 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
     if (result.ok) onChanged();
   }
 
-  async function join(requestId: string) {
+  async function toggleJoin(requestId: string) {
     setBusy(true);
-    const result = await backend.command('request.join', { id: requestId });
+    const result = await backend.command(event.joinedByMe ? 'request.leave' : 'request.join', { id: requestId });
     setBusy(false);
     if (result.ok) onChanged();
   }
@@ -139,29 +139,33 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
         ) : (
           <p className="feed-text">{describe(event)}</p>
         )}
+        {/* The status and the age on the left; "Eu também quero" and the paw on the right, the paw last */}
         <div className="feed-actions">
-          <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
-          {event.likeCount > 0 && (
-            <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
-              {strings.feed.likeCount(event.likeCount)}
-            </button>
-          )}
-          {event.canJoin && event.requestId && (
-            <button
-              type="button"
-              className="join-plus-one"
-              disabled={busy}
-              title={strings.request.joinTooltip}
-              aria-label={strings.request.joinTooltip}
-              onClick={() => void join(event.requestId!)}
-            >
-              +1
-            </button>
-          )}
           {event.type === 'request_created' && event.requestStatus && <StatusChip status={event.requestStatus} />}
           <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>
             {feedAge(event.at, new Date())}
           </time>
+          <span className="feed-buttons">
+            {(event.canJoin || event.joinedByMe) && event.requestId && (
+              <button
+                type="button"
+                className="join-plus-one"
+                aria-pressed={event.joinedByMe === true}
+                disabled={busy}
+                title={strings.request.joinTooltip}
+                aria-label={strings.request.joinTooltip}
+                onClick={() => void toggleJoin(event.requestId!)}
+              >
+                +1
+              </button>
+            )}
+            {event.likeCount > 0 && (
+              <button type="button" className="link muted" aria-expanded={showLikers} onClick={() => setShowLikers(!showLikers)}>
+                {strings.feed.likeCount(event.likeCount)}
+              </button>
+            )}
+            <PawLike liked={event.likedByMe} disabled={busy} onToggle={() => void toggleLike()} />
+          </span>
         </div>
         {showLikers && event.likeCount > 0 && <Likers eventId={event.id} />}
       </div>

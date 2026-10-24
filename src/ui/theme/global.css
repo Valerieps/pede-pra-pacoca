@@ -701,12 +701,20 @@ button.chip[aria-pressed='true'] {
   gap: var(--space-1);
 }
 
-/* The paw's drawing lines up with the sentence above; its touch area overflows to the left */
-.feed-actions .paw-like {
-  margin-left: calc((var(--icon-size) - var(--touch-size)) / 2);
+/* "Eu também quero" and the paw sit on the right; the paw's drawing lines up with the card's
+   right edge, its touch area overflows past it */
+.feed-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
 }
 
-/* "Eu também quero" as a round +1 in the theme's dark color */
+.feed-actions .paw-like {
+  margin-right: calc((var(--icon-size) - var(--touch-size)) / 2);
+}
+
+/* "Eu também quero" as a round +1: outlined until I say it, then filled in the theme's dark color */
 button.join-plus-one {
   display: inline-grid;
   place-items: center;
@@ -714,17 +722,22 @@ button.join-plus-one {
   height: var(--icon-size);
   padding: 0;
   /* Same distance from the like count as the paw's drawing has (its touch area pads it) */
-  margin-left: calc((var(--touch-size) - var(--icon-size)) / 2);
+  margin-right: calc((var(--touch-size) - var(--icon-size)) / 2);
+  border: 1.5px solid var(--color-brand);
   border-radius: 50%;
-  background: var(--color-brand);
-  color: var(--color-on-brand);
+  background: none;
+  color: var(--color-brand);
   font-size: var(--font-size-small);
   font-weight: 700;
   line-height: 1;
 }
 
+button.join-plus-one[aria-pressed='true'] {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+}
+
 .feed-age {
-  margin-left: auto;
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
   white-space: nowrap;

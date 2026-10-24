@@ -17,8 +17,9 @@ Nenhuma.
   também no detalhe. *(1)*
 - O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
 - Cada item mostra o pôster com a foto de quem fez a ação no canto dele (sem título, só a foto), o
-  texto do evento ao lado e, embaixo, a patinha, as curtidas, o "+1" de "Eu também quero", a cápsula de
-  status (só em "Ana pediu") e há quanto tempo foi: "agora",
+  texto do evento ao lado e, embaixo, numa linha: à esquerda a cápsula de status (só em "Ana pediu")
+  e há quanto tempo foi; à direita o "+1" de "Eu também quero", as curtidas e, por último, a patinha.
+  A patinha e o "+1" nascem vazios e só ficam cheios quando eu toquei neles. Há quanto tempo foi: "agora",
   "5 min", "3 h", "2 d" e, depois de uma semana, o dia ("21 de out."). *(1)*
   Por quê: a data importa pouco no feed; o que importa é quem fez o quê.
 
@@ -39,7 +40,8 @@ Nenhuma.
   Por quê: com o "Ana pediu" ainda perto do topo, a cápsula Cãopleto já conta a novidade; o item
   separado só serve quando o pedido já desceu no feed.
 - Num item "Ana pediu" cujo pedido ainda não foi atendido (nem cancelado ou recusado), e que não é meu
-  nem já tenho "Eu também quero", aparece o botão "Eu também quero". *(1)*
+  nem já tenho "Eu também quero", aparece o botão "Eu também quero". Depois que eu toco, ele fica
+  cheio, e tocar de novo desfaz. *(1)*
 - Recusado, Não foi possível, Cancelado e bônus avulso não geram evento: são informação da pessoa,
   não do grupo. *(1)*
 - Quando um pedido vira Cancelado, os eventos dele saem do feed ("Ana pediu", "Bia também quer"),
