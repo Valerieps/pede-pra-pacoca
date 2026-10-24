@@ -141,6 +141,13 @@
 
   --avatar-size: 40px;
   --avatar-size-small: 28px;
+  --avatar-size-large: 56px;
+  /* Números do Grupo: the podium steps, 1º tallest, and how far the 2º and 3º posters sit lower */
+  --podium-step-1: 52px;
+  --podium-step-2: 34px;
+  --podium-step-3: 22px;
+  --podium-poster-offset-2: 14px;
+  --podium-poster-offset-3: 24px;
   /* The Paçoca's art slot: 96px in empty states, 128px in the animations (brief-artes-pacoca.md) */
   --pacoca-art-size: 96px;
   --pacoca-art-size-large: 128px;

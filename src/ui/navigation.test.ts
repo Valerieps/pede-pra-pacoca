@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RequestView } from '../application/api-contract';
 import type { RequestStatus } from '../domain/request/lifecycle';
 import { askDraftVersion, draftFor, submitAskDraft, takeAskDraft } from './ask-draft';
-import { activeTab, inProgress, manageLinksFor, statsMemberOf, tabsFor } from './navigation';
+import { activeTab, inProgress, manageLinksFor, tabsFor } from './navigation';
 
 const member = { roles: [] } as const;
 const attendant = { roles: ['attendant'] } as const;
@@ -45,22 +45,14 @@ describe('activeTab', () => {
     expect(activeTab('/numeros', tabs)).toBe('/numeros');
   });
 
-  it('marks Pedidos on a request, Números on a member and Perfil on Petiscos', () => {
+  it('marks Pedidos on a request, Perfil on Petiscos', () => {
     expect(activeTab('/pedido/abc', tabs)).toBe('/meus-pedidos');
-    expect(activeTab('/numeros/m1', tabs)).toBe('/numeros');
     expect(activeTab('/petiscos', tabs)).toBe('/perfil');
   });
 
   it('marks nothing on Avisos or the management screens', () => {
     expect(activeTab('/avisos', tabs)).toBeNull();
     expect(activeTab('/filas', tabs)).toBeNull();
-  });
-});
-
-describe('statsMemberOf', () => {
-  it('reads the member from a Números path', () => {
-    expect(statsMemberOf('/numeros/m-1')).toBe('m-1');
-    expect(statsMemberOf('/numeros')).toBeNull();
   });
 });
 
