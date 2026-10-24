@@ -8,6 +8,7 @@ import { Link } from '../router';
 import { EmptyState } from '../components/EmptyState';
 import { PawLike } from '../components/PawLike';
 import { SkeletonCards } from '../components/Skeleton';
+import { StatusChip } from '../components/StatusChip';
 import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
 
@@ -24,9 +25,14 @@ function describe(event: FeedEventView) {
           {strings.feed.requestCreated(event.actor.name)} {title}
         </>
       );
+    case 'request_fulfilled':
+      return (
+        <>
+          {strings.feed.found} {title}!
+        </>
+      );
     // Recorded, but the server never lists them.
     case 'co_request':
-    case 'request_fulfilled':
       return null;
     case 'thanked':
       return strings.feed.thanked(event.actor.name);
@@ -152,6 +158,7 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
               +1
             </button>
           )}
+          {event.type === 'request_created' && event.requestStatus && <StatusChip status={event.requestStatus} />}
           <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>
             {feedAge(event.at, new Date())}
           </time>

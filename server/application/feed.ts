@@ -1,13 +1,22 @@
 // The group's public timeline and its likes (docs/spec/feed.md).
 import type { FeedEventType, FeedEventView, LikeToggleView, MemberView } from '../../src/application/api-contract';
-import { FEED_PAGE_SIZE, toFeedFilter } from '../../src/domain/feed/feed';
+import { FEED_PAGE_SIZE, FOUND_MIN_GAP, toFeedFilter } from '../../src/domain/feed/feed';
 import { isActive, type RequestStatus } from '../../src/domain/request/lifecycle';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import { memberView, toMember, type Member, type MemberRow } from './members';
 import { notify } from './notifications';
 
-// Recorded, but not shown: "Fulano também quer" and "A Paçoca buscou" and "Fulano agradeceu" are noise in the timeline.
-const HIDDEN_EVENTS: readonly FeedEventType[] = ['co_request', 'request_fulfilled', 'thanked'];
+// Recorded, but not shown: "Fulano também quer" and "Fulano agradeceu" are noise in the timeline.
+const HIDDEN_EVENTS: readonly FeedEventType[] = ['co_request', 'thanked'];
+
+// "A Paçoca achou" shows only when at least FOUND_MIN_GAP posts sit between it and its "pediu":
+// closer than that, the status on "pediu" already says it. Other "achou" posts do not count.
+const FOUND_SHOWN = `(e.type <> 'request_fulfilled' OR (
+  SELECT COUNT(*) FROM feed_events c JOIN feed_events m
+    ON (m.at > c.at OR (m.at = c.at AND m.id > c.id)) AND (m.at < e.at OR (m.at = e.at AND m.id < e.id))
+  WHERE c.request_id = e.request_id AND c.type = 'request_created'
+    AND m.type NOT IN (${[...HIDDEN_EVENTS, 'request_fulfilled'].map((type) => `'${type}'`).join(', ')})
+) >= ${FOUND_MIN_GAP})`;
 
 export function recordFeedEvent(ctx: Context, event: { type: FeedEventType; actorId: string; requestId: string | null; data?: object }): string {
   const id = ctx.ids.next();
@@ -47,7 +56,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
   const beforeId = typeof input.beforeId === 'string' ? input.beforeId : null;
   const filter = toFeedFilter(input.filter);
 
-  const where = [beforeId === null ? 'e.at < ?' : '(e.at < ? OR (e.at = ? AND e.id < ?))', `e.type NOT IN (${HIDDEN_EVENTS.map(() => '?').join(', ')})`];
+  const where = [beforeId === null ? 'e.at < ?' : '(e.at < ? OR (e.at = ? AND e.id < ?))', `e.type NOT IN (${HIDDEN_EVENTS.map(() => '?').join(', ')})`, FOUND_SHOWN];
   const bindings: (string | number)[] = beforeId === null ? [before, ...HIDDEN_EVENTS] : [before, before, beforeId, ...HIDDEN_EVENTS];
   if (filter === 'requests') {
     where.push("e.type = 'request_created'");
@@ -81,6 +90,7 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       requestId: row.request_id,
       requestTitle: row.request_title,
       requestPosterPath: row.request_poster_path,
+      requestStatus: row.request_status,
       at: row.at,
       likeCount: row.like_count,
       likedByMe: row.liked_by_me === 1,

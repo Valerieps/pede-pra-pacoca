@@ -136,7 +136,7 @@ describe('filters', () => {
     sql.run('INSERT INTO co_requests (request_id, member_id, at) VALUES (?, ?, ?)', 'r-ana', ids.bia, at(32));
   });
 
-  it('Tudo shows every event but co-requests and fulfilled requests, and so does an unknown filter', () => {
+  it('Tudo shows every event but co-requests and fulfilled requests close to their request, and so does an unknown filter', () => {
     expect(feed('ana', { filter: 'all' })).toHaveLength(5);
     expect(feed('ana', { filter: 'whatever' })).toHaveLength(5);
   });
@@ -158,6 +158,30 @@ describe('filters', () => {
     const bia = feed('bia', { filter: 'mine' });
     expect(idsOf(bia).slice(0, 1)).toEqual(['e-ana-asks']);
     expect(bia.slice(1)).toMatchObject([{ type: 'member_joined', actor: { name: 'Bia' } }]);
+  });
+});
+
+describe('A Paçoca achou', () => {
+  beforeEach(() => {
+    addRequest('r-near', 'ana');
+    addRequest('r-far', 'bia');
+    addEvent('e-far-asks', 'request_created', 'bia', 'r-far', 31);
+    addEvent('e-near-asks', 'request_created', 'ana', 'r-near', 32);
+    for (let i = 0; i < 3; i++) addEvent(`e-joined-${i}`, 'member_joined', 'ana', null, 33 + i);
+    addEvent('e-thanks', 'thanked', 'ana', 'r-near', 36);
+    addEvent('e-near-found', 'request_fulfilled', 'ana', 'r-near', 37);
+    addEvent('e-joined-3', 'member_joined', 'ana', null, 38);
+    addEvent('e-far-found', 'request_fulfilled', 'bia', 'r-far', 39);
+  });
+
+  it('shows only when at least five shown posts sit between it and its request', () => {
+    // r-near: 3 posts between (hidden "agradeceu" does not count); r-far: 5 (the other "achou" does not count).
+    const shown = idsOf(feed('ana')).filter((id) => id.endsWith('-found'));
+    expect(shown).toEqual(['e-far-found']);
+  });
+
+  it('puts the request status on "pediu"', () => {
+    expect(feed('ana', { filter: 'requests' }).map((e) => e.requestStatus)).toEqual(['approved', 'approved']);
   });
 });
 
