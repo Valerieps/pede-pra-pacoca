@@ -646,17 +646,18 @@ button.chip[aria-pressed='true'] {
 }
 
 /* A feed card, as social feeds lay it out: the poster with the actor's photo on its corner, the
-   sentence across the whole column, and one footer line with the paw, the likes and the age */
+   sentence and the status beside it, and the buttons level with the poster's bottom */
 .feed-item {
   display: grid;
   grid-template-columns: var(--feed-poster-width) minmax(0, 1fr);
-  align-items: start;
+  align-items: stretch;
   justify-content: stretch;
   background: var(--color-bg);
 }
 
 .feed-media {
   position: relative;
+  align-self: start;
   display: grid;
   justify-items: center;
 }
@@ -676,10 +677,16 @@ button.chip[aria-pressed='true'] {
   box-shadow: 0 0 0 var(--feed-avatar-ring) var(--color-bg);
 }
 
+/* A column as tall as the poster: the buttons take the space a short title leaves */
 .feed-body {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
+}
+
+.feed-status {
+  display: flex;
 }
 
 .feed-text {
@@ -699,6 +706,7 @@ button.chip[aria-pressed='true'] {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  margin-top: auto;
 }
 
 /* "Eu também quero" and the paw sit on the right; the paw's drawing lines up with the card's
@@ -735,12 +743,6 @@ button.join-plus-one {
 button.join-plus-one[aria-pressed='true'] {
   background: var(--color-brand);
   color: var(--color-on-brand);
-}
-
-.feed-age {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
-  white-space: nowrap;
 }
 
 @media (min-width: 1024px) {
