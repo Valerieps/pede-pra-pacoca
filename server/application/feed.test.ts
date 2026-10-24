@@ -151,6 +151,12 @@ describe('filters', () => {
     expect(canJoin('bia')).toEqual([['e-cesar-asks', true], ['e-ana-asks', false]]);
   });
 
+  it('marks the requests I already also want, so the feed can undo it', () => {
+    const joined = (person: Person) => feed(person, { filter: 'requests' }).map((e) => e.joinedByMe ?? false);
+    expect(joined('ana')).toEqual([false, false]);
+    expect(joined('bia')).toEqual([false, true]);
+  });
+
   it('Meus shows what I did and what happened to the requests I asked for or also want', () => {
     const ana = feed('ana', { filter: 'mine' });
     expect(idsOf(ana).slice(0, 1)).toEqual(['e-ana-asks']);

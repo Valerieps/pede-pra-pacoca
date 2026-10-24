@@ -119,6 +119,8 @@ export interface FeedEventView {
   readonly likedByMe: boolean;
   /** "Pediu" only: I can still say "Eu tambÃ©m quero" (active, not mine, not joined yet). */
   readonly canJoin?: boolean;
+  /** "Pediu" only: I already said "Eu também quero" on this active request and can undo it here. */
+  readonly joinedByMe?: boolean;
 }
 
 export type { FeedFilter };
