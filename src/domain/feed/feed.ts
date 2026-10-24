@@ -1,6 +1,6 @@
 // The feed's paging and filters (docs/spec/feed.md). Shared by the app and the server.
 
-export const FEED_PAGE_SIZE = 30;
+export const FEED_PAGE_SIZE = 10;
 
 /** "A Paçoca achou" shows only with at least this many posts between it and its "pediu". */
 export const FOUND_MIN_GAP = 5;

@@ -15,7 +15,8 @@ Nenhuma.
 - O feed é a tela inicial: uma linha do tempo pública, mais recente primeiro. *(1)*
 - Cada item leva ao detalhe do pedido, onde está "Eu também quero". Curtir fica no próprio item, e
   também no detalhe. *(1)*
-- O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
+- O feed mostra 10 eventos por página. No fim da página, centralizada, fica a paginação `< 1 >`: a
+  seta da esquerda volta para a página mais recente, a da direita traz os anteriores. *(1)*
 - Cada item mostra o pôster com a foto de quem fez a ação no canto dele (sem título, só a foto), o
   texto do evento ao lado, a cápsula de status logo abaixo do texto (só em "Ana pediu") e, à direita,
   alinhados com a base do pôster, o "+1" de "Eu também quero", as curtidas e, por último, a patinha;

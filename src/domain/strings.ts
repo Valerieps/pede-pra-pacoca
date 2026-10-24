@@ -60,7 +60,10 @@ export const strings = {
     likeCount: (count: number) => String(count),
     likesTotal: (count: number) => (count === 1 ? '1 curtida' : `${count} curtidas`),
     likedBy: 'Quem curtiu',
-    loadMore: 'Ver mais',
+    pagination: 'Páginas do feed',
+    previousPage: 'Página anterior',
+    nextPage: 'Próxima página',
+    page: (n: number) => `Página ${n}`,
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
     found: 'A Paçoca achou',

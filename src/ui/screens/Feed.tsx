@@ -47,12 +47,20 @@ interface Cursor {
 
 export function Feed() {
   const [filter, setFilter] = useState<FeedFilter>('all');
-  // One entry per loaded page; the first page has no cursor and follows new events live.
+  // Where each page visited so far starts; the first page has no cursor and follows new events live.
   const [pages, setPages] = useState<(Cursor | null)[]>([null]);
+  const [page, setPage] = useState(0);
 
   function choose(next: FeedFilter) {
     setFilter(next);
     setPages([null]);
+    setPage(0);
+  }
+
+  function go(index: number, next?: Cursor) {
+    if (next) setPages([...pages.slice(0, index), next]);
+    setPage(index);
+    window.scrollTo({ top: 0 });
   }
 
   return (
@@ -65,36 +73,63 @@ export function Feed() {
           </button>
         ))}
       </div>
-      {pages.map((cursor, index) => (
-        <FeedPage
-          key={`${filter}:${cursor?.beforeId ?? 'top'}`}
-          filter={filter}
-          cursor={cursor}
-          isLast={index === pages.length - 1}
-          onMore={(next) => setPages([...pages, next])}
-        />
-      ))}
+      <FeedPage
+        key={`${filter}:${pages[page]?.beforeId ?? 'top'}`}
+        filter={filter}
+        cursor={pages[page]}
+        page={page}
+        onPrevious={() => go(page - 1)}
+        onNext={(next) => go(page + 1, next)}
+      />
     </section>
   );
 }
 
-function FeedPage({ filter, cursor, isLast, onMore }: { filter: FeedFilter; cursor: Cursor | null; isLast: boolean; onMore: (next: Cursor) => void }) {
+function FeedPage({
+  filter,
+  cursor,
+  page,
+  onPrevious,
+  onNext,
+}: {
+  filter: FeedFilter;
+  cursor: Cursor | null;
+  page: number;
+  onPrevious: () => void;
+  onNext: (next: Cursor) => void;
+}) {
   const feed = useQuery('feed', { filter, ...(cursor ?? {}) }, ['feed']);
   const events = feed.data;
   const last = events?.[events.length - 1];
+  // A full page may have older events after it; a shorter one is the end of the feed.
+  const hasNext = last !== undefined && events!.length >= FEED_PAGE_SIZE;
 
   return (
     <>
       {feed.error && !events && <p className="notice">{strings.genericError}</p>}
-      {cursor === null && !events && !feed.error && <SkeletonCards />}
-      {cursor === null && events?.length === 0 && <EmptyState text={filter === 'all' ? strings.feed.empty : strings.feed.emptyFiltered} />}
+      {!events && !feed.error && <SkeletonCards />}
+      {page === 0 && events?.length === 0 && <EmptyState text={filter === 'all' ? strings.feed.empty : strings.feed.emptyFiltered} />}
       <ul className="list feed-page">
         {events?.map((event) => <FeedItem key={event.id} event={event} onChanged={feed.reload} />)}
       </ul>
-      {isLast && last && events.length >= FEED_PAGE_SIZE && (
-        <button type="button" className="secondary feed-more" onClick={() => onMore({ before: last.at, beforeId: last.id })}>
-          {strings.feed.loadMore}
-        </button>
+      {(page > 0 || hasNext) && (
+        <nav className="feed-pagination" aria-label={strings.feed.pagination}>
+          <button type="button" className="secondary" disabled={page === 0} aria-label={strings.feed.previousPage} onClick={onPrevious}>
+            &lt;
+          </button>
+          <span aria-current="page" aria-label={strings.feed.page(page + 1)}>
+            {page + 1}
+          </span>
+          <button
+            type="button"
+            className="secondary"
+            disabled={!hasNext}
+            aria-label={strings.feed.nextPage}
+            onClick={() => last && onNext({ before: last.at, beforeId: last.id })}
+          >
+            &gt;
+          </button>
+        </nav>
       )}
     </>
   );
