@@ -25,15 +25,15 @@ Nenhuma.
   em "Sem gênero". *(1)*
 - O histórico mostra até 200 pedidos; os números e as contagens dos grupos valem para todos. *(1)*
   Por quê: o servidor tem pouco tempo de processamento por consulta (ADR-006).
-- Métricas: pedidos, atendidos, pedidos por pessoa, pedidos por gênero, tempo médio até Atendido,
+- Métricas: pedidos, atendidos, pedidos por pessoa, pedidos por gênero, tempo médio até Cãopleto,
   taxa de Não foi possível, pedidos por atendente, petiscos consumidos e devolvidos, pedidos mais
   curtidos. *(1)*
-- O tempo até Atendido vai do pedido até a primeira vez
-  que ele virou Atendido. *(1)*
+- O tempo até Cãopleto vai do pedido até a primeira vez
+  que ele virou Cãopleto. *(1)*
 - Pedidos por gênero mostra todos os gêneros, do mais pedido ao menos; como no agrupamento, o
   pedido com dois gêneros conta nos dois e o sem gênero fica em "Sem gênero". *(1)*
 - A taxa de Não foi possível é sobre os pedidos encerrados pelo atendente: Não foi possível ÷
-  (Atendido + Não foi possível). *(1)*
+  (Cãopleto + Não foi possível). *(1)*
 - Petiscos consumidos são os debitados pelos pedidos; devolvidos são os cashbacks desses pedidos. O
   estorno de uma reserva (pedido cancelado ou recusado) não conta: o petisco nem chegou a ser gasto. *(1)*
 - Pedidos mais curtidos: os 5 com mais curtidas somando todos os eventos do pedido no feed. *(1)*

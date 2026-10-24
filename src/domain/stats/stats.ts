@@ -11,7 +11,7 @@ export type StatsGroupBy = 'none' | 'person' | 'month' | 'type' | 'genre' | 'sta
 export const STATS_SORTS: readonly StatsSort[] = ['newest', 'oldest', 'title', 'person', 'attendant', 'type', 'status', 'origin', 'likes'];
 export const STATS_GROUPS: readonly StatsGroupBy[] = ['none', 'person', 'month', 'type', 'genre', 'status', 'origin', 'attendant'];
 
-const STATUSES: readonly RequestStatus[] = ['awaiting_approval', 'approved', 'in_jellyseerr', 'fulfilled', 'rejected', 'unavailable', 'canceled'];
+const STATUSES: readonly RequestStatus[] = ['awaiting_approval', 'approved', 'in_jellyseerr', 'partially_available', 'fulfilled', 'rejected', 'unavailable', 'canceled'];
 const ORIGINS: readonly RequestOrigin[] = ['tmdb', 'manual'];
 
 /** The history shows at most this many requests; the counts and metrics still cover all of them. */
@@ -97,7 +97,7 @@ export function recentMonths(now: Date, count: number): string[] {
   return months;
 }
 
-/** The share of Não foi possível among the requests the attendants closed (Atendido or Não foi possível). */
+/** The share of Não foi possível among the requests the attendants closed (Cãopleto or Não foi possível). */
 export function unavailableRate(fulfilled: number, unavailable: number): number | null {
   const closed = fulfilled + unavailable;
   return closed === 0 ? null : unavailable / closed;

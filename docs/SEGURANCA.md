@@ -15,7 +15,8 @@ conferidas pelo `src/security.test.ts`, que roda em todo build.
 - As chamadas de rede ficam em `src/infrastructure/`; o resto do código não as faz.
 - Sem analytics nem telemetria de terceiros sem uma decisão registrada num ADR.
 - Segredos nunca vão para o código do cliente: tudo que está no bundle é público. A chave do TMDB, o
-  segredo do login Google e o segredo do webhook ficam só no Worker.
+  segredo do login Google e o token do Paçocast ficam só no Worker (e o token, também no `.env` do
+  Paçocast na casa do Cesar).
 - Os dados guardados são nome, foto, e-mail e pedidos do grupo. Não há dado sensível.
 
 ## 2. Acesso e dados
@@ -28,8 +29,12 @@ conferidas pelo `src/security.test.ts`, que roda em todo build.
 - A sessão é um cookie `HttpOnly`, `Secure`, `SameSite=Lax`; o banco guarda só o hash do token.
   Remover um membro corta o acesso na hora.
 - Toda chamada que muda dados, e a conexão ao vivo, precisa vir da própria origem do app (`Origin`).
-- O webhook confere o segredo em tempo constante e ignora chamadas inválidas.
-- O segredo do webhook e a URL do Jellyseerr só o admin vê.
+- As rotas do Paçocast (`/api/pacocast/`) conferem o token em tempo constante e não existem sem o
+  segredo `PACOCAST_TOKEN`. Elas só leem a fila e mudam status pelas mesmas regras do atendente.
+- O Paçocast só faz conexões de saída, para o Pede e para o Jellyseerr local, nos endereços do
+  `.env` dele; o código não tem nenhum outro endereço. A chave de API do Jellyseerr nunca sai da
+  casa do Cesar.
+- A URL do Jellyseerr só o admin vê.
 
 ## 3. Para todo app
 

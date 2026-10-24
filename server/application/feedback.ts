@@ -1,4 +1,4 @@
-// "Dar retorno" (docs/spec/pedidos.md): on an Atendido request, any member marks "Assisti" with an
+// "Dar retorno" (docs/spec/pedidos.md): on an Cãopleto request, any member marks "Assisti" with an
 // optional rating and sends "Obrigada, Paçoca" to the attendant who fulfilled it. Each one goes to
 // the feed once per member; changing the rating later updates the same event.
 import type { FeedbackView } from '../../src/application/api-contract';

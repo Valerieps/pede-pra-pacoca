@@ -63,6 +63,20 @@ export class Group extends DurableObject<Env> {
     return result;
   }
 
+  pacocastWork() {
+    return this.service.pacocastWork();
+  }
+
+  /** Like a command: the open apps refetch and the notices go out now. */
+  pacocastReport(input: unknown) {
+    const result = this.service.pacocastReport(input);
+    if (result.ok && result.changed.length > 0) {
+      this.broadcast(result.changed);
+      this.ctx.waitUntil(this.deliver(PUSHES_AFTER_COMMAND));
+    }
+    return result;
+  }
+
   async tick(): Promise<void> {
     const changed = this.service.tick();
     if (changed.length > 0) this.broadcast(changed);

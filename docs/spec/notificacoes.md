@@ -30,14 +30,15 @@ Nenhuma.
 | Pedido aguardando aprovação | Atendentes | Imediato |
 | Pedido aprovado | Solicitante | Imediato |
 | Recusado ou Não foi possível, com motivo | Solicitante e co-solicitantes | Imediato |
-| Atendido, com nota de atendimento | Solicitante e co-solicitantes | Imediato |
+| Parcialmente disponível (série com os primeiros episódios) | Solicitante e co-solicitantes | Imediato |
+| Cãopleto, com nota de atendimento | Solicitante e co-solicitantes | Imediato |
 | Alguém clicou "Eu também quero" no meu pedido | Solicitante | Imediato |
 | Curtidas no meu evento | Autora do evento | Agrupado |
 | Cashback ou bônus recebido | Quem recebeu | Imediato |
 | Petisco vence em 7 dias | Dona do petisco | Imediato |
 | Petiscos mensais renovados | Quem tem petisco mensal | Desligado |
 | Obrigada, Paçoca | Atendente que atendeu | Imediato |
-| Falha do servidor no webhook | Atendentes | Imediato |
+| Falha do Jellyseerr, avisada pelo Paçocast | Atendentes | Imediato |
 | Oferta de herdar um pedido cancelado | Co-solicitante | Imediato |
 
 - Curtidas chegam agrupadas ("3 pessoas curtiram seu pedido"), no máximo uma notificação por evento a

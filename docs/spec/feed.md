@@ -29,7 +29,7 @@ Nenhuma.
 | Cashback | A Paçoca devolveu um petisco para Ana |
 | Novo membro | Carla entrou no grupo |
 
-- "Eu também quero" e Atendido continuam registrados, mas não aparecem no feed: eram ruído. *(1)*
+- "Eu também quero" e Cãopleto continuam registrados, mas não aparecem no feed: eram ruído. *(1)*
 - Num item "Ana pediu" cujo pedido ainda não foi atendido (nem cancelado ou recusado), e que não é meu
   nem já tenho "Eu também quero", aparece o botão "Eu também quero". *(1)*
 - Recusado, Não foi possível, Cancelado e bônus avulso não geram evento: são informação da pessoa,

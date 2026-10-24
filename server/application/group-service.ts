@@ -1,6 +1,6 @@
 // The single entry to the group's data. The Durable Object calls it; every method is synchronous,
 // so a command runs alone and inside one transaction (ADR-006).
-import type { ApiResult, CommandName, Commands, QueryName, Queries, Topic } from '../../src/application/api-contract';
+import type { ApiResult, CommandName, Commands, PacocastReportResult, PacocastWork, QueryName, Queries, Topic } from '../../src/application/api-contract';
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { exportGroup } from './export';
@@ -21,6 +21,7 @@ import {
 } from './notifications';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import { announceMonthlyPetiscos, giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
+import { pacocastReport, pacocastWork } from './pacocast';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
   answerOffer,
@@ -163,6 +164,15 @@ export class GroupService {
     if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
     if (this.ctx.sql.transaction(() => announceMonthlyPetiscos(this.ctx))) changed.add('notifications');
     return [...changed];
+  }
+
+  /** What the Paçocast has to do (docs/spec/jellyseerr.md); it signs in with its token, not a session. */
+  pacocastWork(): PacocastWork {
+    return pacocastWork(this.ctx);
+  }
+
+  pacocastReport(input: unknown): CommandResult<PacocastReportResult> {
+    return this.ctx.sql.transaction(() => pacocastReport(this.ctx, asInput(input)));
   }
 
   /** The pushes that are due (quiet hours, digest, grouped likes), marked sent; see notifications.ts. */

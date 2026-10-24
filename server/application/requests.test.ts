@@ -216,7 +216,7 @@ describe('cancel', () => {
     expect(feedTypes('s-ana')).not.toContain('request_created');
   });
 
-  it('only the requester, only before No Jellyseerr', () => {
+  it('only the requester, only before Farejando', () => {
     const request = create('s-ana');
     expect(service.command('s-bia', 'request.cancel', { id: request.id })).toEqual({ ok: false, error: 'forbidden' });
     sql.run("UPDATE requests SET status = 'in_jellyseerr' WHERE id = ?", request.id);
@@ -295,7 +295,7 @@ describe('the offer to co-requesters', () => {
     expect(service.tick()).toEqual([]);
   });
 
-  it('past Aprovado, nobody accepting does not cancel it', () => {
+  it('past Solicitado, nobody accepting does not cancel it', () => {
     sql.run("UPDATE requests SET status = 'in_jellyseerr' WHERE id = ?", request.id);
     service.command('s-bia', 'request.answerOffer', { id: request.id, accept: false });
     service.command('s-dani', 'request.answerOffer', { id: request.id, accept: false });

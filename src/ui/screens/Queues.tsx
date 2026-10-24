@@ -261,7 +261,7 @@ function QueueEntry(props: {
   );
 }
 
-/** The reason for Recusar and "Não foi possível", or the optional note for Atendido. */
+/** The reason for Recusar and "Não foi possível", or the optional note for Cãopleto. */
 function ActionForm(props: { action: FormAction; count: number; busy: boolean; onCancel: () => void; onSubmit: (action: AttendantAction) => void }) {
   const [code, setCode] = useState<ReasonCode>('not_found');
   const [text, setText] = useState('');

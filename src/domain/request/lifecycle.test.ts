@@ -62,7 +62,26 @@ describe('transition', () => {
     expect(done.ok && done.effects).toContainEqual({ type: 'evaluate_cashback' });
   });
 
-  it('manual requests skip No Jellyseerr', () => {
+  it('the Jellyseerr marks a series partially available, which can still close', () => {
+    const series: RequestState = { ...approved, mediaType: 'tv', status: 'in_jellyseerr' };
+    const partial = transition(series, { type: 'mark_partial' }, jellyseerr);
+    expect(partial.ok && partial.next.status).toBe('partially_available');
+    expect(partial.ok && partial.effects).toEqual([{ type: 'notify', trigger: 'request_partially_available' }]);
+    const done = partial.ok ? transition(partial.next, { type: 'mark_fulfilled' }, jellyseerr) : partial;
+    expect(done.ok && done.effects).toContainEqual({ type: 'petisco', operation: 'debit', lot: 'monthly:2026-10' });
+  });
+
+  it('only the Jellyseerr marks partial, and only on a TMDB series', () => {
+    expect(transition({ ...approved, mediaType: 'tv' }, { type: 'mark_partial' }, cesar)).toEqual({ ok: false, error: 'forbidden' });
+    expect(transition(approved, { type: 'mark_partial' }, jellyseerr)).toEqual({ ok: false, error: 'invalid_transition' });
+  });
+
+  it('the Jellyseerr may mark a request sent', () => {
+    const r = transition(approved, { type: 'mark_sent' }, jellyseerr);
+    expect(r.ok && r.next.status).toBe('in_jellyseerr');
+  });
+
+  it('manual requests skip Farejando', () => {
     const manual = { ...approved, origin: 'manual' as const };
     expect(transition(manual, { type: 'mark_sent' }, cesar)).toEqual({ ok: false, error: 'invalid_transition' });
     expect(transition(manual, { type: 'mark_fulfilled' }, cesar).ok).toBe(true);
@@ -75,7 +94,7 @@ describe('transition', () => {
     expect(r.ok && r.effects).toContainEqual({ type: 'notify', trigger: 'webhook_failure' });
   });
 
-  it('only the requester cancels, and only before No Jellyseerr', () => {
+  it('only the requester cancels, and only before Farejando', () => {
     expect(transition(approved, { type: 'cancel' }, bia)).toEqual({ ok: false, error: 'forbidden' });
     expect(transition({ ...approved, status: 'in_jellyseerr' }, { type: 'cancel' }, ana)).toEqual({ ok: false, error: 'invalid_transition' });
     const r = transition(approved, { type: 'cancel' }, ana);
@@ -113,7 +132,7 @@ describe('inheritedStatus', () => {
     expect(inheritedStatus({ status: 'approved', heirIsAttendant: false, reservedLot: null }).status).toBe('awaiting_approval');
   });
 
-  it('past Aprovado the status stays; her petisco is reserved if she has one', () => {
+  it('past Solicitado the status stays; her petisco is reserved if she has one', () => {
     expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: null })).toEqual({ status: 'in_jellyseerr', effects: [] });
     expect(inheritedStatus({ status: 'in_jellyseerr', heirIsAttendant: false, reservedLot: 'b1' }).effects).toHaveLength(1);
   });
@@ -122,7 +141,7 @@ describe('inheritedStatus', () => {
 describe('requesterRemoved', () => {
   const refund = { type: 'petisco', operation: 'refund', lot: 'monthly:2026-10' };
 
-  it('before No Jellyseerr, alone: cancelled with the petisco back', () => {
+  it('before Farejando, alone: cancelled with the petisco back', () => {
     expect(requesterRemoved(approved)).toEqual({ next: { ...approved, status: 'canceled', petiscoLot: null }, effects: [refund] });
   });
 
@@ -147,7 +166,7 @@ describe('Dar retorno', () => {
     expect([0, 1, 5, 6, 2.5, '3', null].map(isRating)).toEqual([false, true, true, false, false, false, false]);
   });
 
-  it('thanks go to the assignee, else who marked Enviado, else who marked Atendido', () => {
+  it('thanks go to the assignee, else who marked Enviado, else who marked Cãopleto', () => {
     const sent = [
       { to: 'approved' as const, actorId: 'ana' },
       { to: 'in_jellyseerr' as const, actorId: 'dani' },

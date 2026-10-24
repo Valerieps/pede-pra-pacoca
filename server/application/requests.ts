@@ -184,6 +184,8 @@ function notifyTrigger(ctx: Context, trigger: NotificationTrigger, request: Effe
       return notify(ctx, { type: 'request_closed', data: { ...ref, outcome: 'refused', reason }, ...people });
     case 'request_unavailable':
       return notify(ctx, { type: 'request_closed', data: { ...ref, outcome: 'unavailable', reason }, ...people });
+    case 'request_partially_available':
+      return notify(ctx, { type: 'request_partially_available', data: ref, ...people });
     case 'request_fulfilled':
       return notify(ctx, { type: 'request_fulfilled', data: { ...ref, note: detail.note ?? null }, ...people });
     case 'webhook_failure':
@@ -503,7 +505,7 @@ export function leaveRequest(ctx: Context, actor: Member, input: Input): Command
   return { ok: true, value: null, changed: ['requests', 'feed', 'notifications'] };
 }
 
-/** Only the requester, only before No Jellyseerr. With co-requesters, the request is offered on. */
+/** Only the requester, only before Farejando. With co-requesters, the request is offered on. */
 export function cancelRequest(ctx: Context, actor: Member, input: Input): CommandResult<null> {
   const row = findRequest(ctx, input.id);
   if (!row) return failure('not_found');

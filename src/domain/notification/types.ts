@@ -11,6 +11,8 @@ export interface NotificationData {
   request_approved: { requestId: string; title: string };
   /** Refused or "Não foi possível". `reason` is the display text of the reason. */
   request_closed: { requestId: string; title: string; outcome: 'refused' | 'unavailable'; reason: string };
+  /** A series with some episodes in the server (docs/spec/jellyseerr.md). */
+  request_partially_available: { requestId: string; title: string };
   request_fulfilled: { requestId: string; title: string; note: string | null };
   /** Someone clicked "Eu também quero" on my request. */
   co_request: { requestId: string; title: string; memberName: string };
@@ -37,6 +39,7 @@ export const CONFIGURABLE_TYPES = [
   'thanked',
   'request_approved',
   'request_closed',
+  'request_partially_available',
   'request_fulfilled',
   'co_request',
   'likes',

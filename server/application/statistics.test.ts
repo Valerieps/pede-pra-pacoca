@@ -34,7 +34,7 @@ interface Seed {
   origin?: 'tmdb' | 'manual';
   genres?: string[];
   assignee?: Person;
-  /** Hours from the request to Atendido; sets the status to fulfilled. */
+  /** Hours from the request to Cãopleto; sets the status to fulfilled. */
   fulfilledAfter?: number;
 }
 
@@ -113,7 +113,7 @@ describe('profile', () => {
     addRequest('r5', { requester: 'bia', createdAt: '2026-10-02T12:00:00.000Z', genres: ['Drama'] });
   });
 
-  it('counts requests, fulfilled and the average time to Atendido, without canceled ones', () => {
+  it('counts requests, fulfilled and the average time to Cãopleto, without canceled ones', () => {
     expect(profile('bia', 'ana')).toMatchObject({
       member: { name: 'Ana' },
       totalRequests: 3,

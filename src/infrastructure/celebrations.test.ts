@@ -9,7 +9,7 @@ function storage(initial?: string) {
 const viewer = (isRequester: boolean, isCoRequester: boolean) => ({ isRequester, isCoRequester });
 
 describe('celebratesFulfilled', () => {
-  it('is for my Atendido requests and the ones I also want', () => {
+  it('is for my Cãopleto requests and the ones I also want', () => {
     expect(celebratesFulfilled({ status: 'fulfilled', viewer: viewer(true, false) })).toBe(true);
     expect(celebratesFulfilled({ status: 'fulfilled', viewer: viewer(false, true) })).toBe(true);
   });

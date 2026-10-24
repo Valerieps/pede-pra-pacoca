@@ -16,10 +16,11 @@ Nenhuma.
   iPhone, colar o link no app faz o mesmo.
 - [ ] Pedir uma mídia já pedida oferece "Eu também quero"; uma já atendida avisa e oferece "Pedir de
   novo".
-- [ ] Com petisco, o pedido vai para Aprovado; sem petisco, para Aguardando aprovação.
+- [ ] Com petisco, o pedido vai para Solicitado; sem petisco, para Aguardando aprovação.
 - [ ] Pedido de atendente não reserva petisco.
-- [ ] O webhook "disponível" do Jellyseerr marca o pedido como Atendido e notifica a solicitante e as
-  co-solicitantes.
+- [ ] O Paçocast manda ao Jellyseerr o pedido Solicitado em até um minuto e o pedido vira Farejando.
+- [ ] Quando o Jellyseerr diz que a mídia está disponível, o pedido vira Cãopleto e notifica a
+  solicitante e as co-solicitantes.
 - [ ] Pedido manual é atendido à mão e só então debita o petisco.
 - [ ] Cancelado, Recusado e Não foi possível estornam o petisco reservado.
 - [ ] No dia 1, os petiscos mensais renovam e os do mês anterior expiram; bônus e cashback vencem em

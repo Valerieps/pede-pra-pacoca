@@ -13,3 +13,5 @@ TMDB_API_KEY=
 OMDB_API_KEY=
 # 1 turns on the test sign-in (any e-mail, no Google) on localhost only (ADR-009). Never in wrangler.jsonc.
 DEV_SIGN_IN=
+# The Paçocast's token (ADR-016), any long random text; the same goes in pacocast/.env. Optional.
+PACOCAST_TOKEN=

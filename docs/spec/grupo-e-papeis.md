@@ -71,7 +71,7 @@ Nenhuma.
   admin faz isso. Assim sempre sobra um admin. *(1)*
 - Os pedidos ativos dele são tratados como cancelados pela solicitante (com estorno do petisco e a
   oferta às co-solicitantes de `pedidos.md`). *(1)*
-  - Se o pedido já está No Jellyseerr e ninguém fica com ele, ele segue sem petisco de ninguém,
+  - Se o pedido já está Farejando e ninguém fica com ele, ele segue sem petisco de ninguém,
     como na oferta de `pedidos.md`. *(1)*
 - Ele sai dos pedidos ativos em que clicou "Eu também quero"; se a oferta de herdar um pedido
   estava com ele, ela passa à seguinte. *(1)*

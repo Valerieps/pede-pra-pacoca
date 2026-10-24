@@ -15,6 +15,7 @@ export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   request_pending: 'attendants',
   request_approved: 'requester',
   request_closed: 'requesters',
+  request_partially_available: 'requesters',
   request_fulfilled: 'requesters',
   co_request: 'requester',
   likes: 'subject',

@@ -8,6 +8,7 @@ const TONES: Record<RequestStatus, StatusTone> = {
   awaiting_approval: 'waiting',
   approved: 'approved',
   in_jellyseerr: 'sent',
+  partially_available: 'sent',
   fulfilled: 'done',
   rejected: 'failed',
   unavailable: 'failed',

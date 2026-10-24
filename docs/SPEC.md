@@ -34,8 +34,8 @@ A ordem de construção dentro da fase 1 fica no [ROADMAP.md](ROADMAP.md).
 
 | Fase | O que entra |
 | --- | --- |
-| 1 | Tudo o que está descrito em `spec/`: convite e login, pedidos, petiscos, filas do atendente, webhook do Jellyseerr, feed, notificações, estatísticas e a identidade da Paçoca. O atendente cria no Jellyseerr, à mão, os pedidos aprovados |
-| 2 | Um agente na máquina de casa cria sozinho no Jellyseerr os pedidos da fila "A enviar" e a checagem de duplicidade passa a consultar a biblioteca real. Só para orientar o desenho: não é para construir agora |
+| 1 | Tudo o que está descrito em `spec/`: convite e login, pedidos, petiscos, filas do atendente, o Paçocast (agente na casa do Cesar que cria os pedidos no Jellyseerr e acompanha o status), feed, notificações, estatísticas e a identidade da Paçoca |
+| 2 | A checagem de duplicidade passa a consultar a biblioteca real do Jellyseerr. Só para orientar o desenho: não é para construir agora |
 
 Fora de escopo: baixar, guardar ou reproduzir mídia; acompanhar temporadas novas de séries (fica com
 o Sonarr); mais de um grupo; chat entre membros; app nas lojas de aplicativos; login com Apple.
@@ -51,7 +51,7 @@ o Sonarr); mais de um grupo; chat entre membros; app nas lojas de aplicativos; l
 | [spec/atendente.md](spec/atendente.md) | Filas, "Eu pego esse", status em lote, modo férias |
 | [spec/feed.md](spec/feed.md) | Feed, eventos, curtidas e filtros |
 | [spec/notificacoes.md](spec/notificacoes.md) | Push, caixa de entrada, resumo diário e silêncio |
-| [spec/jellyseerr.md](spec/jellyseerr.md) | Webhook, configuração do admin e a porta "enviar pedido aprovado" |
+| [spec/jellyseerr.md](spec/jellyseerr.md) | O Paçocast, os status do Jellyseerr e a configuração do admin |
 | [spec/estatisticas.md](spec/estatisticas.md) | Números do Grupo: estatísticas e histórico |
 | [spec/identidade.md](spec/identidade.md) | A voz, os textos e as ilustrações da Paçoca |
 | [spec/criterios-de-aceite.md](spec/criterios-de-aceite.md) | O que precisa ser verdade para a fase 1 estar pronta |

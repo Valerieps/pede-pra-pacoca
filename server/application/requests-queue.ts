@@ -92,7 +92,7 @@ function act(ctx: Context, actor: Member, row: RequestRow, action: Action): bool
 }
 
 /**
- * "Eu pego esse", approve, reject, "Enviado", Atendido and "Não foi possível", on one request or a
+ * "Eu pego esse", approve, reject, "Enviado", Cãopleto and "Não foi possível", on one request or a
  * batch. A request that changed in the meantime (or never allowed it) is skipped, not an error.
  */
 export function actOnRequests(ctx: Context, actor: Member, input: { ids?: unknown; action?: unknown }): CommandResult<AttendantActionResult> {

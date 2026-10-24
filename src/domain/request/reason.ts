@@ -27,7 +27,7 @@ export function parseReason(value: unknown): Reason | null {
   return free ? { code: code as ReasonCode, text: free } : { code: code as ReasonCode };
 }
 
-/** The optional note sent with Atendido. `undefined` when invalid. */
+/** The optional note sent with Cãopleto. `undefined` when invalid. */
 export function parseFulfillmentNote(value: unknown): string | null | undefined {
   const note = trimmed(value);
   if (note && note.length > MAX_FULFILLMENT_NOTE) return undefined;
