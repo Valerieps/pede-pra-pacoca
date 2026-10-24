@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FeedEventView } from '../../application/api-contract';
-import { FEED_FILTERS, FEED_PAGE_SIZE, feedAge, type FeedFilter } from '../../domain/feed/feed';
+import { FEED_FILTERS, FEED_PAGE_SIZE, type FeedFilter } from '../../domain/feed/feed';
 import { strings } from '../../domain/strings';
 import { Avatar } from '../components/Avatar';
 import { Poster } from '../components/Poster';
@@ -139,12 +139,13 @@ function FeedItem({ event, onChanged }: { event: FeedEventView; onChanged: () =>
         ) : (
           <p className="feed-text">{describe(event)}</p>
         )}
-        {/* The status and the age on the left; "Eu também quero" and the paw on the right, the paw last */}
+        {event.type === 'request_created' && event.requestStatus && (
+          <span className="feed-status">
+            <StatusChip status={event.requestStatus} />
+          </span>
+        )}
+        {/* "Eu também quero" and the paw on the right, the paw last, level with the poster's bottom */}
         <div className="feed-actions">
-          {event.type === 'request_created' && event.requestStatus && <StatusChip status={event.requestStatus} />}
-          <time className="feed-age" dateTime={event.at} title={new Date(event.at).toLocaleString('pt-BR')}>
-            {feedAge(event.at, new Date())}
-          </time>
           <span className="feed-buttons">
             {(event.canJoin || event.joinedByMe) && event.requestId && (
               <button

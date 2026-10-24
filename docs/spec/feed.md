@@ -17,10 +17,10 @@ Nenhuma.
   também no detalhe. *(1)*
 - O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
 - Cada item mostra o pôster com a foto de quem fez a ação no canto dele (sem título, só a foto), o
-  texto do evento ao lado e, embaixo, numa linha: à esquerda a cápsula de status (só em "Ana pediu")
-  e há quanto tempo foi; à direita o "+1" de "Eu também quero", as curtidas e, por último, a patinha.
-  A patinha e o "+1" nascem vazios e só ficam cheios quando eu toquei neles. Há quanto tempo foi: "agora",
-  "5 min", "3 h", "2 d" e, depois de uma semana, o dia ("21 de out."). *(1)*
+  texto do evento ao lado, a cápsula de status logo abaixo do texto (só em "Ana pediu") e, à direita,
+  alinhados com a base do pôster, o "+1" de "Eu também quero", as curtidas e, por último, a patinha;
+  eles ficam no mesmo lugar qualquer que seja o tamanho do título. O item não mostra há quanto tempo
+  foi. A patinha e o "+1" nascem vazios e só ficam cheios quando eu toquei neles. *(1)*
   Por quê: a data importa pouco no feed; o que importa é quem fez o quê.
 
 | Evento | Exemplo de texto |
