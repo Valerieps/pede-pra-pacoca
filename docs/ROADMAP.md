@@ -14,7 +14,6 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
 | Configuração do Jellyseerr pelo admin | 1 | `spec/jellyseerr.md` | Falta a tela da URL base. "Abrir no Jellyseerr" já aparece nas filas quando a chave `jellyseerrBaseUrl` existe em `config` |
-| Instalar o Paçocast na casa do Cesar | 1 | `spec/jellyseerr.md` | O código está pronto; falta o segredo `PACOCAST_TOKEN` no Worker e o contêiner no Docker do Cesar ([passo a passo](../pacocast/README.md)) |
 | Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Cãopleto) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que o Cesar vai mandar seguindo o [brief](rascunhos/brief-artes-pacoca.md) e a ADR-013 |
 | Duplicidade consultando a biblioteca do Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
