@@ -163,7 +163,7 @@ describe('filters', () => {
 
 describe('pagination', () => {
   it('pages with before and beforeId, without skipping events recorded in the same instant', () => {
-    for (let i = 0; i < FEED_PAGE_SIZE + 5; i++) addEvent(`e-${String(i).padStart(2, '0')}`, 'watched', 'ana', null, 40);
+    for (let i = 0; i < FEED_PAGE_SIZE + 5; i++) addEvent(`e-${String(i).padStart(2, '0')}`, 'member_joined', 'ana', null, 40);
     const first = feed('ana');
     expect(first).toHaveLength(FEED_PAGE_SIZE);
     const last = first[first.length - 1];

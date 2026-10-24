@@ -100,7 +100,6 @@ export type FeedEventType =
   | 'request_created'
   | 'co_request'
   | 'request_fulfilled'
-  | 'watched'
   | 'thanked'
   | 'cashback';
 
@@ -118,8 +117,6 @@ export interface FeedEventView {
   readonly likedByMe: boolean;
   /** "Pediu" only: I can still say "Eu também quero" (active, not mine, not joined yet). */
   readonly canJoin?: boolean;
-  /** "Assisti" only: the rating from 1 to 5, or null when the member gave none. */
-  readonly rating?: number | null;
 }
 
 export type { FeedFilter };
@@ -269,8 +266,6 @@ export interface InheritanceOfferView {
 
 /** What I said about an Cãopleto request ("Dar retorno"). */
 export interface FeedbackView {
-  readonly watched: boolean;
-  readonly rating: number | null;
   readonly thanked: boolean;
 }
 
@@ -421,8 +416,6 @@ export interface Commands {
   'request.cancel': { input: { id: string }; output: null };
   'request.editNote': { input: { id: string; note: string }; output: null };
   'request.answerOffer': { input: { id: string; accept: boolean }; output: null };
-  /** "Assisti"; `rating` 1-5 or null, left out keeps the one already given. */
-  'request.watched': { input: { id: string; rating?: number | null }; output: FeedbackView };
   /** "Obrigada, Paçoca". */
   'request.thank': { input: { id: string }; output: FeedbackView };
   /** Attendants: the same action on every request in `ids` (1 to 50). */

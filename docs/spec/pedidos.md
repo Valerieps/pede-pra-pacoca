@@ -112,11 +112,9 @@ partida. Como o Jellyseerr move o pedido está em `jellyseerr.md`.
 
 ## Dar retorno
 
-- Em pedidos Cãopletos, qualquer membro pode marcar "Assisti", dar uma nota de 1 a 5 e mandar um
-  "Obrigada, Paçoca" ao atendente que atendeu. Cada ação gera um evento no feed. *(1)*
+- Em pedidos Cãopletos, qualquer membro pode mandar um "Obrigada, Paçoca" ao atendente que atendeu,
+  uma vez por pedido. *(1)*
 - O atendente que atendeu é o responsável do "Eu pego esse"; sem responsável, é quem marcou
   "Enviado". Se o pedido foi direto para Cãopleto, é quem marcou Cãopleto. *(1)*
-- Eu marco "Assisti" e dou a nota uma vez por pedido: o feed mostra um evento só, e se eu mudo a
-  nota depois, o mesmo evento mostra a nota nova. A nota é opcional; tocar na mesma nota tira a nota.
-  *(1)*
-- Eu mando o "Obrigada, Paçoca" uma vez por pedido. *(1)*
+- O app não registra se eu assisti nem a nota que eu daria. *(1)*
+  Por quê: o pedido serve para pedir; acompanhar o que cada um assistiu fica fora do app.

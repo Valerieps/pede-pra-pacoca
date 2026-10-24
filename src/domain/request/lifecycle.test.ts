@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fulfillingAttendant, inheritedStatus, initialStatus, isRating, requesterRemoved, transition, type Actor, type RequestState } from './lifecycle';
+import { fulfillingAttendant, inheritedStatus, initialStatus, requesterRemoved, transition, type Actor, type RequestState } from './lifecycle';
 
 const ana: Actor = { kind: 'member', id: 'ana', canAttend: false };
 const bia: Actor = { kind: 'member', id: 'bia', canAttend: false };
@@ -162,10 +162,6 @@ describe('requesterRemoved', () => {
 });
 
 describe('Dar retorno', () => {
-  it('ratings go from 1 to 5, whole numbers', () => {
-    expect([0, 1, 5, 6, 2.5, '3', null].map(isRating)).toEqual([false, true, true, false, false, false, false]);
-  });
-
   it('thanks go to the assignee, else who marked Enviado, else who marked Cãopleto', () => {
     const sent = [
       { to: 'approved' as const, actorId: 'ana' },

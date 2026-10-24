@@ -75,7 +75,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `request_transitions` | pedido, de, para, autor, detalhe, data | Autor é o membro ou `jellyseerr` (o Paçocast) |
 | `co_requests` | pedido, membro, data | A data ordena a oferta de herança |
 | `inheritance_offers` | pedido, membro, estado, prazo | 5 dias por oferta |
-| `feedback` | pedido, membro, assisti, nota, obrigada | |
+| `feedback` | pedido, membro, obrigada | As colunas `watched_at` e `rating` estão vazias desde a migração 5 e saem numa migração futura |
 | `feed_events` | tipo, ator, pedido, contagem de curtidas, data | Ator e pedido indexados para as estatísticas (ADR-014) |
 | `likes` | evento, membro, data | Uma por pessoa por evento |
 | `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito. Pedido indexado para as estatísticas (ADR-014) |

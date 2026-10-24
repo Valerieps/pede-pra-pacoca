@@ -3,6 +3,7 @@ import type { FeedEventView, MediaView, RequestDetailView, RequestView } from '.
 import { fixedClock, memorySql, sequentialIds } from '../testing/node-sql';
 import { GroupService } from './group-service';
 import type { Sql } from './ports';
+import { MIGRATIONS } from './schema';
 
 const dune: MediaView = { type: 'movie', tmdbId: 693134, title: 'Duna', year: 2024, posterPath: null, releaseDate: '2024-02-27', genres: [] };
 
@@ -58,33 +59,9 @@ beforeEach(() => {
 describe('Dar retorno', () => {
   it('only on Cãopleto requests', () => {
     const request = create('s-ana');
-    expect(viewer('s-bia', request.id)).toMatchObject({ canGiveFeedback: false, feedback: { watched: false, rating: null, thanked: false } });
-    expect(service.command('s-ana', 'request.watched', { id: request.id })).toEqual({ ok: false, error: 'conflict' });
+    expect(viewer('s-bia', request.id)).toMatchObject({ canGiveFeedback: false, feedback: { thanked: false } });
     expect(service.command('s-ana', 'request.thank', { id: request.id })).toEqual({ ok: false, error: 'conflict' });
     expect(service.command('s-ana', 'request.thank', { id: 'nope' })).toEqual({ ok: false, error: 'not_found' });
-  });
-
-  it('"Assisti" with a rating: one feed event per member, and the rating can change', () => {
-    const request = create('s-ana');
-    act('s-cesar', request.id, 'mark_fulfilled');
-    expect(viewer('s-bia', request.id).canGiveFeedback).toBe(true);
-    expect(service.command('s-bia', 'request.watched', { id: request.id, rating: 6 })).toEqual({ ok: false, error: 'invalid' });
-    expect(service.command('s-bia', 'request.watched', { id: request.id, rating: 4 })).toEqual({
-      ok: true,
-      value: { watched: true, rating: 4, thanked: false },
-      changed: ['requests', 'feed'],
-    });
-    expect(feed().find((e) => e.type === 'watched')).toMatchObject({ type: 'watched', actor: { name: 'bia' }, requestTitle: 'Duna', rating: 4 });
-
-    service.command('s-bia', 'request.watched', { id: request.id, rating: 5 });
-    service.command('s-bia', 'request.watched', { id: request.id });
-    const watched = feed().filter((e) => e.type === 'watched');
-    expect(watched).toHaveLength(1);
-    expect(watched[0].rating).toBe(5);
-    expect(viewer('s-bia', request.id).feedback).toEqual({ watched: true, rating: 5, thanked: false });
-
-    service.command('s-ana', 'request.watched', { id: request.id });
-    expect(feed().find((e) => e.type === 'watched' && e.actor.name === 'ana')?.rating).toBeNull();
   });
 
   it('"Obrigada" goes once, to the attendant who took the request', () => {
@@ -122,5 +99,22 @@ describe('Dar retorno', () => {
     act('s-cesar', request.id, 'mark_fulfilled');
     expect(service.command('s-cesar', 'request.thank', { id: request.id })).toMatchObject({ ok: true });
     expect(thanksFor(ids.cesar)).toEqual([]);
+  });
+
+  it('migration 5 drops what "Assisti" left and keeps the thanks', () => {
+    const request = create('s-ana');
+    act('s-cesar', request.id, 'mark_fulfilled');
+    service.command('s-bia', 'request.thank', { id: request.id });
+    sql.run("UPDATE feedback SET watched_at = 'x', rating = 4");
+    sql.run("INSERT INTO feedback (request_id, member_id, watched_at, rating) VALUES (?, ?, 'x', 3)", request.id, ids.ana);
+    sql.run("INSERT INTO feed_events (id, type, actor_id, request_id, data, at) VALUES ('w', 'watched', ?, ?, '{}', 'x')", ids.ana, request.id);
+    sql.run("INSERT INTO likes (event_id, member_id, at) VALUES ('w', ?, 'x')", ids.bia);
+
+    for (const statement of MIGRATIONS[4]) sql.run(statement);
+    expect(sql.all('SELECT member_id, watched_at, rating, thanked_at IS NOT NULL AS thanked FROM feedback')).toEqual([
+      { member_id: ids.bia, watched_at: null, rating: null, thanked: 1 },
+    ]);
+    expect(sql.all("SELECT id FROM feed_events WHERE type = 'watched'")).toEqual([]);
+    expect(sql.all("SELECT event_id FROM likes WHERE event_id = 'w'")).toEqual([]);
   });
 });

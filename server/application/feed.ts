@@ -87,7 +87,6 @@ export function listFeed(ctx: Context, actor: Member, input: { before?: unknown;
       ...(row.type === 'request_created' && row.request_status && row.requester_id !== actor.id && row.joined_by_me === 0 && isActive(row.request_status)
         ? { canJoin: true }
         : {}),
-      ...(row.type === 'watched' ? { rating: (JSON.parse(row.data) as { rating?: number | null }).rating ?? null } : {}),
     }));
   return events;
 }
