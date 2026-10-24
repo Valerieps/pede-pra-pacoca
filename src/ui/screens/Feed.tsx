@@ -28,13 +28,6 @@ function describe(event: FeedEventView) {
     case 'co_request':
     case 'request_fulfilled':
       return null;
-    case 'watched':
-      return (
-        <>
-          {strings.feed.watched(event.actor.name)} {title}
-          {event.rating ? <> {strings.feed.rated(event.rating)}</> : null}
-        </>
-      );
     case 'thanked':
       return strings.feed.thanked(event.actor.name);
   }

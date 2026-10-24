@@ -183,6 +183,13 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
     `CREATE INDEX feed_events_actor ON feed_events(actor_id)`,
     `CREATE INDEX petisco_movements_request ON petisco_movements(request_id)`,
   ],
+  // 5: "Assisti" and its rating are gone (docs/spec/pedidos.md); the columns leave in a later one.
+  [
+    `DELETE FROM likes WHERE event_id IN (SELECT id FROM feed_events WHERE type = 'watched')`,
+    `DELETE FROM feed_events WHERE type = 'watched'`,
+    `DELETE FROM feedback WHERE thanked_at IS NULL`,
+    `UPDATE feedback SET watched_at = NULL, rating = NULL`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

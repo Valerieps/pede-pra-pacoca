@@ -5,7 +5,7 @@ import { failure, QueryError, type CommandResult, type Context } from './context
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { exportGroup } from './export';
 import { listFeed, listLikes, toggleLike } from './feed';
-import { markWatched, thank } from './feedback';
+import { thank } from './feedback';
 import { removeMember } from './member-removal';
 import {
   claimDuePushes,
@@ -93,7 +93,6 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'request.cancel': cancelRequest,
   'request.editNote': editNote,
   'request.answerOffer': answerOffer,
-  'request.watched': markWatched,
   'request.thank': thank,
   'request.act': actOnRequests,
   'member.updateProfile': updateProfile,

@@ -24,7 +24,6 @@ Nenhuma.
 | Evento | Exemplo de texto |
 | --- | --- |
 | Pedido criado | Ana pediu *Duna: Parte Três* |
-| Assisti e nota | Ana assistiu *Duna: Parte Três* e deu 4 de 5 |
 | Obrigada | Ana agradeceu à Paçoca |
 | Cashback | A Paçoca devolveu um petisco para Ana |
 | Novo membro | Carla entrou no grupo |

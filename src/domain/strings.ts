@@ -70,9 +70,6 @@ export const strings = {
     },
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
-    // "Ana assistiu *Duna* e deu 4 de 5".
-    watched: (name: string) => `${name} assistiu`,
-    rated: (rating: number) => `e deu ${rating} de 5`,
     thanked: (name: string) => `${name} agradeceu à Paçoca`,
   },
 
@@ -177,10 +174,6 @@ export const strings = {
       requester_removed: 'A solicitante saiu do grupo',
     } as Record<string, string>,
     feedbackTitle: 'Dar retorno',
-    watched: 'Assisti',
-    youWatched: 'Você assistiu',
-    ratingLabel: 'Sua nota',
-    ratingOption: (n: number) => `${n} de 5`,
     thank: 'Obrigada, Paçoca',
     thanked: 'Você agradeceu. A Paçoca abanou o rabo!'
   },

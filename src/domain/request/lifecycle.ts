@@ -207,9 +207,6 @@ export function requesterRemoved(state: RequestState): { next: RequestState; eff
   return { next: { ...state, petiscoLot: null, status: beforeServer ? 'canceled' : state.status }, effects: refund(state) };
 }
 
-/** "Dar retorno" (docs/spec/pedidos.md): a rating goes from 1 to 5. */
-export const isRating = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 1 && (value as number) <= 5;
-
 /**
  * Who receives "Obrigada, Paçoca": the request's assignee; without one, whoever marked Enviado;
  * when it went straight to Cãopleto, whoever marked it. Null when the Jellyseerr closed it alone.
