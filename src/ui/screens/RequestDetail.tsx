@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { CommandName, Commands, RequestDetailView } from '../../application/api-contract';
-import { isUnreleased } from '../../domain/media/media';
+import { isUnreleased, letterboxdUrl } from '../../domain/media/media';
 import { reasonText } from '../../domain/request/reason';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
@@ -155,6 +155,7 @@ function Detail({ request }: { request: RequestDetailView }) {
       </div>
 
       {viewer.canGiveFeedback && <Feedback request={request} busy={busy} run={run} />}
+      {request.status === 'fulfilled' && request.tmdbId !== null && <Letterboxd url={letterboxdUrl(request.mediaType, request.tmdbId)} />}
 
       {error && (
         <p className="notice" role="alert">
@@ -223,6 +224,19 @@ function MediaFacts({ request, tmdbId }: { request: RequestDetailView; tmdbId: n
         </ul>
       )}
     </>
+  );
+}
+
+/** On an Cãopleto movie, for every member: rating it happens on Letterboxd, not in the app. */
+function Letterboxd({ url }: { url: string | null }) {
+  if (!url) return null;
+  return (
+    <p>
+      {strings.request.watched}{' '}
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        {strings.request.openLetterboxd}
+      </a>
+    </p>
   );
 }
 

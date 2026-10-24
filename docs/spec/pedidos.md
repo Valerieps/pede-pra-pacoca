@@ -118,3 +118,5 @@ partida. Como o Jellyseerr move o pedido está em `jellyseerr.md`.
   "Enviado". Se o pedido foi direto para Cãopleto, é quem marcou Cãopleto. *(1)*
 - O app não registra se eu assisti nem a nota que eu daria. *(1)*
   Por quê: o pedido serve para pedir; acompanhar o que cada um assistiu fica fora do app.
+- Em filmes Cãopletos, qualquer membro vê "Assistiu? Registre sua nota" com um link que abre a
+  página do filme no Letterboxd. Séries não têm o link, porque o Letterboxd não lista séries. *(1)*
