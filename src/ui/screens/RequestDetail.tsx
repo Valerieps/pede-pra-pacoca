@@ -31,7 +31,7 @@ function Detail({ request }: { request: RequestDetailView }) {
   const [celebrate, setCelebrate] = useState(false);
   const { viewer } = request;
 
-  // The Paçoca celebrates my Atendido once per phone, also when it arrives while I look.
+  // The Paçoca celebrates my Cãopleto once per phone, also when it arrives while I look.
   const celebrates = celebratesFulfilled(request);
   useEffect(() => {
     if (celebrates && firstCelebration(browserCelebrationStore(), request.id)) setCelebrate(true);
@@ -228,7 +228,7 @@ function MediaFacts({ request, tmdbId }: { request: RequestDetailView; tmdbId: n
 
 type Run =<N extends CommandName>(name: N, input: Commands[N]['input']) => Promise<boolean>;
 
-/** "Dar retorno" on an Atendido request: "Assisti" with a rating, and "Obrigada, Paçoca". */
+/** "Dar retorno" on an Cãopleto request: "Assisti" with a rating, and "Obrigada, Paçoca". */
 function Feedback({ request, busy, run }: { request: RequestDetailView; busy: boolean; run: Run }) {
   const { feedback } = request.viewer;
   return (

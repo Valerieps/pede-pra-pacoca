@@ -11,7 +11,7 @@ export const QUEUES: readonly QueueName[] = ['awaiting', 'toSend', 'inJellyseerr
 /** The queue a request sits in, or null once it left them all (closed or canceled). */
 export function queueOf(request: { status: RequestStatus; origin: RequestOrigin }): QueueName | null {
   if (request.status === 'awaiting_approval') return 'awaiting';
-  if (request.status === 'in_jellyseerr') return 'inJellyseerr';
+  if (request.status === 'in_jellyseerr' || request.status === 'partially_available') return 'inJellyseerr';
   if (request.status === 'approved') return request.origin === 'tmdb' ? 'toSend' : 'manual';
   return null;
 }

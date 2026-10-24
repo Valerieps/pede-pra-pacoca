@@ -4,7 +4,7 @@ import { strings } from '../strings';
 
 export const FEED_PAGE_SIZE = 30;
 
-/** The chips, in screen order: Tudo, Pedidos, Atendidos, Meus. */
+/** The chips, in screen order: Tudo, Pedidos, Cãopletos, Meus. */
 export const FEED_FILTERS = ['all', 'requests', 'mine'] as const;
 export type FeedFilter = (typeof FEED_FILTERS)[number];
 

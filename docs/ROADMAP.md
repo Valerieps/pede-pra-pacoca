@@ -13,10 +13,10 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 | Feature | Fase | Spec | Observação |
 | --- | --- | --- | --- |
-| Notificações: falha do webhook | 1 | `spec/notificacoes.md` | Todos os outros gatilhos estão ligados. Falta chamar `notify` para a falha do webhook (com o Jellyseerr) |
-| Webhook e configuração do Jellyseerr | 1 | `spec/jellyseerr.md` | Adiado: fica para o fim. Depende do Cesar (payload e segredo) |
-| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Atendido) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que o Cesar vai mandar seguindo o [brief](rascunhos/brief-artes-pacoca.md) e a ADR-013 |
-| Agente doméstico que cria pedidos no Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
+| Configuração do Jellyseerr pelo admin | 1 | `spec/jellyseerr.md` | Falta a tela da URL base. "Abrir no Jellyseerr" já aparece nas filas quando a chave `jellyseerrBaseUrl` existe em `config` |
+| Instalar o Paçocast na casa do Cesar | 1 | `spec/jellyseerr.md` | O código está pronto; falta o segredo `PACOCAST_TOKEN` no Worker e o contêiner no Docker do Cesar ([passo a passo](../pacocast/README.md)) |
+| Textos, animações e ilustrações da Paçoca | 1 | `spec/identidade.md` | Os estados vazios e as animações (pedido confirmado, Cãopleto) usam placeholders (`EmptyState`, `PacocaCelebration`). Falta: os arquivos das ilustrações e das animações, que o Cesar vai mandar seguindo o [brief](rascunhos/brief-artes-pacoca.md) e a ADR-013 |
+| Duplicidade consultando a biblioteca do Jellyseerr | 2 | `spec/jellyseerr.md` | Só orientação de desenho |
 
 ## O código ainda não segue o spec
 
@@ -25,7 +25,6 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 ## Adiado
 
-- Conexão com o Jellyseerr (webhook e a tela da URL base) — a dona deixou para depois; até lá, o atendente marca os status à mão. "Abrir no Jellyseerr" já aparece nas filas quando a chave `jellyseerrBaseUrl` existe em `config`.
 - Login com Apple — exige conta paga de desenvolvedor; fica fora enquanto o app não estiver nas lojas.
 - App offline — o app só funciona com internet.
 - Cards de carregamento nas outras telas — hoje só o feed, Meus pedidos, a caixa de entrada, as filas e o detalhe do pedido têm; Petiscos, números, membros, convites e ajustes ficam em branco até carregar.
@@ -33,8 +32,9 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 ## Revisar as lacunas que o agente decidiu
 
 - [ ] `spec/identidade.md`: o petisco cai no contador só no cashback; bônus e a renovação do mês não têm animação.
-- [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Atendidos mais recentes elegíveis. (troque 10)
-- [ ] `spec/estatisticas.md`: em Números do Grupo, "Limpar" limpa os filtros mas mantém a pessoa escolhida; "Atendidos" entrou nas métricas; com uma pessoa escolhida, os cashbacks, as curtidas e os pedidos por mês dela não seguem os outros filtros.
+- [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Cãopletos mais recentes elegíveis. (troque 10)
+- [ ] `spec/estatisticas.md`: em Números do Grupo, "Limpar" limpa os filtros mas mantém a pessoa escolhida; "Cãopletos" entrou nas métricas; com uma pessoa escolhida, os cashbacks, as curtidas e os pedidos por mês dela não seguem os outros filtros.
+- [ ] `spec/jellyseerr.md`: Parcialmente disponível avisa as solicitantes (aviso novo, que dá para desligar) e não entra no feed; o Paçocast roda a cada 45 segundos; um pedido que o Jellyseerr recusa ao criar vira Não foi possível na hora; Cãopleto continua debitando o petisco que já saiu do saldo no pedido.
 - [ ] `spec/app-e-instalacao.md`: o modo férias foi para Gerenciar pedidos; Ajustes do grupo (só o admin) tem só o download dos dados.
 
 

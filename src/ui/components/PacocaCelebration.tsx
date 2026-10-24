@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { strings } from '../../domain/strings';
 import { PacocaArt } from './PacocaArt';
 
-// The Paçoca animation when I confirm a request and when I get an Atendido
+// The Paçoca animation when I confirm a request and when I get an Cãopleto
 // (docs/spec/identidade.md). The real animation arrives later; until then the placeholder hops, so
 // swapping it in touches PacocaArt and its styles only. With reduced motion it stands still.
 // On a phone it sits in the page; on a computer the CSS opens it as a centered card over a dimmed

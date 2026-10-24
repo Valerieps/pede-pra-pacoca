@@ -23,7 +23,7 @@ Nenhuma.
 | Fila do atendente vazia | Fila zerada! A Paçoca foi tirar um cochilo. |
 | Já está no servidor | A Paçoca já buscou esse! Pode assistir. |
 | Sem petiscos | Seus petiscos acabaram. Esse pedido vai precisar da aprovação da Paçoca. |
-| Atendido | A Paçoca buscou *Duna: Parte Três* pra você! |
+| Cãopleto | A Paçoca buscou *Duna: Parte Três* pra você! |
 | Cashback | A Paçoca te devolveu um petisco! |
 | Modo férias | A Paçoca está dormindo. Pode pedir, ela vê quando acordar. |
 | Erro genérico | A Paçoca tropeçou. Tenta de novo? |
@@ -61,14 +61,14 @@ de cada cor; os valores ficam em `src/ui/theme/tokens.css`, e as artes seguem o
 
 ## Animações e ilustrações
 
-- Uma animação da Paçoca aparece quando eu confirmo um pedido e quando recebo um Atendido. *(1)*
-- A do Atendido aparece quando eu abro um pedido meu, ou em que cliquei "Eu também quero", que
-  está Atendido (pelo push, pela caixa de entrada ou pelo feed), ou quando ele vira Atendido com a
-  tela aberta. Ela aparece uma vez por pedido em cada celular, com o texto do Atendido. *(1)*
+- Uma animação da Paçoca aparece quando eu confirmo um pedido e quando recebo um Cãopleto. *(1)*
+- A do Cãopleto aparece quando eu abro um pedido meu, ou em que cliquei "Eu também quero", que
+  está Cãopleto (pelo push, pela caixa de entrada ou pelo feed), ou quando ele vira Cãopleto com a
+  tela aberta. Ela aparece uma vez por pedido em cada celular, com o texto do Cãopleto. *(1)*
 - Logo depois de pedir, junto com a animação, aparece o card do pedido (pôster, título e estado) e
   os botões "Ver meus pedidos" e "Pedir outro". *(1)*
 - No computador, as animações abrem num cartão centralizado, do tamanho do celular, com o fundo
-  escurecido. O do Atendido tem "Fechar", e fecha também com Esc ou clicando fora. No celular, a
+  escurecido. O do Cãopleto tem "Fechar", e fecha também com Esc ou clicando fora. No celular, a
   animação fica no topo da tela. *(1)*
   Por quê: solta no meio da tela larga, a Paçoca se perde; o cartão mantém o tamanho pensado para
   o celular.

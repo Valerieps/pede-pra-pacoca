@@ -1,8 +1,8 @@
-// The Paçoca animation for an Atendido plays once per request on each phone
+// The Paçoca animation for an Cãopleto plays once per request on each phone
 // (docs/spec/identidade.md). This remembers, on this device only, which ones already played.
 import type { RequestStatus } from '../domain/request/lifecycle';
 
-/** Mine or one I said "Eu também quero" to, now Atendido. */
+/** Mine or one I said "Eu também quero" to, now Cãopleto. */
 export function celebratesFulfilled(request: {
   readonly status: RequestStatus;
   readonly viewer: { readonly isRequester: boolean; readonly isCoRequester: boolean };

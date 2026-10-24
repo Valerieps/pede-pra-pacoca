@@ -43,8 +43,8 @@ Nenhuma.
   Gerenciamento do App (para atendente e admin), um botão "+ Pedir" e o meu perfil embaixo. O conteúdo no meio nunca passa de 560px. À direita
   fica uma coluna com o card dos meus petiscos, um campo para colar um link do IMDb ou buscar (que
   leva ao Pedir) e meus pedidos em andamento. *(1)*
-- Meus pedidos em andamento são os mesmos ativos de Meus pedidos (Aguardando aprovação, Aprovado e
-  No Jellyseerr), incluindo os em que cliquei "Eu também quero", do mais novo ao mais antigo, até 5,
+- Meus pedidos em andamento são os mesmos ativos de Meus pedidos (Aguardando aprovação, Solicitado,
+  Farejando e Parcialmente disponível), incluindo os em que cliquei "Eu também quero", do mais novo ao mais antigo, até 5,
   com "Ver todos" para Meus pedidos. Cada um mostra o status. *(1)*
 
 ## Instalar

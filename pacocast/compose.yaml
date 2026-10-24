@@ -1,0 +1,11 @@
+# Example: the Paçocast next to the Jellyseerr, in the same Docker network. Fill .env from
+# .env.example; see README.md.
+services:
+  pacocast:
+    build: .
+    container_name: pacocast
+    restart: unless-stopped
+    env_file: .env
+    # When the Jellyseerr runs in another compose project, join its network instead and use the
+    # Jellyseerr's container name in JELLYSEERR_URL.
+    # networks: [jellyseerr_default]

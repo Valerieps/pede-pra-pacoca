@@ -4,7 +4,7 @@ O trabalho do atendente: as filas, assumir um pedido, mudar o status e configura
 
 - **Entra aqui:** as três filas, "Eu pego esse", atualização de status, ações em lote, configurações
   de petiscos e o modo férias.
-- **Não entra aqui:** quem pode ser atendente (`grupo-e-papeis.md`), o webhook e a configuração do
+- **Não entra aqui:** quem pode ser atendente (`grupo-e-papeis.md`), o Paçocast e a configuração do
   Jellyseerr (`jellyseerr.md`) e as estatísticas do grupo (`estatisticas.md`).
 
 ## Em aberto
@@ -16,17 +16,17 @@ Nenhuma.
 | Fila | Contém | Ação principal |
 | --- | --- | --- |
 | Aguardando aprovação | Pedidos sem petisco | Aprovar ou recusar com motivo |
-| A enviar | Pedidos do TMDB em Aprovado | "Abrir no Jellyseerr" e depois "Enviado" |
-| No Jellyseerr | Pedidos do TMDB em No Jellyseerr | Marcar Atendido ou Não foi possível à mão |
-| Manuais | Pedidos manuais em Aprovado | Marcar Atendido ou Não foi possível |
+| A enviar | Pedidos do TMDB em Solicitado | Nada: o Paçocast manda ao Jellyseerr. À mão, "Abrir no Jellyseerr" e depois "Enviado" |
+| Farejando | Pedidos do TMDB em Farejando ou Parcialmente disponível | Nada: o Paçocast acompanha. À mão, marcar Cãopleto ou Não foi possível |
+| Manuais | Pedidos manuais em Solicitado | Marcar Cãopleto ou Não foi possível |
 
 - Posso ordenar por data do pedido, número de co-solicitantes ou data de lançamento. *(1)*
 - Posso agrupar por pessoa, por tipo ou por atendente responsável. *(1)*
 - Cada item mostra observação, link, co-solicitantes e quem pegou. *(1)*
 - Fila vazia mostra a Paçoca cochilando (`identidade.md`). *(1)*
-- A fila No Jellyseerr guarda o que eu já enviei, para eu fechar à mão enquanto o webhook não
-  existe. *(1)*
-- Em A enviar, eu também posso marcar Atendido ou Não foi possível direto, sem passar por
+- O Paçocast (`jellyseerr.md`) esvazia A enviar e fecha os pedidos de Farejando sozinho. As ações
+  à mão continuam lá para quando ele estiver desligado ou o Jellyseerr não achar a mídia. *(1)*
+- Em A enviar, eu também posso marcar Cãopleto ou Não foi possível direto, sem passar por
   "Enviado". *(1)*
 - Enquanto a Paçoca oferece um pedido cancelado a quem também quer (`pedidos.md`), ele sai das filas
   e eu não mexo nele; ele volta quando alguém fica com ele. *(1)*
@@ -46,7 +46,7 @@ Nenhuma.
   - "Outro" exige o texto. O texto tem até 200 caracteres. *(1)*
   - As solicitantes veem o motivo no pedido, e o texto vai junto: "qualidade ruim (só tem
     câmera)". *(1)*
-- Atendido aceita uma nota de atendimento opcional, que as solicitantes recebem. *(1)*
+- Cãopleto aceita uma nota de atendimento opcional, que as solicitantes recebem. *(1)*
   - A nota tem até 500 caracteres e aparece também no pedido. *(1)*
 - Eu posso selecionar vários itens e aplicar a mesma transição. *(1)*
   - Até 50 de uma vez. Um pedido que mudou enquanto isso fica como estava, e o app me diz quantos
@@ -54,7 +54,7 @@ Nenhuma.
 - "Abrir no Jellyseerr" abre a página da mídia no Jellyseerr (URL base configurada pelo admin, mais
   tipo e ID do TMDB). *(1)*
   - O botão só aparece em A enviar, e só quando a URL base existe. *(1)*
-- O atendente sempre pode marcar Atendido à mão, mesmo que o webhook não tenha chegado. *(1)*
+- O atendente sempre pode marcar Cãopleto à mão, mesmo que o Paçocast não tenha avisado. *(1)*
 
 ## Petiscos
 

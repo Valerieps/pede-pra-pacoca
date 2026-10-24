@@ -1,7 +1,7 @@
 # Pede pra Paçoca - Claude Code Context & Instructions
 
 <!-- BOOTSTRAP.md fills this paragraph: what the app is, for whom, and its core loop. -->
-Mobile-first installable web app where a small group of friends asks one attendant (Cesar) for movies and series. Members share an IMDb/TMDB link (or search), get an approved or pending request depending on their monthly credits ("petiscos"), follow the status, like each other's requests and say "Eu também quero". The attendant's Jellyseerr at home reports back through a webhook. Paçoca, the attendant's dog, is the mascot and voice of the app.
+Mobile-first installable web app where a small group of friends asks one attendant (Cesar) for movies and series. Members share an IMDb/TMDB link (or search), get an approved or pending request depending on their monthly credits ("petiscos"), follow the status, like each other's requests and say "Eu também quero". The Paçocast, an agent next to the attendant's Jellyseerr at home, sends the requests there and reports their status back. Paçoca, the attendant's dog, is the mascot and voice of the app.
 
 ## Docs
 
@@ -21,7 +21,7 @@ The owner edits docs between messages: re-read a doc before editing it and prese
 | Reviewing or reorganizing the docs | All of them |
 
 Hard rules from `docs/SEGURANCA.md`, valid for every change:
-- The app talks only to its own origin (the Worker) and the origins in `network-policy.ts`; the TMDB key, the Google client secret and the webhook secret live only in the Worker, never in the bundle.
+- The app talks only to its own origin (the Worker) and the origins in `network-policy.ts`; the TMDB key, the Google client secret and the Paçocast token live only in the Worker, never in the bundle.
 - The app never reaches the database: every read and write goes through the API, which checks the session and the role on the server.
 - Only invited e-mails get in; Google is the only sign-in (the test sign-in of ADR-009 exists only on localhost).
 - Never insert user text as HTML; links open with `target="_blank" rel="noopener noreferrer"`.
@@ -86,7 +86,7 @@ Each step rereads the whole conversation, so long sessions and back-and-forth co
 
 ## Architecture Overview
 - Clean Architecture + Domain Driven Design (DDD).
-- Web app (Vite + React) and backend in one Cloudflare Worker; all group data in one SQLite Durable Object (`Group`); live updates over a WebSocket; Google sign-in by OAuth code flow; the home Jellyseerr only sends a webhook to the Worker. See `docs/ARQUITETURA.md`, ADR-006 and ADR-007.
+- Web app (Vite + React) and backend in one Cloudflare Worker; all group data in one SQLite Durable Object (`Group`); live updates over a WebSocket; Google sign-in by OAuth code flow; the Paçocast at home polls the Worker and talks to the local Jellyseerr. See `docs/ARQUITETURA.md`, ADR-006, ADR-007 and ADR-016.
 - The domain (`src/domain`) is shared: the server imports the same rules the app uses.
 
 ## Project Layout
@@ -98,6 +98,7 @@ Each step rereads the whole conversation, so long sessions and back-and-forth co
 - `server/infrastructure`, `server/entry` - Durable Object, Worker, Google sign-in, cookies. `server/testing` - `node:sqlite` for tests.
 - `wrangler.jsonc` - the Worker: assets, Durable Object, cron, vars. Secrets via `wrangler secret put`; locally in `.dev.vars` (see `.dev.vars.example`).
 - `public/` - static files: manifest, icons, `_headers`.
+- `pacocast/` - the agent at the attendant's home (ADR-016): one TypeScript file Node runs as is, its Dockerfile and setup guide.
 - `network-policy.ts` - the servers the app (`ALLOWED_ORIGINS`, `IMAGE_ORIGINS`) and the Worker (`SERVER_ORIGINS`) may talk to.
 - `scripts/` - `check-docs.mjs` (run by CI) and `setup-repo.mjs` (once per new repository).
 

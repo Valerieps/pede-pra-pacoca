@@ -11,6 +11,7 @@ import { CONTENT_SECURITY_POLICY } from '../vite.config';
 
 const SOURCE_ROOT = join(__dirname);
 const SERVER_ROOT = join(__dirname, '..', 'server');
+const PACOCAST_ROOT = join(__dirname, '..', 'pacocast');
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -70,6 +71,12 @@ describe('security rules', () => {
   it('every URL in the server source points to a server origin', () => {
     expect(serverFiles.length).toBeGreaterThan(0);
     expect(urlsOutside(serverFiles, SERVER_ORIGINS, SERVER_ROOT)).toEqual([]);
+  });
+
+  it('the Paçocast calls only the addresses it is configured with', () => {
+    const agentFiles = sourceFiles(PACOCAST_ROOT);
+    expect(agentFiles.length).toBeGreaterThan(0);
+    expect(urlsOutside(agentFiles, [], PACOCAST_ROOT)).toEqual([]);
   });
 
   it('the server never inserts HTML either', () => {

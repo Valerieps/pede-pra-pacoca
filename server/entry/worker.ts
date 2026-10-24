@@ -4,7 +4,7 @@ import type { ApiError, ApiResult } from '../../src/application/api-contract';
 import { SESSION_DAYS, type GoogleProfile } from '../application/members';
 import { clearCookie, LOGIN_COOKIE, readCookie, SESSION_COOKIE, setCookie } from '../infrastructure/cookies';
 import { lookup, needsTmdb, type Prefetched } from '../application/tmdb';
-import { randomToken, sha256 } from '../infrastructure/crypto';
+import { constantTimeEqual, randomToken, sha256 } from '../infrastructure/crypto';
 import { devProfile, devSignInAllowed } from '../infrastructure/dev-sign-in';
 import {
   authorizationUrl,
@@ -105,11 +105,31 @@ async function callback(request: Request, env: Env, url: URL): Promise<Response>
   return redirect('/', [clearCookie(LOGIN_COOKIE), cookie]);
 }
 
+/**
+ * The Paçocast, at the attendant's home (ADR-016): not a browser, so no cookie nor Origin; its
+ * token, compared in constant time. Without the secret set, these routes do not exist.
+ */
+async function pacocast(request: Request, env: Env, path: string): Promise<Response> {
+  const token = env.PACOCAST_TOKEN ?? '';
+  const sent = /^Bearer (.+)$/.exec(request.headers.get('Authorization') ?? '')?.[1] ?? '';
+  if (!token) return json({ error: 'not_found' }, 404);
+  if (!constantTimeEqual(sent, token)) return json({ error: 'unauthenticated' }, 401);
+
+  if (path === '/api/pacocast/work' && request.method === 'GET') return json({ value: await group(env).pacocastWork() });
+  if (path === '/api/pacocast/report' && request.method === 'POST' && request.headers.get('Content-Type') === 'application/json') {
+    const input = await request.json().catch(() => null);
+    const result = (await group(env).pacocastReport(input)) as ApiResult<unknown>;
+    return result.ok ? json({ value: result.value }) : json({ error: result.error }, STATUS[result.error]);
+  }
+  return json({ error: 'not_found' }, 404);
+}
+
 async function api(request: Request, env: Env, url: URL): Promise<Response> {
   const path = url.pathname;
 
   if (path === '/api/auth/login' && request.method === 'GET') return login(env, url);
   if (path === '/api/auth/callback' && request.method === 'GET') return callback(request, env, url);
+  if (path.startsWith('/api/pacocast/')) return pacocast(request, env, path);
 
   if (!sameOrigin(request, url)) return json({ error: 'forbidden' }, 403);
   const hash = await sessionHash(request);

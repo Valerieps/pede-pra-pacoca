@@ -13,7 +13,9 @@ O desenho técnico que o código não mostra sozinho.
 - **Servidor:** um Cloudflare Worker serve os arquivos do app, a API em `/api`, a conexão ao vivo e
   o cron. Todos os dados do grupo ficam num único Durable Object, `Group`, com SQLite. Ver ADR-006.
 - **Login:** Google, pelo fluxo de código OAuth no Worker, com cookie de sessão. Ver ADR-007.
-- **Jellyseerr:** só envia webhook para o Worker. O app nunca fala com a casa do Cesar.
+- **Jellyseerr:** o Paçocast, na casa do Cesar, pergunta ao Worker o que fazer, fala com o
+  Jellyseerr local e conta o resultado ao Worker. Só conexões de saída: o app e o Worker nunca
+  chamam a casa do Cesar. Ver ADR-016.
 - **TMDB:** a chave fica no Worker; o app pede busca e detalhes à API. O Worker consulta o TMDB antes
   de chamar o `Group`. Ver ADR-010.
 
@@ -22,7 +24,9 @@ app (celular) ──POST /api/query|command──► Worker ──RPC──► G
      ▲                                       ▲   ▲                │
      └──────── WebSocket /api/live ──────────┘   │                │ "mudou: feed, invites…"
                                                  │                ▼
-Jellyseerr ──webhook──► Worker      cron 5 min ──┘      todos os apps abertos refazem a consulta
+Paçocast ──GET work / POST report──► Worker   cron 5 min ──┘   todos os apps abertos refazem a consulta
+   │
+   └──► Jellyseerr (na casa do Cesar)
 ```
 
 ## Camadas
@@ -53,7 +57,8 @@ Jellyseerr ──webhook──► Worker      cron 5 min ──┘      todos os
   não tem papel.
 - Sempre existe pelo menos um admin.
 - Um pedido gera no máximo um cashback.
-- O mesmo webhook processado duas vezes tem o mesmo resultado (`webhook_events`, pelo ID do evento).
+- O mesmo aviso do Paçocast processado duas vezes tem o mesmo resultado: o domínio
+  (`src/domain/request/jellyseerr.ts`) só move o pedido para a frente.
 - A sessão vale só enquanto o membro está ativo. Remover alguém apaga as sessões e as inscrições de
   push dele e fecha os WebSockets abertos (o comando devolve `disconnect`), então o acesso acaba na hora.
 
@@ -67,7 +72,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `sessions` | hash do token, membro, validade | Só o hash fica no banco |
 | `invites` | e-mail, quem convidou, estado (pendente, aceito, revogado), datas | Um por e-mail; convidar de novo volta a pendente |
 | `requests` | origem (tmdb ou manual), tipo, tmdb_id, `media_key`, título, ano, pôster, lançamento, gêneros, link, observação, solicitante, status, responsável, lote de petisco, motivo, nota de atendimento | `media_key` (`movie:123`) indexado para a duplicidade; responsável indexado para as estatísticas (ADR-014) |
-| `request_transitions` | pedido, de, para, autor, detalhe, data | Autor é o membro ou `jellyseerr` |
+| `request_transitions` | pedido, de, para, autor, detalhe, data | Autor é o membro ou `jellyseerr` (o Paçocast) |
 | `co_requests` | pedido, membro, data | A data ordena a oferta de herança |
 | `inheritance_offers` | pedido, membro, estado, prazo | 5 dias por oferta |
 | `feedback` | pedido, membro, assisti, nota, obrigada | |
@@ -75,12 +80,12 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `likes` | evento, membro, data | Uma por pessoa por evento |
 | `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito. Pedido indexado para as estatísticas (ADR-014) |
 | `petisco_expiry_notices` | lote, membro, data | Um por lote de bônus ou cashback: o aviso de 7 dias sai uma vez só |
-| `known_media` | `media_key`, data | Gravada pelo webhook |
-| `config` | chave, valor (JSON) | Petiscos por mês, cashback, URL do Jellyseerr, segredo do webhook |
+| `known_media` | `media_key`, data | Gravada quando o Paçocast avisa Available |
+| `config` | chave, valor (JSON) | Petiscos por mês, cashback, URL do Jellyseerr |
 | `inbox` | membro, tipo, dados, lida, data | Caixa de entrada |
 | `outbox` | membro, tipo, dados, chave de agrupamento, liberar depois de, enviada | Silêncio, resumo diário e curtidas agrupadas passam por aqui |
 | `push_subscriptions` | endpoint, membro, chaves | Web Push |
-| `webhook_events` | ID do evento, data | Idempotência |
+| `webhook_events` | ID do evento, data | Sem uso desde a ADR-016; sai numa migração futura |
 
 ## Fluxo de eventos
 
@@ -96,9 +101,12 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
   herdeira; ninguém aceitar faz o pedido virar Cancelado.
 - **Ao vivo:** cada app aberto tem um WebSocket com o `Group`. A mensagem diz só o que mudou; o app
   refaz as consultas daquele tópico, e todas ao reconectar.
-- **Webhook do Jellyseerr:** Worker → confere o segredo em tempo constante → `Group` grava em
-  `webhook_events` (se já existe, para) → grava Mídia conhecida → muda os pedidos correspondentes,
-  como um comando.
+- **Paçocast** (ADR-016): a cada 45 s, `GET /api/pacocast/work` com `Authorization: Bearer` →
+  o Worker confere o token em tempo constante → `Group` devolve os pedidos Solicitados do TMDB e os
+  em Farejando ou Parcialmente disponível. O Paçocast cria e consulta no Jellyseerr e manda
+  `POST /api/pacocast/report` → `Group` aplica cada aviso como um comando, com o autor `jellyseerr`:
+  `actionFor` (domínio) diz a ação, `transition` aplica, e os efeitos (petisco, feed, avisos, Mídia
+  conhecida) entram na mesma transação.
 - **Notificação:** o comando chama `notify`, que grava o item da caixa de entrada e a linha do
   `outbox` com `deliver_after` (silêncio, resumo, curtidas agrupadas) na mesma transação. Depois do
   comando, e no cron, o `Group` pega o que venceu, marca como enviado e manda o Web Push; as

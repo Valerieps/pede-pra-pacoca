@@ -197,7 +197,7 @@ describe('approving and refusing', () => {
 });
 
 describe('sending and closing', () => {
-  it('Enviado, then Atendido: debits the petisco, goes on the feed and tells everyone with the note', () => {
+  it('Enviado, then Cãopleto: debits the petisco, goes on the feed and tells everyone with the note', () => {
     const request = create('s-ana');
     service.command('s-bia', 'request.join', { id: request.id });
     expect(act('s-cesar', [request.id], { type: 'mark_sent' })).toMatchObject({ value: { applied: [request.id] } });
@@ -214,7 +214,7 @@ describe('sending and closing', () => {
     }
   });
 
-  it('Atendido is always allowed by hand, straight from Aprovado', () => {
+  it('Cãopleto is always allowed by hand, straight from Solicitado', () => {
     const request = create('s-ana');
     expect(act('s-cesar', [request.id], { type: 'mark_fulfilled' })).toMatchObject({ value: { applied: [request.id] } });
     expect(detail(request.id).status).toBe('fulfilled');

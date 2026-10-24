@@ -23,6 +23,7 @@ const RENDER: Renderers = {
     d.outcome === 'refused'
       ? { title: t.requestRefusedTitle, body: t.requestRefused(d.title, d.reason), url: requestUrl(d.requestId) }
       : { title: t.requestUnavailableTitle, body: t.requestUnavailable(d.title, d.reason), url: requestUrl(d.requestId) },
+  request_partially_available: (d) => ({ title: t.requestPartialTitle, body: t.requestPartial(d.title), url: requestUrl(d.requestId) }),
   request_fulfilled: (d) => ({ title: t.requestFulfilledTitle, body: t.requestFulfilled(d.title, d.note), url: requestUrl(d.requestId) }),
   co_request: (d) => ({ title: t.coRequestTitle, body: t.coRequest(d.memberName, d.title), url: requestUrl(d.requestId) }),
   likes: (d) => ({ title: t.likesTitle, body: t.likes(d.names, d.requestId !== null), url: d.requestId ? requestUrl(d.requestId) : '/' }),

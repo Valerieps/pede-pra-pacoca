@@ -56,7 +56,7 @@ beforeEach(() => {
 });
 
 describe('Dar retorno', () => {
-  it('only on Atendido requests', () => {
+  it('only on Cãopleto requests', () => {
     const request = create('s-ana');
     expect(viewer('s-bia', request.id)).toMatchObject({ canGiveFeedback: false, feedback: { watched: false, rating: null, thanked: false } });
     expect(service.command('s-ana', 'request.watched', { id: request.id })).toEqual({ ok: false, error: 'conflict' });
@@ -103,7 +103,7 @@ describe('Dar retorno', () => {
     expect(thanksFor(ids.cesar)).toEqual([]);
   });
 
-  it('without an assignee, whoever marked Enviado; straight to Atendido, whoever marked it', () => {
+  it('without an assignee, whoever marked Enviado; straight to Cãopleto, whoever marked it', () => {
     const sent = create('s-ana');
     act('s-dani', sent.id, 'mark_sent');
     act('s-cesar', sent.id, 'mark_fulfilled');

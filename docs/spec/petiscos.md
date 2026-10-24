@@ -36,20 +36,21 @@ aprovado automaticamente; sem petisco, espera o atendente.
 
 ## Gastar
 
-- Ao criar o pedido, o petisco fica reservado. Ele é debitado quando o pedido vira Atendido e
-  estornado quando vira Cancelado, Recusado ou Não foi possível. Vale para pedidos do TMDB e
-  manuais. *(1)*
+- O petisco sai do meu saldo no ato do pedido (fica reservado). Se der errado, ele volta: é
+  estornado quando o pedido vira Cancelado, Recusado ou Não foi possível. Quando o pedido vira
+  Cãopleto, a reserva vira débito. Parcialmente disponível não mexe no petisco. Vale para filmes e
+  séries, do TMDB e manuais. *(1)*
 - O consumo é "vence primeiro, sai primeiro": o app usa o petisco com a validade mais próxima. *(1)*
 - Um petisco reservado é debitado mesmo que a validade passe enquanto o pedido está em andamento.
   *(1)*
-- Pedidos feitos por atendentes não reservam petisco e vão direto para Aprovado. *(1)*
+- Pedidos feitos por atendentes não reservam petisco e vão direto para Solicitado. *(1)*
 - Sem petisco, o pedido vai para Aguardando aprovação e o app me avisa antes de eu enviar. Se o
   atendente aprovar, esse pedido não consome petisco. *(1)*
 - "Pedir de novo" uma mídia atendida cria um pedido novo e segue as regras normais. *(1)*
 
 ## Cashback
 
-- O cashback automático é avaliado quando o pedido vira Atendido. O atendente liga ou desliga cada
+- O cashback automático é avaliado quando o pedido vira Cãopleto. O atendente liga ou desliga cada
   critério. *(1)*
 - Critério 1: o pedido tem pelo menos 2 co-solicitantes ("Eu também quero"), sem contar a
   solicitante original. O limiar é configurável (padrão 2). *(1)*
@@ -57,14 +58,14 @@ aprovado automaticamente; sem petisco, espera o atendente.
   pedido mais curtido do mês). *(1)*
 - Cada pedido gera no máximo 1 cashback, mesmo que atenda a mais de um critério. *(1)*
 - O cashback vai para a solicitante original e só vale para pedidos que debitaram petisco. *(1)*
-- O atendente pode dar cashback à mão em qualquer pedido Atendido que debitou petisco, com motivo
+- O atendente pode dar cashback à mão em qualquer pedido Cãopleto que debitou petisco, com motivo
   opcional, respeitando o limite de 1 por pedido. *(1)*
 - O atendente pode dar petiscos bônus a qualquer pessoa, com motivo opcional. *(1)*
 - Cada vez, o atendente dá de 1 a 10 petiscos bônus. Cada um é um petisco à parte, com os mesmos 90
   dias. O motivo tem até 200 caracteres. *(1)*
 - O bônus não aparece no feed; o cashback aparece (`feed.md`). *(1)*
 - O limiar de co-solicitantes vai de 1 a 20. *(1)*
-- Para o cashback à mão, o atendente vê os 50 pedidos Atendidos mais recentes que debitaram petisco e
+- Para o cashback à mão, o atendente vê os 50 pedidos Cãopletos mais recentes que debitaram petisco e
   ainda não ganharam cashback. *(1)*
 - Curtida não conta para o cashback. *(1)*
 

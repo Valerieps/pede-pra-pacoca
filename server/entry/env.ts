@@ -17,6 +17,8 @@ export interface Env {
   readonly TMDB_API_KEY: string;
   /** OMDb API key, for the IMDb rating. Secret; optional: without it no rating is shown. */
   readonly OMDB_API_KEY?: string;
+  /** The Paçocast's token (ADR-016). Secret; without it the Paçocast's routes do not exist. */
+  readonly PACOCAST_TOKEN?: string;
   /** "1" turns on the test sign-in on localhost (ADR-009). Only ever set in `.dev.vars`. */
   readonly DEV_SIGN_IN?: string;
 }

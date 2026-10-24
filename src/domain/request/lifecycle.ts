@@ -1,4 +1,5 @@
-// The request lifecycle (docs/spec/pedidos.md). A pure state machine: given a request, an action
+// The request lifecycle (docs/spec/pedidos.md). Display names: approved is Solicitado,
+// in_jellyseerr is Farejando, partially_available is Parcialmente disponível, fulfilled is Cãopleto. A pure state machine: given a request, an action
 // and who does it, it returns the next state and the effects the server must apply in the same
 // transaction (petisco movements, feed events, notifications). It never touches storage.
 import type { MediaType } from '../media/media';
@@ -7,6 +8,7 @@ export type RequestStatus =
   | 'awaiting_approval'
   | 'approved'
   | 'in_jellyseerr'
+  | 'partially_available'
   | 'fulfilled'
   | 'rejected'
   | 'unavailable'
@@ -14,7 +16,7 @@ export type RequestStatus =
 
 export type RequestOrigin = 'tmdb' | 'manual';
 
-export const ACTIVE_STATUSES: readonly RequestStatus[] = ['awaiting_approval', 'approved', 'in_jellyseerr'];
+export const ACTIVE_STATUSES: readonly RequestStatus[] = ['awaiting_approval', 'approved', 'in_jellyseerr', 'partially_available'];
 
 export type ReasonCode = 'not_found' | 'bad_quality' | 'try_later' | 'server_failure' | 'other';
 
@@ -43,6 +45,7 @@ export type RequestAction =
   | { readonly type: 'reject'; readonly reason: Reason }
   | { readonly type: 'assign' }
   | { readonly type: 'mark_sent' }
+  | { readonly type: 'mark_partial' }
   | { readonly type: 'mark_fulfilled'; readonly note?: string }
   | { readonly type: 'mark_unavailable'; readonly reason: Reason }
   | { readonly type: 'cancel' };
@@ -54,6 +57,7 @@ export type NotificationTrigger =
   | 'request_rejected'
   | 'request_unavailable'
   | 'request_fulfilled'
+  | 'request_partially_available'
   | 'webhook_failure'
   | 'inheritance_offer';
 
@@ -105,9 +109,9 @@ function refund(state: RequestState): Effect[] {
 const ok = (next: RequestState, effects: Effect[]): TransitionResult => ({ ok: true, next, effects });
 const fail = (error: TransitionError): TransitionResult => ({ ok: false, error });
 
-/** Where each closing action may start from. A manual request skips No Jellyseerr. */
+/** Where each closing action may start from. A manual request skips Farejando. */
 function canClose(state: RequestState): boolean {
-  return state.status === 'approved' || (state.origin === 'tmdb' && state.status === 'in_jellyseerr');
+  return state.status === 'approved' || (state.origin === 'tmdb' && (state.status === 'in_jellyseerr' || state.status === 'partially_available'));
 }
 
 export function transition(state: RequestState, action: RequestAction, actor: Actor): TransitionResult {
@@ -132,9 +136,16 @@ export function transition(state: RequestState, action: RequestAction, actor: Ac
       return ok({ ...state, assigneeId: actor.id }, []);
 
     case 'mark_sent':
-      if (actor.kind !== 'member' || !actor.canAttend) return fail('forbidden');
+      if (!attendant) return fail('forbidden');
       if (state.origin !== 'tmdb' || state.status !== 'approved') return fail('invalid_transition');
       return ok({ ...state, status: 'in_jellyseerr' }, []);
+
+    case 'mark_partial':
+      // Only the Jellyseerr knows that some episodes arrived (docs/spec/jellyseerr.md).
+      if (actor.kind !== 'jellyseerr') return fail('forbidden');
+      if (state.origin !== 'tmdb' || state.mediaType !== 'tv') return fail('invalid_transition');
+      if (state.status !== 'approved' && state.status !== 'in_jellyseerr') return fail('invalid_transition');
+      return ok({ ...state, status: 'partially_available' }, [{ type: 'notify', trigger: 'request_partially_available' }]);
 
     case 'mark_fulfilled': {
       if (!attendant) return fail('forbidden');
@@ -170,7 +181,7 @@ export function transition(state: RequestState, action: RequestAction, actor: Ac
 
 /**
  * A co-requester accepts the request its requester cancelled and becomes the requester
- * (docs/spec/pedidos.md, "Meus pedidos"). Before No Jellyseerr the request starts over like a new
+ * (docs/spec/pedidos.md, "Meus pedidos"). Before Farejando the request starts over like a new
  * one: approved with her petisco or as an attendant, awaiting approval without. Past that point it
  * keeps going and only takes her petisco if she has one.
  */
@@ -186,7 +197,7 @@ export function inheritedStatus(input: { status: RequestStatus; heirIsAttendant:
 
 /**
  * The admin removed the requester (docs/spec/grupo-e-papeis.md): the request is handled as if she
- * cancelled it. Her petisco comes back and the co-requesters are offered it. Past Aprovado she
+ * cancelled it. Her petisco comes back and the co-requesters are offered it. Past Solicitado she
  * could not cancel, so without co-requesters it keeps going, on nobody's petisco.
  */
 export function requesterRemoved(state: RequestState): { next: RequestState; effects: Effect[] } {
@@ -201,7 +212,7 @@ export const isRating = (value: unknown): value is number => Number.isInteger(va
 
 /**
  * Who receives "Obrigada, Paçoca": the request's assignee; without one, whoever marked Enviado;
- * when it went straight to Atendido, whoever marked it. Null when the Jellyseerr closed it alone.
+ * when it went straight to Cãopleto, whoever marked it. Null when the Jellyseerr closed it alone.
  */
 export function fulfillingAttendant(assigneeId: string | null, transitions: readonly { readonly to: RequestStatus; readonly actorId: string | null }[]): string | null {
   if (assigneeId) return assigneeId;

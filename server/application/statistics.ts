@@ -29,7 +29,7 @@ import { QueryError, type Context } from './context';
 import { memberView, toMember, type MemberRow } from './members';
 import type { SqlValue } from './ports';
 
-/** When a request first became Atendido; `r` is the request. */
+/** When a request first became Cãopleto; `r` is the request. */
 const FULFILLED_AT = `(SELECT MIN(t.at) FROM request_transitions t WHERE t.request_id = r.id AND t.to_status = 'fulfilled')`;
 const MS_TO_FULFILLED = `(julianday(${FULFILLED_AT}) - julianday(r.created_at)) * 86400000`;
 

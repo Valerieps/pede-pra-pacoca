@@ -15,3 +15,6 @@ network-policy.js
 # Wrangler local state and secrets.
 .wrangler/
 .dev.vars
+
+# The Paçocast settings, with its keys.
+pacocast/.env

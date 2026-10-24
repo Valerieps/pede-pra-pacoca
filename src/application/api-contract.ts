@@ -224,7 +224,7 @@ export interface RequestView {
   readonly updatedAt: string;
   /** Why it was Recusado or Não foi possível. */
   readonly reason: Reason | null;
-  /** The attendant's note sent with Atendido. */
+  /** The attendant's note sent with Cãopleto. */
   readonly fulfillmentNote: string | null;
 }
 
@@ -267,7 +267,7 @@ export interface InheritanceOfferView {
   readonly expiresAt: string;
 }
 
-/** What I said about an Atendido request ("Dar retorno"). */
+/** What I said about an Cãopleto request ("Dar retorno"). */
 export interface FeedbackView {
   readonly watched: boolean;
   readonly rating: number | null;
@@ -286,7 +286,7 @@ export interface RequestDetailView extends RequestView {
     readonly canJoin: boolean;
     readonly canLeave: boolean;
     readonly hasOffer: boolean;
-    /** "Dar retorno": only on Atendido requests, open to every member. */
+    /** "Dar retorno": only on Cãopleto requests, open to every member. */
     readonly canGiveFeedback: boolean;
     readonly feedback: FeedbackView;
   };
@@ -317,7 +317,7 @@ export interface ProfileStatsView {
   readonly member: MemberView;
   readonly totalRequests: number;
   readonly fulfilled: number;
-  /** From the request to the first Atendido, in milliseconds; null with nothing fulfilled. */
+  /** From the request to the first Cãopleto, in milliseconds; null with nothing fulfilled. */
   readonly averageMsToFulfilled: number | null;
   readonly topGenres: readonly { readonly genre: string; readonly count: number }[];
   /** The last 12 months, oldest first, "YYYY-MM" in the group's calendar, zeros included. */
@@ -369,7 +369,7 @@ export interface GroupStatsView {
     readonly perPerson: readonly { readonly member: MemberView; readonly count: number }[];
     readonly perAttendant: readonly { readonly member: MemberView; readonly count: number }[];
     readonly averageMsToFulfilled: number | null;
-    /** Não foi possível among Atendido + Não foi possível; null when none closed. */
+    /** Não foi possível among Cãopleto + Não foi possível; null when none closed. */
     readonly unavailableRate: number | null;
     /** Petiscos debited by these requests. */
     readonly petiscosConsumed: number;
@@ -462,3 +462,34 @@ export type ApiError =
   | 'unrecognized_link';
 
 export type ApiResult<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: ApiError };
+
+// ---------------------------------------------------------------------------------------------
+// The Paçocast, the agent at the attendant's home (docs/spec/jellyseerr.md, ADR-016). It calls
+// GET /api/pacocast/work and POST /api/pacocast/report with `Authorization: Bearer <token>`.
+
+/** A request the Paçocast handles: what the Jellyseerr needs to find it. */
+export interface PacocastItem {
+  readonly id: string;
+  readonly mediaType: 'movie' | 'tv';
+  readonly tmdbId: number;
+}
+
+export interface PacocastWork {
+  /** Solicitado: to create in the Jellyseerr. */
+  readonly toSend: readonly PacocastItem[];
+  /** Farejando or Parcialmente disponível: to look up in the Jellyseerr. */
+  readonly tracking: readonly PacocastItem[];
+}
+
+export interface PacocastReport {
+  readonly requestId: string;
+  /** A JellyseerrState from src/domain/request/jellyseerr.ts. */
+  readonly state: 'requested' | 'processing' | 'partially_available' | 'available' | 'failed';
+  /** What went wrong, for the attendants, when the state is `failed`. Up to 200 characters. */
+  readonly detail?: string;
+}
+
+/** How many reports changed a request; the rest were already there. */
+export interface PacocastReportResult {
+  readonly applied: number;
+}
