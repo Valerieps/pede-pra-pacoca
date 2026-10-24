@@ -829,9 +829,17 @@ button.paw-like[aria-pressed='true'] .paw {
   gap: var(--space-2);
 }
 
-.feed-more {
-  display: block;
+.feed-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
   margin: var(--space-4) auto 0;
+}
+
+.feed-pagination button {
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .dev-sign-in {
