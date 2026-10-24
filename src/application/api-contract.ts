@@ -9,7 +9,7 @@ import type { NotificationPrefs } from '../domain/notification/preferences';
 import type { NotificationType } from '../domain/notification/types';
 import type { MediaType } from '../domain/media/media';
 import type { Reason, RequestOrigin, RequestStatus } from '../domain/request/lifecycle';
-import type { StatsFilter, StatsGroupBy, StatsSort } from '../domain/stats/stats';
+import type { StatsPeriod } from '../domain/stats/stats';
 
 export interface MemberView {
   readonly id: string;
@@ -309,75 +309,35 @@ export type CreateRequestInput =
       readonly again?: boolean;
     };
 
-export type { StatsFilter, StatsGroupBy, StatsSort };
+export type { StatsPeriod };
 
-/** A member's profile numbers (docs/spec/estatisticas.md). Canceled requests do not count. */
-export interface ProfileStatsView {
+/** One place of a podium or a trophy (docs/spec/estatisticas.md). */
+export interface RankedMemberView {
   readonly member: MemberView;
-  readonly totalRequests: number;
-  readonly fulfilled: number;
-  /** From the request to the first Cãopleto, in milliseconds; null with nothing fulfilled. */
-  readonly averageMsToFulfilled: number | null;
-  readonly topGenres: readonly { readonly genre: string; readonly count: number }[];
-  /** The last 12 months, oldest first, "YYYY-MM" in the group's calendar, zeros included. */
-  readonly perMonth: readonly { readonly month: string; readonly count: number }[];
-  readonly cashbacks: number;
-  /** Likes on the member's feed events, other people's only. */
-  readonly likesReceived: number;
-}
-
-export interface HistoryRequestView {
-  readonly id: string;
-  readonly title: string;
-  readonly mediaType: MediaType;
-  readonly origin: RequestOrigin;
-  readonly status: RequestStatus;
-  readonly genres: readonly string[];
-  readonly posterPath: string | null;
-  readonly requester: MemberView;
-  readonly assignee: MemberView | null;
-  readonly createdAt: string;
-  readonly likes: number;
-}
-
-/** One group of the history. `key` is a member id, "YYYY-MM", a type, genre, status or origin; "" for none. */
-export interface HistoryGroupView {
-  readonly key: string;
-  /** For person and attendant groups. */
-  readonly member: MemberView | null;
-  /** Every request of the group, even those past the history limit. */
   readonly count: number;
-  readonly requests: readonly HistoryRequestView[];
 }
 
-export interface GroupStatsInput {
-  readonly filter?: StatsFilter;
-  readonly sort?: StatsSort;
-  readonly groupBy?: StatsGroupBy;
+/** One poster of the most wanted: everyone who wants the media, every request of it summed. */
+export interface WantedMediaView {
+  /** The latest request of the media, which the poster opens. */
+  readonly requestId: string;
+  readonly title: string;
+  readonly posterPath: string | null;
+  readonly count: number;
 }
 
-export interface GroupStatsView {
-  readonly total: number;
-  /** True when the history shows only the first requests (HISTORY_LIMIT). */
-  readonly truncated: boolean;
-  readonly groups: readonly HistoryGroupView[];
-  readonly metrics: {
-    readonly fulfilled: number;
-    /** Every genre, most requested first; a request counts in each of its genres, '' is "Sem gênero". */
-    readonly perGenre: readonly { readonly genre: string; readonly count: number }[];
-    readonly perPerson: readonly { readonly member: MemberView; readonly count: number }[];
-    readonly perAttendant: readonly { readonly member: MemberView; readonly count: number }[];
-    readonly averageMsToFulfilled: number | null;
-    /** Não foi possível among Cãopleto + Não foi possível; null when none closed. */
-    readonly unavailableRate: number | null;
-    /** Petiscos debited by these requests. */
-    readonly petiscosConsumed: number;
-    /** Cashbacks given for these requests. */
-    readonly petiscosReturned: number;
-    readonly mostLiked: readonly { readonly requestId: string; readonly title: string; readonly likes: number }[];
-  };
-  /** Every genre and attendant ever seen, for the filter pickers. */
-  readonly options: { readonly genres: readonly string[]; readonly attendants: readonly MemberView[] };
+/** Group numbers. Each list is at most PODIUM_SIZE long, first place first, no zeros. */
+export interface GroupNumbersView {
+  readonly topRequesters: readonly RankedMemberView[];
+  readonly topCashback: readonly RankedMemberView[];
+  readonly topThanks: readonly RankedMemberView[];
+  readonly mostWanted: readonly WantedMediaView[];
+  readonly trendingGenres: readonly string[];
+  /** Reserved by requests and not refunded. */
+  readonly petiscosConsumed: number;
+  readonly thanksReceived: number;
+  /** Time the requests spent in Farejando (in_jellyseerr), in milliseconds. */
+  readonly farejandoMs: number;
 }
 
 export interface Queries {
@@ -399,8 +359,7 @@ export interface Queries {
   'petiscos.settings': { input: Record<string, never>; output: PetiscoSettingsView };
   vacation: { input: Record<string, never>; output: VacationView };
   'group.export': { input: Record<string, never>; output: GroupExport };
-  'stats.profile': { input: { memberId: string }; output: ProfileStatsView };
-  'stats.group': { input: GroupStatsInput; output: GroupStatsView };
+  'stats.numbers': { input: { period: StatsPeriod }; output: GroupNumbersView };
 }
 
 export interface Commands {

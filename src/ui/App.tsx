@@ -9,7 +9,7 @@ import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
 import { StatusChip } from './components/StatusChip';
-import { activeTab, inProgress, manageLinksFor, statsMemberOf, tabsFor } from './navigation';
+import { activeTab, inProgress, manageLinksFor, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
@@ -209,10 +209,7 @@ function Screen({ me, onSignOut }: { me: MeView; onSignOut: () => void }) {
   if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
-  if (path === '/numeros' || path.startsWith('/numeros/')) {
-    const memberId = statsMemberOf(path) ?? me.id;
-    return <GroupStats key={memberId} memberId={memberId} />;
-  }
+  if (path === '/numeros') return <GroupStats />;
   if (path === '/perfil') return <Profile key={me.id} me={me} onSignOut={onSignOut} />;
   if (path === '/petiscos') return <Petiscos />;
   if (path === '/gerenciar' && manageLinksFor(me).length > 0) return <ManageApp me={me} />;

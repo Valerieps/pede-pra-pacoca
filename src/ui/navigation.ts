@@ -48,18 +48,12 @@ export function manageLinksFor(me: MemberRoles): ManageLink[] {
   return links.filter((l): l is ManageLink => l !== false);
 }
 
-/** The tab a screen belongs to: a request belongs to Pedidos, a member's numbers and Petiscos to theirs. */
+/** The tab a screen belongs to: a request belongs to Pedidos, Petiscos to Perfil. */
 export function activeTab(path: string, tabs: readonly Tab[]): string | null {
   if (tabs.some((t) => t.path === path)) return path;
   if (path.startsWith('/pedido/')) return '/meus-pedidos';
-  if (path.startsWith('/numeros/')) return '/numeros';
   if (path === '/petiscos') return '/perfil';
   return null;
-}
-
-/** The member a "/numeros/<id>" path opens Números do Grupo filtered by, if any. */
-export function statsMemberOf(path: string): string | null {
-  return /^\/numeros\/([\w-]+)$/.exec(path)?.[1] ?? null;
 }
 
 export const IN_PROGRESS_LIMIT = 5;

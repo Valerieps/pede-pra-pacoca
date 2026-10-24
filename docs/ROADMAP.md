@@ -32,7 +32,7 @@ A ordem de construção da fase 1 ainda será definida, depois que a spec estive
 
 - [ ] `spec/identidade.md`: o petisco cai no contador só no cashback; bônus e a renovação do mês não têm animação.
 - [ ] `spec/petiscos.md`: o cashback à mão lista os 50 pedidos Cãopletos mais recentes elegíveis. (troque 10)
-- [ ] `spec/estatisticas.md`: em Números do Grupo, "Limpar" limpa os filtros mas mantém a pessoa escolhida; "Cãopletos" entrou nas métricas; com uma pessoa escolhida, os cashbacks, as curtidas e os pedidos por mês dela não seguem os outros filtros.
+- [ ] `spec/estatisticas.md`: os "Últimos 30 dias" contam para trás a partir de agora; card sem ninguém no período mostra uma frase da Paçoca; em "Todo mundo também quer", pedidos cancelados ficam de fora e o pôster abre o pedido mais recente da mídia; em "Farejando mídias" nos últimos 30 dias, só conta o tempo farejado dentro dos 30 dias.
 - [ ] `spec/jellyseerr.md`: Parcialmente disponível avisa as solicitantes (aviso novo, que dá para desligar) e não entra no feed; o Paçocast roda a cada 45 segundos; um pedido que o Jellyseerr recusa ao criar vira Não foi possível na hora; Cãopleto continua debitando o petisco que já saiu do saldo no pedido.
 - [ ] `spec/app-e-instalacao.md`: o modo férias foi para Gerenciar pedidos; Ajustes do grupo (só o admin) tem só o download dos dados.
 

@@ -39,7 +39,7 @@ import {
 } from './requests';
 import { actOnRequests, queues } from './requests-queue';
 import { migrate } from './schema';
-import { groupStats, memberProfile } from './statistics';
+import { groupNumbers } from './statistics';
 import { endFinishedVacations, setVacation, vacationView } from './vacation';
 import type { Prefetched } from './tmdb';
 
@@ -73,8 +73,7 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   'manual.availability': manualAvailability,
   'requests.mine': (ctx, actor) => myRequests(ctx, actor),
   'request.detail': requestDetail,
-  'stats.profile': (ctx, _actor, input) => memberProfile(ctx, input),
-  'stats.group': (ctx, _actor, input) => groupStats(ctx, input),
+  'stats.numbers': (ctx, _actor, input) => groupNumbers(ctx, input),
   queues: (ctx, actor) => queues(ctx, actor),
 };
 

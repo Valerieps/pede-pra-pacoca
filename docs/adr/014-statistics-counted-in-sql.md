@@ -1,6 +1,6 @@
 # ADR-014: Statistics counted in SQL, months on a fixed São Paulo offset
 
-**Status:** Accepted
+**Status:** Superseded by ADR-017
 **Date:** 2026-10-21
 **Decision:** The profile and group statistics (`server/application/statistics.ts`, queries
 `stats.profile` and `stats.group`) count, average and group in SQLite, not in JavaScript. The time
