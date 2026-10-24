@@ -4,6 +4,9 @@ import { strings } from '../strings';
 
 export const FEED_PAGE_SIZE = 30;
 
+/** "A Paçoca achou" shows only with at least this many posts between it and its "pediu". */
+export const FOUND_MIN_GAP = 5;
+
 /** The chips, in screen order: Tudo, Pedidos, Cãopletos, Meus. */
 export const FEED_FILTERS = ['all', 'requests', 'mine'] as const;
 export type FeedFilter = (typeof FEED_FILTERS)[number];

@@ -17,18 +17,27 @@ Nenhuma.
   também no detalhe. *(1)*
 - O feed carrega 30 eventos de cada vez; "Ver mais" traz os anteriores. *(1)*
 - Cada item mostra o pôster com a foto de quem fez a ação no canto dele (sem título, só a foto), o
-  texto do evento ao lado e, embaixo, a patinha, as curtidas e há quanto tempo foi: "agora",
+  texto do evento ao lado e, embaixo, a patinha, as curtidas, o "+1" de "Eu também quero", a cápsula de
+  status (só em "Ana pediu") e há quanto tempo foi: "agora",
   "5 min", "3 h", "2 d" e, depois de uma semana, o dia ("21 de out."). *(1)*
   Por quê: a data importa pouco no feed; o que importa é quem fez o quê.
 
 | Evento | Exemplo de texto |
 | --- | --- |
 | Pedido criado | Ana pediu *Duna: Parte Três* |
+| Cãopleto | A Paçoca achou *Duna: Parte Três*! |
 | Obrigada | Ana agradeceu à Paçoca |
 | Cashback | A Paçoca devolveu um petisco para Ana |
 | Novo membro | Carla entrou no grupo |
 
-- "Eu também quero" e Cãopleto continuam registrados, mas não aparecem no feed: eram ruído. *(1)*
+- O item "Ana pediu" mostra a cápsula com o status atual do pedido, qualquer que seja, a mesma de Meus
+  pedidos. *(1)*
+- "Eu também quero" continua registrado, mas não aparece no feed: era ruído. *(1)*
+- "A Paçoca achou" só aparece quando há pelo menos 5 itens visíveis do feed entre ele e o "Ana pediu"
+  do mesmo pedido; outros "A Paçoca achou" não entram na conta. Mais perto que isso, ele fica oculto.
+  *(1)*
+  Por quê: com o "Ana pediu" ainda perto do topo, a cápsula Cãopleto já conta a novidade; o item
+  separado só serve quando o pedido já desceu no feed.
 - Num item "Ana pediu" cujo pedido ainda não foi atendido (nem cancelado ou recusado), e que não é meu
   nem já tenho "Eu também quero", aparece o botão "Eu também quero". *(1)*
 - Recusado, Não foi possível, Cancelado e bônus avulso não geram evento: são informação da pessoa,

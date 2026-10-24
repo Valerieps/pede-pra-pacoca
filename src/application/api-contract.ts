@@ -112,6 +112,8 @@ export interface FeedEventView {
   readonly requestTitle: string | null;
   /** The request's TMDB poster; null for manual requests, which show the Paçoca card. */
   readonly requestPosterPath: string | null;
+  /** The request's status now, shown as a chip on "pediu". */
+  readonly requestStatus: RequestStatus | null;
   readonly at: string;
   readonly likeCount: number;
   readonly likedByMe: boolean;

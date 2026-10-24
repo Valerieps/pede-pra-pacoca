@@ -70,6 +70,7 @@ export const strings = {
     },
     // The title is shown in italics after these.
     requestCreated: (name: string) => `${name} pediu`,
+    found: 'A Paçoca achou',
     thanked: (name: string) => `${name} agradeceu à Paçoca`,
   },
 
