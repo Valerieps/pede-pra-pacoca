@@ -11,7 +11,7 @@ export const ALLOWED_ORIGINS: readonly string[] = [];
 export const IMAGE_ORIGINS: readonly string[] = ['https://image.tmdb.org', 'https://lh3.googleusercontent.com'];
 
 /** Pages the app links to (opened by the member in a new tab); the app never requests them. */
-export const LINK_ORIGINS: readonly string[] = ['https://www.imdb.com'];
+export const LINK_ORIGINS: readonly string[] = ['https://www.imdb.com', 'https://letterboxd.com'];
 
 /**
  * The Web Push services of the phones' browsers (ADR-011): Chrome and Android (FCM), Safari on

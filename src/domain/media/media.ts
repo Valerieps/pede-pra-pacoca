@@ -43,6 +43,11 @@ export function mediaKey(type: MediaType, tmdbId: number): string {
   return `${type}:${tmdbId}`;
 }
 
+/** The film's page on Letterboxd, which redirects from the TMDB id. Letterboxd has no series. */
+export function letterboxdUrl(type: MediaType, tmdbId: number): string | null {
+  return type === 'movie' ? `https://letterboxd.com/tmdb/${tmdbId}/` : null;
+}
+
 /** Selo "Ainda não lançado": a release date in the future. Not a request status. */
 export function isUnreleased(releaseDate: string | null, now: Date): boolean {
   if (!releaseDate) return false;

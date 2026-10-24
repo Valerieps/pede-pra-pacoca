@@ -172,7 +172,9 @@ export const strings = {
     } as Record<string, string>,
     feedbackTitle: 'Dar retorno',
     thank: 'Obrigada, Paçoca',
-    thanked: 'Você agradeceu. A Paçoca abanou o rabo!'
+    thanked: 'Você agradeceu. A Paçoca abanou o rabo!',
+    watched: 'Assistiu? Registre sua nota',
+    openLetterboxd: 'Abrir no Letterboxd'
   },
 
   invites: {

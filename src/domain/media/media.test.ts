@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { findUrl, isPosterPath, isUnreleased, mediaKey, normalizeManualLink, parseSharedLink } from './media';
+import { findUrl, isPosterPath, isUnreleased, letterboxdUrl, mediaKey, normalizeManualLink, parseSharedLink } from './media';
+
+describe('letterboxdUrl', () => {
+  it('links a movie to its Letterboxd page by TMDB id', () => {
+    expect(letterboxdUrl('movie', 693134)).toBe('https://letterboxd.com/tmdb/693134/');
+  });
+
+  it('has no link for a series, which Letterboxd does not list', () => {
+    expect(letterboxdUrl('tv', 1399)).toBeNull();
+  });
+});
 
 describe('parseSharedLink', () => {
   it.each([
