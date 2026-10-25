@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { AttendantAction, MeView, RequestView } from '../../application/api-contract';
 import type { ReasonCode } from '../../domain/request/lifecycle';
 import { groupQueue, jellyseerrUrl, QUEUES, sortQueue, type QueueGrouping, type QueueName, type QueueSort } from '../../domain/request/queue';
@@ -98,7 +99,8 @@ export function Queues({ me }: { me: MeView }) {
 
   return (
     <section>
-      <h1>{strings.nav.manageRequests}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.manage, to: '/gerenciar' }, { label: strings.nav.manageRequests }]} />
+      <h1 className="sr-only">{strings.nav.manageRequests}</h1>
       <div className="chips" role="tablist">
         {QUEUES.map((name) => (
           <button key={name} type="button" role="tab" aria-selected={name === queue} className={name === queue ? '' : 'chip'} onClick={() => switchQueue(name)}>

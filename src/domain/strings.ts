@@ -41,6 +41,7 @@ export const strings = {
     groupSettings: 'Ajustes do grupo',
     askButton: '+ Pedir',
     main: 'Navegação principal',
+    breadcrumb: 'Você está aqui',
     inProgress: 'Em andamento',
     noneInProgress: 'Nada em andamento.',
     seeAll: 'Ver todos',

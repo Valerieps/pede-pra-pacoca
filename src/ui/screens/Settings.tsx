@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { ApiResult, PetiscoSettingsView } from '../../application/api-contract';
 import { MAX_BONUS_PER_GRANT, MAX_CASHBACK_THRESHOLD, MAX_MONTHLY_PETISCOS, REASON_MAX_LENGTH } from '../../domain/petisco/settings';
 import { strings } from '../../domain/strings';
@@ -33,7 +34,8 @@ const toNumber = (text: string) => (text.trim() === '' ? null : Number(text));
 export function ManagePetiscos() {
   return (
     <section className="stack">
-      <h1>{strings.nav.managePetiscos}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.manage, to: '/gerenciar' }, { label: strings.nav.managePetiscos }]} />
+      <h1 className="sr-only">{strings.nav.managePetiscos}</h1>
       <PetiscoSettings />
     </section>
   );
@@ -43,7 +45,8 @@ export function ManagePetiscos() {
 export function GroupSettings() {
   return (
     <section className="stack">
-      <h1>{strings.nav.groupSettings}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.manage, to: '/gerenciar' }, { label: strings.nav.groupSettings }]} />
+      <h1 className="sr-only">{strings.nav.groupSettings}</h1>
       <ExportData />
     </section>
   );

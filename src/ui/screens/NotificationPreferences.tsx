@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { NotificationPrefs } from '../../domain/notification/preferences';
 import { ATTENDANT_TYPES, CONFIGURABLE_TYPES } from '../../domain/notification/types';
 import { strings } from '../../domain/strings';
@@ -32,7 +33,8 @@ function PreferencesForm({ saved, attendant }: { saved: NotificationPrefs; atten
 
   return (
     <section>
-      <h1>{t.title}</h1>
+      <Breadcrumbs items={[{ label: strings.notifications.title, to: '/avisos' }, { label: t.title }]} />
+      <h1 className="sr-only">{t.title}</h1>
       <form onSubmit={submit} className="stack">
         <fieldset>
           <legend>{t.types}</legend>

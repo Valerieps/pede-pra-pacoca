@@ -1,6 +1,7 @@
 // Asks for push permission, after explaining it; on iPhone, first explains that push needs the
 // app installed on the home screen (docs/spec/app-e-instalacao.md). At first access it is
 // offered once, with `onDone` to move on to the app.
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { useEffect, useState } from 'react';
 import type { PushState } from '../../application/ports';
 import { strings } from '../../domain/strings';
@@ -49,7 +50,8 @@ export function PushPermission({ onDone }: { onDone?: () => void } = {}) {
 
   return (
     <section>
-      <h1>{t.title}</h1>
+      {!onDone && <Breadcrumbs items={[{ label: strings.notifications.title, to: '/avisos' }, { label: t.title }]} />}
+      <h1 className="sr-only">{t.title}</h1>
       <p>{t.intro}</p>
       {push.isIos && (
         <div className="notice">

@@ -145,7 +145,7 @@ function Search({
 
   return (
     <section>
-      <h1>{strings.ask.title}</h1>
+      <h1 className="sr-only">{strings.ask.title}</h1>
       {showUnrecognized && <UnrecognizedLink onSearch={focusSearch} onManual={() => onManual('')} />}
       <form className="row field-row" onSubmit={openLink}>
         <label className="grow">

@@ -65,7 +65,7 @@ export function Feed() {
 
   return (
     <section>
-      <h1>{strings.feed.title}</h1>
+      <h1 className="sr-only">{strings.feed.title}</h1>
       <div className="chips" role="group" aria-label={strings.feed.title}>
         {FEED_FILTERS.map((f) => (
           <button key={f} type="button" className="chip" aria-pressed={f === filter} onClick={() => choose(f)}>

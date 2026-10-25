@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { CommandName, Commands, RequestDetailView } from '../../application/api-contract';
 import { isUnreleased, letterboxdUrl } from '../../domain/media/media';
 import { reasonText } from '../../domain/request/reason';
@@ -57,6 +58,7 @@ function Detail({ request }: { request: RequestDetailView }) {
   return (
     <section>
       {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} onClose={() => setCelebrate(false)} />}
+      <Breadcrumbs items={[{ label: strings.nav.myRequests, to: '/meus-pedidos' }, { label: request.title }]} />
       <div className="media-header">
         <Poster path={request.posterPath} title={request.title} />
         <div className="media-info">

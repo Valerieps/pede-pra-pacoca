@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { ApiError, MeView, MemberListItem } from '../../application/api-contract';
 import { canManageGroup, type Role } from '../../domain/group/roles';
 import { strings } from '../../domain/strings';
@@ -45,7 +46,8 @@ export function Members({ me }: { me: MeView }) {
 
   return (
     <section>
-      <h1>{strings.nav.manageMembers}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.manage, to: '/gerenciar' }, { label: strings.nav.manageMembers }]} />
+      <h1 className="sr-only">{strings.nav.manageMembers}</h1>
       {members.error && !members.data && <p className="notice">{strings.genericError}</p>}
       {error && (
         <p className="notice" role="alert">
