@@ -88,24 +88,96 @@
   text-align: center;
 }
 
-/* Caramel: the petiscos. In Pedir, the chip sits on the right, above the screen */
-.ask-balance {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 var(--space-2);
+/* Caramel: the petiscos. Pedir opens on the pote, in a caramel card */
+.ask-hero {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--color-accent-surface);
 }
 
-.petisco-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-accent-surface);
-  color: var(--color-accent-text);
-  font-size: var(--font-size-small);
-  font-weight: 600;
+.ask-hero h1 {
+  margin: 0;
+  color: var(--color-brand);
+}
+
+.petisco-jar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  color: var(--color-text);
   text-decoration: none;
+}
+
+.jar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.jar-lid {
+  width: var(--jar-lid-width);
+  height: var(--jar-lid-height);
+  border-radius: var(--radius-pill);
+  background: var(--color-brand);
+}
+
+.jar-glass {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
+  justify-content: center;
+  gap: var(--space-1);
+  box-sizing: border-box;
+  width: var(--jar-width);
+  min-height: var(--jar-min-height);
+  padding: var(--space-3) var(--space-2);
+  border: var(--jar-border) solid var(--color-jar-glass);
+  border-top: 0;
+  border-radius: var(--space-1) var(--space-1) var(--radius-card) var(--radius-card);
+  background: var(--color-jar-fill);
+}
+
+.jar-glass .petisco-icon:not(.petisco-icon-large) {
+  width: var(--petisco-size-jar);
+  height: var(--petisco-size-jar);
+}
+
+/* The petiscos lie a little crooked in the pote */
+.jar-glass .petisco-icon:nth-child(odd) {
+  transform: rotate(-6deg);
+}
+
+.jar-glass .petisco-icon:nth-child(even) {
+  transform: rotate(5deg);
+}
+
+.jar-text {
+  display: grid;
+  gap: 2px;
+  padding-bottom: var(--space-1);
+  font-size: var(--font-size-small);
+}
+
+.jar-count {
+  font-family: var(--font-display);
+  font-size: var(--font-size-jar-count);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-accent-text);
+}
+
+.jar-count small {
+  font-size: var(--font-size-heading);
+  font-weight: 500;
+}
+
+.jar-link {
+  color: var(--color-brand);
+  font-weight: 600;
 }
 
 .tabs {

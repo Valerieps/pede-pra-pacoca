@@ -1,4 +1,4 @@
-// Pedir (docs/spec/pedidos.md): paste a link, or search, then confirm; or a manual request.
+// Pedir (docs/spec/pedidos.md): paste a link, or search, then confirm in a sheet; or a manual request.
 import { useEffect, useState, type FormEvent } from 'react';
 import type { ApiError, MediaCardView, MeView, PreviewInput, RequestView, SearchType } from '../../application/api-contract';
 import { isAttendant } from '../../domain/group/roles';
@@ -6,18 +6,26 @@ import { findUrl, isUnreleased, parseSharedLink, type MediaType } from '../../do
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
 import { browserShareEnvironment, clearPendingShare, pendingShare } from '../../infrastructure/share-target';
+import { Icon } from '../components/Icon';
 import { PacocaCelebration } from '../components/PacocaCelebration';
-import { PetiscoChip } from '../components/PetiscoChip';
+import { PetiscoIcon } from '../components/PetiscoIcon';
+import { PetiscoJar } from '../components/PetiscoJar';
 import { Poster } from '../components/Poster';
+import { Sheet } from '../components/Sheet';
+import { SkeletonCards } from '../components/Skeleton';
 import { StatusChip } from '../components/StatusChip';
 import { takeAskDraft } from '../ask-draft';
+import { petiscoSlots, withNextSpent } from '../petisco-row';
 import { Link, navigate } from '../router';
 import { useQuery } from '../use-query';
 
-type Step =
-  | { kind: 'search'; unrecognized?: string; query?: string }
-  | { kind: 'confirm'; input: PreviewInput }
-  | { kind: 'manual'; title: string; link?: string };
+type Step = { kind: 'search'; unrecognized?: string; query?: string } | { kind: 'manual'; title: string; link?: string };
+
+/** Where Pedir opens: the search, with a link to confirm in the sheet over it. */
+interface Start {
+  step: Step;
+  confirm: PreviewInput | null;
+}
 
 const FILTERS: { value: SearchType; label: string }[] = [
   { value: 'all', label: strings.ask.filterAll },
@@ -33,43 +41,69 @@ function errorText(error: ApiError): string {
 }
 
 /** Where a link shared to the app on Android lands (docs/spec/app-e-instalacao.md). */
-function stepForShare(text: string | null): Step {
-  if (text === null) return { kind: 'search' };
-  return parseSharedLink(text) ? { kind: 'confirm', input: { text } } : { kind: 'search', unrecognized: text };
+function startForShare(text: string | null): Start {
+  if (text === null) return { step: { kind: 'search' }, confirm: null };
+  return parseSharedLink(text) ? { step: { kind: 'search' }, confirm: { text } } : { step: { kind: 'search', unrecognized: text }, confirm: null };
 }
 
 /** A link or search typed in the computer's right column, else a link shared to the app. */
-function firstStep(): Step {
+function firstStart(): Start {
   const draft = takeAskDraft();
-  if (draft?.kind === 'link') return { kind: 'confirm', input: { text: draft.text } };
-  if (draft?.kind === 'search') return { kind: 'search', query: draft.query };
-  return stepForShare(pendingShare(browserShareEnvironment()));
+  if (draft?.kind === 'link') return { step: { kind: 'search' }, confirm: { text: draft.text } };
+  if (draft?.kind === 'search') return { step: { kind: 'search', query: draft.query }, confirm: null };
+  return startForShare(pendingShare(browserShareEnvironment()));
 }
 
 export function Ask({ me }: { me: MeView }) {
-  const [step, setStep] = useState<Step>(firstStep);
-  const back = () => setStep({ kind: 'search' });
-  const manual = (title: string, text?: string) => setStep({ kind: 'manual', title, link: (text && findUrl(text)) || undefined });
+  const [start] = useState(firstStart);
+  const [step, setStep] = useState<Step>(start.step);
+  const [confirm, setConfirm] = useState<PreviewInput | null>(start.confirm);
+  const [done, setDone] = useState<RequestView | null>(null);
+  const back = () => {
+    setDone(null);
+    setStep({ kind: 'search' });
+  };
+  const manual = (title: string, text?: string) => {
+    setConfirm(null);
+    setStep({ kind: 'manual', title, link: (text && findUrl(text)) || undefined });
+  };
 
   // The shared text is taken once: going back or opening Pedir again starts empty.
   useEffect(() => clearPendingShare(browserShareEnvironment()), []);
 
+  if (done) return <Done request={done} onBack={back} />;
+
   return (
     <>
-      <p className="ask-balance">
-        <PetiscoChip balance={me.petiscos} />
-      </p>
-      {step.kind === 'confirm' ? (
-        <Confirm me={me} input={step.input} onBack={back} onManual={() => manual('', 'text' in step.input ? step.input.text : undefined)} />
-      ) : step.kind === 'manual' ? (
-        <ManualForm me={me} initialTitle={step.title} initialLink={step.link} onBack={back} />
+      {step.kind === 'manual' ? (
+        <ManualForm me={me} initialTitle={step.title} initialLink={step.link} onBack={back} onDone={setDone} />
       ) : (
-        <Search
-          unrecognized={step.unrecognized}
-          initialQuery={step.query}
-          onPick={(input) => setStep({ kind: 'confirm', input })}
-          onManual={(title) => manual(title, step.unrecognized)}
-        />
+        <>
+          <section className="ask-hero">
+            <h1>{strings.ask.title}</h1>
+            <PetiscoJar balance={me.petiscos} />
+          </section>
+          <Search
+            unrecognized={step.unrecognized}
+            initialQuery={step.query}
+            onPick={setConfirm}
+            onManual={(title) => manual(title, step.unrecognized)}
+          />
+        </>
+      )}
+      {confirm && (
+        <Sheet label={strings.confirm.sheetLabel} onClose={() => setConfirm(null)}>
+          <Confirm
+            me={me}
+            input={confirm}
+            onClose={() => setConfirm(null)}
+            onManual={() => manual('', 'text' in confirm ? confirm.text : undefined)}
+            onDone={(request) => {
+              setConfirm(null);
+              setDone(request);
+            }}
+          />
+        </Sheet>
       )}
     </>
   );
@@ -104,6 +138,7 @@ function Search({
   onManual: (title: string) => void;
 }) {
   const { backend } = useServices();
+  const [mode, setMode] = useState<'link' | 'search'>('search');
   const [link, setLink] = useState('');
   const [query, setQuery] = useState(initialQuery);
   const [type, setType] = useState<SearchType>('all');
@@ -125,7 +160,8 @@ function Search({
 
   function focusSearch() {
     setShowUnrecognized(false);
-    document.getElementById('ask-search')?.focus();
+    setMode('search');
+    setTimeout(() => document.getElementById('ask-search')?.focus());
   }
 
   async function search(event: FormEvent | null, filter: SearchType = type, text = query.trim()) {
@@ -144,76 +180,90 @@ function Search({
   }
 
   return (
-    <section>
-      <h1 className="sr-only">{strings.ask.title}</h1>
+    <section className="ask-panel">
       {showUnrecognized && <UnrecognizedLink onSearch={focusSearch} onManual={() => onManual('')} />}
-      <form className="row field-row" onSubmit={openLink}>
-        <label className="grow">
-          <span className="muted">{strings.ask.linkLabel}</span>
-          <input type="url" inputMode="url" autoComplete="off" value={link} onChange={(e) => setLink(e.target.value)} />
-        </label>
-        <button type="submit">{strings.ask.linkButton}</button>
-      </form>
-
-      <form className="row field-row" onSubmit={(e) => void search(e)}>
-        <label className="grow">
-          <span className="muted">{strings.ask.searchLabel}</span>
-          <input id="ask-search" type="search" autoComplete="off" maxLength={100} value={query} onChange={(e) => setQuery(e.target.value)} />
-        </label>
-        <button type="submit" disabled={busy}>
-          {strings.ask.searchButton}
+      <div className="ask-modes" role="group" aria-label={strings.ask.title}>
+        <button type="button" aria-pressed={mode === 'link'} onClick={() => setMode('link')}>
+          <Icon name="link" />
+          {strings.ask.modeLink}
         </button>
-      </form>
-      <div className="chips" role="group" aria-label={strings.ask.searchLabel}>
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            className={f.value === type ? 'chip chip-on' : 'chip'}
-            aria-pressed={f.value === type}
-            onClick={(e) => {
-              setType(f.value);
-              if (results) void search(e, f.value);
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
+        <button type="button" aria-pressed={mode === 'search'} onClick={() => setMode('search')}>
+          <Icon name="search" />
+          {strings.ask.modeSearch}
+        </button>
       </div>
 
-      {error && (
-        <p className="notice" role="alert">
-          {error}
-        </p>
-      )}
-
-      {results && results.length === 0 && (
-        <div className="notice">
-          <p>{strings.ask.noResults}</p>
-          <button type="button" onClick={() => onManual(searched)}>
-            {strings.ask.manualOffer}
-          </button>
-        </div>
-      )}
-
-      {results && results.length > 0 && (
-        <ul className="carousel">
-          {results.map((media) => (
-            <li key={`${media.type}:${media.tmdbId}`}>
-              <button type="button" className="media-card" onClick={() => onPick({ type: media.type, tmdbId: media.tmdbId })}>
-                <Poster path={media.posterPath} title={media.title} />
-                <strong>{media.title}</strong>
-                <span className="muted">
-                  {[media.year, strings.mediaType[media.type]].filter(Boolean).join(' · ')}
-                </span>
-                <AvailabilityBadge media={media} />
+      {mode === 'link' ? (
+        <form className="row field-row" onSubmit={openLink}>
+          <label className="grow">
+            <span className="muted">{strings.ask.linkLabel}</span>
+            <input type="url" inputMode="url" autoComplete="off" autoFocus value={link} onChange={(e) => setLink(e.target.value)} />
+          </label>
+          <button type="submit">{strings.ask.linkButton}</button>
+        </form>
+      ) : (
+        <>
+          <form className="row field-row" onSubmit={(e) => void search(e)}>
+            <label className="grow">
+              <span className="muted">{strings.ask.searchLabel}</span>
+              <input id="ask-search" type="search" autoComplete="off" maxLength={100} value={query} onChange={(e) => setQuery(e.target.value)} />
+            </label>
+            <button type="submit" disabled={busy}>
+              {strings.ask.searchButton}
+            </button>
+          </form>
+          <div className="chips" role="group" aria-label={strings.ask.searchLabel}>
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                className={f.value === type ? 'chip chip-on' : 'chip'}
+                aria-pressed={f.value === type}
+                onClick={(e) => {
+                  setType(f.value);
+                  if (results) void search(e, f.value);
+                }}
+              >
+                {f.label}
               </button>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </div>
+
+          {error && (
+            <p className="notice" role="alert">
+              {error}
+            </p>
+          )}
+
+          {results && results.length === 0 && (
+            <div className="notice">
+              <p>{strings.ask.noResults}</p>
+              <button type="button" onClick={() => onManual(searched)}>
+                {strings.ask.manualOffer}
+              </button>
+            </div>
+          )}
+
+          {results && results.length > 0 && (
+            <ul className="ask-results">
+              {results.map((media) => (
+                <li key={`${media.type}:${media.tmdbId}`}>
+                  <button type="button" className="ask-result" onClick={() => onPick({ type: media.type, tmdbId: media.tmdbId })}>
+                    <Poster path={media.posterPath} title={media.title} small />
+                    <span className="grow">
+                      <strong>{media.title}</strong>
+                      <span className="muted">{[media.year, strings.mediaType[media.type]].filter(Boolean).join(' · ')}</span>
+                    </span>
+                    <AvailabilityBadge media={media} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
-      <p>
+      <p className="ask-manual">
         <button type="button" className="link" onClick={() => onManual(query.trim())}>
           {strings.ask.manualShortcut}
         </button>
@@ -229,10 +279,36 @@ function AvailabilityBadge({ media }: { media: MediaCardView }) {
   return <span className="badge">{text}</span>;
 }
 
-function PetiscoNotice({ me }: { me: MeView }) {
+/** What this request costs: the petisco row with the one it spends, or why it costs nothing yet. */
+function PetiscoCost({ me }: { me: MeView }) {
   if (isAttendant(me)) return <p className="muted">{strings.confirm.attendantFree}</p>;
-  if (me.petiscos.total === 0) return <p className="notice">{strings.noPetiscos}</p>;
-  return <p className="muted">{strings.confirm.balance(me.petiscos.total)}</p>;
+  const balance = me.petiscos;
+  const slots = petiscoSlots(balance);
+  if (balance.total === 0) {
+    return (
+      <div className="petisco-cost">
+        <span className="petisco-slots" aria-hidden="true">
+          {(slots ?? ['empty' as const]).map((slot, i) => (
+            <PetiscoIcon key={i} slot={slot} />
+          ))}
+        </span>
+        <p>{strings.noPetiscos}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="petisco-cost">
+      <span className="petisco-slots" aria-hidden="true">
+        {(slots ? withNextSpent(slots) : ['next' as const]).map((slot, i) => (
+          <PetiscoIcon key={i} slot={slot} />
+        ))}
+      </span>
+      <span className="grow">
+        <strong>{strings.confirm.spends}</strong>
+        <span className="muted">{strings.confirm.leftover(balance.total - 1)}</span>
+      </span>
+    </div>
+  );
 }
 
 /** After confirming: the Paçoca, the request I just made and where to go next. */
@@ -261,42 +337,43 @@ function Done({ request, onBack }: { request: RequestView; onBack: () => void })
   );
 }
 
-function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewInput; onBack: () => void; onManual: () => void }) {
+/** The confirmation, in a sheet over the search: no note, just the cost and "Pedir pra Paçoca". */
+function Confirm({
+  me,
+  input,
+  onClose,
+  onManual,
+  onDone,
+}: {
+  me: MeView;
+  input: PreviewInput;
+  onClose: () => void;
+  onManual: () => void;
+  onDone: (request: RequestView) => void;
+}) {
   const { backend } = useServices();
   const preview = useQuery('media.preview', input, ['requests']);
-  const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<RequestView | null>(null);
-
-  if (done) return <Done request={done} onBack={onBack} />;
 
   const media = preview.data;
-  const backButton = (
-    <button type="button" className="link" onClick={onBack}>
-      {strings.ask.back}
-    </button>
-  );
   if (!media) {
-    return (
-      <section>
-        {backButton}
-        {preview.error === 'unrecognized_link' && <UnrecognizedLink onSearch={onBack} onManual={onManual} />}
-        {preview.error && preview.error !== 'unrecognized_link' && (
-          <p className="notice" role="alert">
-            {errorText(preview.error)}
-          </p>
-        )}
-      </section>
+    if (!preview.error) return <SkeletonCards count={1} />;
+    return preview.error === 'unrecognized_link' ? (
+      <UnrecognizedLink onSearch={onClose} onManual={onManual} />
+    ) : (
+      <p className="notice" role="alert">
+        {errorText(preview.error)}
+      </p>
     );
   }
 
   async function create(again: boolean) {
     if (!media) return;
     setBusy(true);
-    const result = await backend.command('request.create', { origin: 'tmdb', type: media.type, tmdbId: media.tmdbId, note, again });
+    const result = await backend.command('request.create', { origin: 'tmdb', type: media.type, tmdbId: media.tmdbId, again });
     setBusy(false);
-    if (result.ok) setDone(result.value);
+    if (result.ok) onDone(result.value);
     else setError(result.error === 'conflict' ? strings.genericError : errorText(result.error));
   }
 
@@ -309,20 +386,18 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
   }
 
   const availability = media.availability;
-  const noteField = (
-    <label>
-      <span className="muted">{strings.confirm.noteLabel}</span>
-      <textarea maxLength={500} rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
-    </label>
+  const notNow = (
+    <button type="button" className="ghost" onClick={onClose}>
+      {strings.confirm.notNow}
+    </button>
   );
 
   return (
-    <section>
-      {backButton}
+    <>
       <div className="media-header">
         <Poster path={media.posterPath} title={media.title} />
         <div>
-          <h1>{media.title}</h1>
+          <h2 className="media-title">{media.title}</h2>
           <p className="muted">{[media.year, strings.mediaType[media.type]].filter(Boolean).join(' · ')}</p>
           {isUnreleased(media.releaseDate, new Date()) && <span className="badge">{strings.confirm.unreleased}</span>}
         </div>
@@ -330,11 +405,13 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
 
       {availability.kind === 'new' && (
         <>
-          <PetiscoNotice me={me} />
-          {noteField}
-          <button type="button" className="primary-action" disabled={busy} onClick={() => void create(false)}>
-            {strings.confirm.submit}
-          </button>
+          <PetiscoCost me={me} />
+          <div className="sheet-actions">
+            <button type="button" className="primary-action" disabled={busy} onClick={() => void create(false)}>
+              {strings.confirm.submit}
+            </button>
+            {notNow}
+          </div>
         </>
       )}
 
@@ -360,11 +437,13 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
               <Link to={`/pedido/${availability.requestId}`}>{strings.confirm.seeRequest}</Link>
             </p>
           )}
-          <PetiscoNotice me={me} />
-          {noteField}
-          <button type="button" className="secondary" disabled={busy} onClick={() => void create(true)}>
-            {strings.confirm.askAgain}
-          </button>
+          <PetiscoCost me={me} />
+          <div className="sheet-actions">
+            <button type="button" className="secondary" disabled={busy} onClick={() => void create(true)}>
+              {strings.confirm.askAgain}
+            </button>
+            {notNow}
+          </div>
         </>
       )}
 
@@ -373,11 +452,23 @@ function Confirm({ me, input, onBack, onManual }: { me: MeView; input: PreviewIn
           {error}
         </p>
       )}
-    </section>
+    </>
   );
 }
 
-function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView; initialTitle: string; initialLink?: string; onBack: () => void }) {
+function ManualForm({
+  me,
+  initialTitle,
+  initialLink = '',
+  onBack,
+  onDone,
+}: {
+  me: MeView;
+  initialTitle: string;
+  initialLink?: string;
+  onBack: () => void;
+  onDone: (request: RequestView) => void;
+}) {
   const { backend } = useServices();
   const [title, setTitle] = useState(initialTitle);
   const [type, setType] = useState<MediaType>('movie');
@@ -385,11 +476,8 @@ function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView
   const [link, setLink] = useState(initialLink);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<RequestView | null>(null);
   // Set when the link matches another manual request (docs/spec/pedidos.md).
   const [duplicate, setDuplicate] = useState<{ requestId: string | null; active: boolean } | null>(null);
-
-  if (done) return <Done request={done} onBack={onBack} />;
 
   async function submit(event: FormEvent | null, again = false) {
     event?.preventDefault();
@@ -397,7 +485,7 @@ function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView
     const result = await backend.command('request.create', { origin: 'manual', type, title, note, link: link.trim() || undefined, again });
     if (result.ok) {
       setBusy(false);
-      setDone(result.value);
+      onDone(result.value);
       return;
     }
     if (result.error === 'conflict' && link.trim()) {
@@ -454,7 +542,7 @@ function ManualForm({ me, initialTitle, initialLink = '', onBack }: { me: MeView
             }}
           />
         </label>
-        <PetiscoNotice me={me} />
+        <PetiscoCost me={me} />
         {!duplicate && (
           <button type="submit" className="primary-action" disabled={busy}>
             {strings.confirm.submit}
