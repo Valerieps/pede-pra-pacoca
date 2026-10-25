@@ -235,6 +235,18 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
       fetched_at TEXT NOT NULL
     )`,
   ],
+  // 8: Mídia travada (docs/spec/notificacoes.md): one row per stay of a request in a stuck status,
+  // so it is told once; `snoozed_until` is the local day ("YYYY-MM-DD") to tell again.
+  [
+    `CREATE TABLE stuck_notices (
+      request_id TEXT NOT NULL REFERENCES requests(id),
+      status TEXT NOT NULL,
+      since TEXT NOT NULL,
+      notified_at TEXT NOT NULL,
+      snoozed_until TEXT,
+      PRIMARY KEY (request_id, status, since)
+    )`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

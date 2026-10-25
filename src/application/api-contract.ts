@@ -402,6 +402,8 @@ export interface Commands {
   /** No ids: mark everything read. */
   'notifications.markRead': { input: { ids?: string[] }; output: null };
   'notifications.setPrefs': { input: Partial<NotificationPrefs>; output: NotificationPrefs };
+  /** Attendants: snooze a Mídia travada notice to a local day, "YYYY-MM-DD". */
+  'notifications.snoozeStuck': { input: { id: string; until: string }; output: null };
   'request.create': { input: CreateRequestInput; output: RequestView };
   'request.join': { input: { id: string }; output: null };
   'request.leave': { input: { id: string }; output: null };

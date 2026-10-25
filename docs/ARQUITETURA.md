@@ -80,6 +80,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `likes` | evento, membro, data | Uma por pessoa por evento |
 | `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito. Pedido indexado para as estatísticas (ADR-014) |
 | `petisco_expiry_notices` | lote, membro, data | Um por lote de bônus ou cashback: o aviso de 7 dias sai uma vez só |
+| `stuck_notices` | pedido, status, desde quando, avisado em, soneca até (dia local) | Um por estadia do pedido em Farejando ou Parcialmente disponível: o aviso de mídia travada sai uma vez só, e de novo no dia da soneca |
 | `known_media` | `media_key`, data | Gravada quando o Paçocast avisa Available |
 | `catalog_items` | `media_key`, tipo, tmdb_id, título, ano, pôster, gêneros, temporadas, notas do IMDb, do TMDB e do Rotten Tomatoes, sincronizada em | A biblioteca do Plex, preenchida pela sincronização (ADR-018). Enquanto vazia, o catálogo lê os pedidos Cãopletos |
 | `media_problems` | mídia (`media_key`, tipo, tmdb_id, título, pôster), quem reportou, motivo, texto, data, resolvido em, por quem | Um aberto por pessoa por mídia. Motivo nulo nos reportados antes dos chips |

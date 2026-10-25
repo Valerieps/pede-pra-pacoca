@@ -35,6 +35,7 @@ const RENDER: Renderers = {
   inheritance_offer: (d) => ({ title: t.inheritanceOfferTitle, body: t.inheritanceOffer(d.title), url: requestUrl(d.requestId) }),
   problem_reported: (d) => ({ title: t.problemReportedTitle, body: t.problemReported(d.memberName, d.title, d.description), url: '/filas' }),
   problem_resolved: (d) => ({ title: t.problemResolvedTitle, body: t.problemResolved(d.title), url: '/catalogo' }),
+  request_stuck: (d) => ({ title: t.requestStuckTitle, body: t.requestStuck(d.title, d.status, d.days), url: requestUrl(d.requestId) }),
   daily_digest: (d) => ({ title: t.dailyDigestTitle, body: t.dailyDigest(d.titles), url: '/avisos' }),
 };
 

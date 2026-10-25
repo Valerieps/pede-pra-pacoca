@@ -29,6 +29,7 @@ export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   problem_reported: 'attendants',
   // Whoever reported the problem.
   problem_resolved: 'subject',
+  request_stuck: 'attendants',
   daily_digest: 'attendants',
 };
 

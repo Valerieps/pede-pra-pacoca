@@ -9,6 +9,8 @@ export interface ConfigValues {
   webhookSecret: string | null;
   /** The last month ("YYYY-MM") whose petisco renewal was announced. */
   monthlyRenewalAnnounced: string | null;
+  /** The last local day ("YYYY-MM-DD") the Mídia travada check ran. */
+  stuckCheckDay: string | null;
 }
 
 export function readConfig<K extends keyof ConfigValues>(ctx: Context, key: K, fallback: ConfigValues[K]): ConfigValues[K] {

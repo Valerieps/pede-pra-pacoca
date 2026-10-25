@@ -433,6 +433,13 @@ export const strings = {
     dismiss: 'Já vi',
     preferencesLink: 'Preferências de avisos',
     enableLink: 'Ativar avisos no celular',
+    snooze: {
+      label: 'Lembrar de novo em',
+      days: (n: number) => `${n} dias`,
+      pick: 'Escolher o dia',
+      pickLabel: 'Dia para lembrar de novo',
+      failed: 'A Paçoca não conseguiu guardar a soneca. Tenta de novo?',
+    },
 
     permission: {
       title: 'Avisos no celular',
@@ -481,6 +488,7 @@ export const strings = {
         inheritance_offer: 'Oferta de herdar um pedido',
         problem_reported: 'Problema reportado no catálogo',
         problem_resolved: 'Meu problema reportado foi resolvido',
+        request_stuck: 'Mídia travada',
       },
     },
 
@@ -523,6 +531,11 @@ export const strings = {
       problemReported: (name: string, title: string, description: string) => `${name} reportou um problema em ${title}: ${description}`,
       problemResolvedTitle: 'Problema resolvido',
       problemResolved: (title: string) => `A Paçoca resolveu o problema que você reportou em ${title}. Bom filme!`,
+      requestStuckTitle: 'Mídia travada',
+      requestStuck: (title: string, status: 'in_jellyseerr' | 'partially_available', days: number) =>
+        status === 'in_jellyseerr'
+          ? `A Paçoca fareja ${title} há ${days} dias e nada. Dá uma olhada no Jellyseerr?`
+          : `${title} está pela metade há ${days} dias. Dá uma olhada no Jellyseerr?`,
       dailyDigestTitle: 'Resumo do dia',
       dailyDigest: (titles: readonly string[]) =>
         titles.length === 1 ? `1 pedido novo hoje: ${titles[0]}.` : `${titles.length} pedidos novos hoje: ${listNames(titles.slice(0, 5))}${titles.length > 5 ? ' e mais' : ''}.`,
