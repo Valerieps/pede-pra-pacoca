@@ -223,6 +223,18 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
     `CREATE INDEX media_problems_open ON media_problems(resolved_at, created_at)`,
     `CREATE INDEX media_problems_member ON media_problems(member_id, media_key)`,
   ],
+  // 7: the problem's reason chip (docs/spec/catalogo.md); the scores the media page looked up,
+  // which the Catálogo shows until the library sync brings its own (ADR-019).
+  [
+    `ALTER TABLE media_problems ADD COLUMN reason TEXT`,
+    `CREATE TABLE media_scores (
+      media_key TEXT PRIMARY KEY,
+      imdb_rating REAL,
+      tmdb_rating REAL,
+      critics_score INTEGER,
+      fetched_at TEXT NOT NULL
+    )`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

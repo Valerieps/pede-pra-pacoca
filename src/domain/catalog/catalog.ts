@@ -132,3 +132,19 @@ export function arrangeCatalog<T extends CatalogItem>(items: readonly T[], filte
 }
 
 export const MAX_PROBLEM_LENGTH = 300;
+
+/** What can be wrong with a title, as chips in the report sheet; "Outro" needs the text. */
+export type ProblemReason = 'wont_play' | 'no_subtitles' | 'wrong_audio' | 'bad_quality' | 'missing_episode' | 'other';
+export const PROBLEM_REASONS: readonly ProblemReason[] = ['wont_play', 'no_subtitles', 'wrong_audio', 'bad_quality', 'missing_episode', 'other'];
+
+/** A movie has no episodes to miss. */
+export function problemReasonsFor(type: MediaType): ProblemReason[] {
+  return PROBLEM_REASONS.filter((r) => type === 'tv' || r !== 'missing_episode');
+}
+
+/** A reason that fits the title, and a text within the limit; "Outro" without a text says nothing. */
+export function isValidProblem(type: MediaType, reason: unknown, description: string): reason is ProblemReason {
+  if (!problemReasonsFor(type).includes(reason as ProblemReason)) return false;
+  if (description.length > MAX_PROBLEM_LENGTH) return false;
+  return reason !== 'other' || description !== '';
+}

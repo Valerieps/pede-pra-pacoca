@@ -1,7 +1,8 @@
 // The single entry to the group's data. The Durable Object calls it; every method is synchronous,
 // so a command runs alone and inside one transaction (ADR-006).
 import type { ApiResult, CommandName, Commands, PacocastReportResult, PacocastWork, QueryName, Queries, Topic } from '../../src/application/api-contract';
-import { listCatalog, listProblems, reportProblem, resolveProblem } from './catalog';
+import type { MediaType } from '../../src/domain/media/media';
+import { listCatalog, listProblems, reportProblem, resolveProblem, storeScores } from './catalog';
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { exportGroup } from './export';
@@ -70,7 +71,12 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   'notifications.settings': (ctx, actor) => notificationSettings(ctx, actor, ctx.options.pushPublicKey || null),
   'media.search': searchMedia,
   'media.preview': previewMedia,
-  'media.imdb': (_ctx, _actor, _input, prefetched) => prefetched.imdb ?? new QueryError('invalid'),
+  'media.imdb': (ctx, _actor, input, prefetched) => {
+    if (!prefetched.imdb) return new QueryError('invalid');
+    // The Worker checked the type and the id before looking them up.
+    storeScores(ctx, input.type as MediaType, input.tmdbId as number, prefetched.imdb);
+    return prefetched.imdb;
+  },
   'manual.availability': manualAvailability,
   'requests.mine': (ctx, actor) => myRequests(ctx, actor),
   'request.detail': requestDetail,

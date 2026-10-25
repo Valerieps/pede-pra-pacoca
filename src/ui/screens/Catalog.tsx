@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import type { CatalogItemView } from '../../application/api-contract';
 import {
   activeFilterCount,
@@ -8,9 +8,12 @@ import {
   catalogGenres,
   DECADES,
   DEFAULT_FILTERS,
+  isValidProblem,
   MAX_PROBLEM_LENGTH,
+  problemReasonsFor,
   type CatalogFilters,
   type Decade,
+  type ProblemReason,
 } from '../../domain/catalog/catalog';
 import { mediaKey } from '../../domain/media/media';
 import { strings } from '../../domain/strings';
@@ -20,6 +23,7 @@ import { Icon } from '../components/Icon';
 import { Poster } from '../components/Poster';
 import { Sheet } from '../components/Sheet';
 import { SkeletonCards } from '../components/Skeleton';
+import { Link } from '../router';
 import { useQuery } from '../use-query';
 
 const t = strings.catalog;
@@ -38,6 +42,7 @@ function toggled<T>(list: readonly T[], value: T): T[] {
 /** The Catálogo (docs/spec/catalogo.md): everything already in the library, as a list or a grid. */
 export function Catalog() {
   const catalog = useQuery('catalog', {}, ['problems']);
+  useScoreLookups(catalog.data, catalog.reload);
   const [filters, setFilters] = useState<CatalogFilters>(DEFAULT_FILTERS);
   const [view, setView] = useState<View>('list');
   const [showFilters, setShowFilters] = useState(false);
@@ -164,17 +169,62 @@ export function Catalog() {
   );
 }
 
-/** Poster on the left and the title, as on the feed; the line of scores; the report triangle. */
+/**
+ * The titles whose scores were never looked up, or long ago, are looked up one at a time through
+ * the media page's query, which the server keeps for the Catálogo (ADR-019); then the list reloads.
+ */
+function useScoreLookups(items: readonly CatalogItemView[] | undefined, reload: () => void) {
+  const { backend } = useServices();
+  const asked = useRef(new Set<string>());
+  const mounted = useRef(true);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  useEffect(() => {
+    const missing = (items ?? []).filter((i) => !i.scoresKnown && !asked.current.has(keyOf(i)));
+    if (missing.length === 0) return;
+    missing.forEach((i) => asked.current.add(keyOf(i)));
+    void (async () => {
+      // One at a time: each is a TMDB and an OMDb call, and the free OMDb key is small.
+      for (const item of missing) {
+        if (!mounted.current) return;
+        await backend.query('media.imdb', { type: item.type, tmdbId: item.tmdbId });
+      }
+      if (mounted.current) reload();
+    })();
+  }, [items, backend, reload]);
+}
+
+/** Poster on the left and the title, as on the feed; the line of scores; the report triangle. Opens the title's page, as on the feed. */
 function CatalogCard({ item, onReport }: { item: CatalogItemView; onReport: () => void }) {
   const line = [strings.mediaType[item.type], item.year, item.type === 'tv' && item.seasons ? t.seasons(item.seasons) : null].filter(Boolean).join(' · ');
+  const body = (
+    <>
+      <strong className="media-title">{item.title}</strong>
+      <span className="muted">{line}</span>
+      <Scores item={item} />
+    </>
+  );
   return (
     <article className="card catalog-card">
-      <Poster path={item.posterPath} title={item.title} />
-      <div className="catalog-body">
-        <strong className="media-title">{item.title}</strong>
-        <span className="muted">{line}</span>
-        <Scores item={item} />
-      </div>
+      {item.requestId ? (
+        <>
+          <Link to={`/pedido/${item.requestId}`} className="catalog-poster" tabIndex={-1} aria-hidden="true">
+            <Poster path={item.posterPath} title={item.title} />
+          </Link>
+          <Link to={`/pedido/${item.requestId}`} className="catalog-body">
+            {body}
+          </Link>
+        </>
+      ) : (
+        <>
+          <Poster path={item.posterPath} title={item.title} />
+          <div className="catalog-body">{body}</div>
+        </>
+      )}
       <button
         type="button"
         className={item.reportedByMe ? 'icon-button catalog-report reported' : 'icon-button catalog-report'}
@@ -294,16 +344,20 @@ function FilterSheet({
   );
 }
 
+/** One reason chip, as in the draft; the text is optional, except for "Outro". */
 function ReportSheet({ item, onClose, onSent }: { item: CatalogItemView; onClose: () => void; onSent: () => void }) {
   const { backend } = useServices();
+  const [reason, setReason] = useState<ProblemReason | null>(null);
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const other = reason === 'other';
 
   async function send(event: FormEvent) {
     event.preventDefault();
+    if (!reason) return;
     setBusy(true);
-    const result = await backend.command('problem.report', { type: item.type, tmdbId: item.tmdbId, description });
+    const result = await backend.command('problem.report', { type: item.type, tmdbId: item.tmdbId, reason, description });
     setBusy(false);
     if (result.ok) return onSent();
     setError(result.error === 'conflict' ? t.alreadyReported : strings.genericError);
@@ -313,11 +367,28 @@ function ReportSheet({ item, onClose, onSent }: { item: CatalogItemView; onClose
     <Sheet label={t.reportTitle} onClose={onClose}>
       <form className="stack" onSubmit={(e) => void send(e)}>
         <h2>
-          {t.reportTitle}: <span className="media-title">{item.title}</span>
+          {t.reportQuestion} <span className="media-title">{item.title}</span>?
         </h2>
+        <fieldset>
+          <legend className="sr-only">{t.reportTitle}</legend>
+          <div className="chips">
+            {problemReasonsFor(item.type).map((r) => (
+              <button key={r} type="button" className="chip" aria-pressed={reason === r} onClick={() => setReason(r)}>
+                {t.reasons[r]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
         <label>
-          <span>{t.reportLabel}</span>
-          <textarea required rows={3} maxLength={MAX_PROBLEM_LENGTH} placeholder={t.reportHint} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <span className="sr-only">{other ? t.reportMoreRequired : t.reportMore}</span>
+          <textarea
+            rows={3}
+            required={other}
+            maxLength={MAX_PROBLEM_LENGTH}
+            placeholder={other ? t.reportMoreRequired : t.reportMore}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
         </label>
         {error && (
           <p className="notice" role="alert">
@@ -325,7 +396,7 @@ function ReportSheet({ item, onClose, onSent }: { item: CatalogItemView; onClose
           </p>
         )}
         <div className="row actions">
-          <button type="submit" disabled={busy || description.trim() === ''}>
+          <button type="submit" disabled={busy || !isValidProblem(item.type, reason, description.trim())}>
             {t.send}
           </button>
           <button type="button" className="secondary" onClick={onClose}>

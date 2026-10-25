@@ -1,6 +1,6 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
-import type { CatalogItem } from '../domain/catalog/catalog';
+import type { CatalogItem, ProblemReason } from '../domain/catalog/catalog';
 import type { FeedFilter } from '../domain/feed/feed';
 import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
@@ -343,6 +343,10 @@ export interface GroupNumbersView {
 
 /** A title in the Catálogo (docs/spec/catalogo.md). */
 export interface CatalogItemView extends CatalogItem {
+  /** The latest Cãopleto or Parcialmente disponível request of the title, whose page the card opens; null when none. */
+  readonly requestId: string | null;
+  /** False when the scores were never looked up or are old: the app looks them up (`media.imdb`). */
+  readonly scoresKnown: boolean;
   /** I reported a problem with it that is still open. */
   readonly reportedByMe: boolean;
 }
@@ -354,6 +358,9 @@ export interface MediaProblemView {
   readonly tmdbId: number;
   readonly title: string;
   readonly posterPath: string | null;
+  /** Null on problems reported before the reason chips. */
+  readonly reason: ProblemReason | null;
+  /** What the member wrote; may be empty. */
   readonly description: string;
   readonly reporter: MemberView;
   readonly createdAt: string;
@@ -416,7 +423,7 @@ export interface Commands {
   'vacation.set': { input: { onVacation: boolean; until: string | null }; output: VacationView };
   'feed.toggleLike': { input: { eventId: string }; output: LikeToggleView };
   /** Any member, about a title in the Catálogo; one open problem per member per title. */
-  'problem.report': { input: { type: MediaType; tmdbId: number; description: string }; output: null };
+  'problem.report': { input: { type: MediaType; tmdbId: number; reason: ProblemReason; description: string }; output: null };
   /** Attendants. */
   'problem.resolve': { input: { id: string }; output: null };
 }
