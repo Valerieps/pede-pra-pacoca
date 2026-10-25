@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { ApiResult, PetiscoSettingsView } from '../../application/api-contract';
 import { MAX_BONUS_PER_GRANT, MAX_CASHBACK_THRESHOLD, MAX_MONTHLY_PETISCOS, REASON_MAX_LENGTH } from '../../domain/petisco/settings';
 import { strings } from '../../domain/strings';
