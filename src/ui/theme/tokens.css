@@ -116,6 +116,20 @@
   --petisco-size-large: 32px;
   --color-petisco: #d9a35a;
   --color-petisco-crumb: #8a5716;
+  /* A used petisco: a dashed outline; legible on both themes */
+  --color-petisco-outline: #c99a5c;
+  /* The pote in Pedir: a glass jar with a wine lid, the petiscos inside */
+  --jar-width: 104px;
+  --jar-min-height: 88px;
+  --jar-lid-width: 74px;
+  --jar-lid-height: 10px;
+  --jar-border: 3px;
+  --color-jar-glass: #e2c49a;
+  --color-jar-fill: rgb(255 255 255 / 0.75);
+  --petisco-size-jar: 24px;
+  --font-size-jar-count: 34px;
+  /* Pedir: the two big buttons, Colar link and Buscar */
+  --ask-mode-height: 64px;
   /* On a cashback: a petisco drops into the header counter */
   --petisco-drop-duration: 400ms;
   --petisco-drop-height: 16px;
@@ -197,4 +211,6 @@
   --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.5);
   --color-backdrop: rgb(0 0 0 / 0.6);
   --color-shimmer: #4a2836;
+  --color-jar-glass: #6b5132;
+  --color-jar-fill: rgb(0 0 0 / 0.2);
 }

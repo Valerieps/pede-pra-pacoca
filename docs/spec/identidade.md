@@ -84,6 +84,12 @@ de cada cor; os valores ficam em `src/ui/theme/tokens.css`, e as artes seguem o
 ## Ícones
 
 - O petisco tem um ícone: um quadradinho arredondado cor de caramelo, com uns farelinhos. Ele
-  aparece no chip de petiscos em Pedir, no card de petiscos do computador e na tela de
-  Petiscos. *(1)*
+  aparece no pote de petiscos em Pedir, na confirmação do pedido, no card de petiscos do computador
+  e na tela de Petiscos. *(1)*
+- Pedir abre com um pote de vidro com os meus petiscos dentro: um preenchido para cada petisco que
+  eu tenho e um contorno tracejado para cada mensal que já usei. Bônus e cashback entram
+  preenchidos depois dos mensais; usados, somem. Ao lado, quantos tenho, quando o pote enche de
+  novo e o link para o extrato. *(1)*
+- Quando a fileira passaria de 5 petiscos, o pote mostra um petisco só e o número ("7 de 10"). *(1)*
+  Por quê: o número mensal vai até 99; a fileira não cabe.
   Por quê: o caramelo é só da Paçoca e dos petiscos, então o ícone já diz do que se trata.

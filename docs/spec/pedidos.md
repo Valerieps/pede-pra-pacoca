@@ -52,8 +52,11 @@ partida. Como o Jellyseerr move o pedido está em `jellyseerr.md`.
 1. Eu compartilho (Android) ou colo (qualquer aparelho) um link do IMDb ou do TMDB. *(1)*
 2. O app extrai o ID. Um ID do IMDb (tt…) é convertido para o do TMDB pela busca por ID externo do
    TMDB. *(1)*
-3. A tela de confirmação mostra pôster, título, ano, tipo, o selo "Ainda não lançado" se for o caso,
-   meu saldo de petiscos e um campo de observação. *(1)*
+3. A confirmação abre numa gaveta por cima de Pedir, com pôster, título, ano, tipo, o selo "Ainda
+   não lançado" se for o caso e quanto o pedido gasta: a fileira de petiscos com o que vai sair e
+   quantos sobram. Ela não tem campo de observação; "Agora não" fecha a gaveta. *(1)*
+   Por quê: confirmar tem que ser um toque; quem quer deixar recado edita a observação no pedido
+   depois.
 4. As regras de duplicidade e de falta de petisco são aplicadas antes de eu confirmar. *(1)*
 5. Eu confirmo com "Pedir pra Paçoca". *(1)*
 
