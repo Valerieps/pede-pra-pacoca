@@ -81,6 +81,8 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 | `petisco_movements` | membro, tipo (mensal, bônus, cashback), operação (crédito, reserva, débito, estorno), lote, pedido, validade, motivo, autor | Imutável. Lote mensal é `monthly:AAAA-MM`; bônus e cashback usam o ID do crédito. Pedido indexado para as estatísticas (ADR-014) |
 | `petisco_expiry_notices` | lote, membro, data | Um por lote de bônus ou cashback: o aviso de 7 dias sai uma vez só |
 | `known_media` | `media_key`, data | Gravada quando o Paçocast avisa Available |
+| `catalog_items` | `media_key`, tipo, tmdb_id, título, ano, pôster, gêneros, temporadas, notas do IMDb, do TMDB e do Rotten Tomatoes, sincronizada em | A biblioteca do Plex, preenchida pela sincronização (ADR-018). Enquanto vazia, o catálogo lê os pedidos Cãopletos |
+| `media_problems` | mídia (`media_key`, tipo, tmdb_id, título, pôster), quem reportou, texto, data, resolvido em, por quem | Um aberto por pessoa por mídia |
 | `config` | chave, valor (JSON) | Petiscos por mês, cashback, URL do Jellyseerr |
 | `inbox` | membro, tipo, dados, lida, data | Caixa de entrada |
 | `outbox` | membro, tipo, dados, chave de agrupamento, liberar depois de, enviada | Silêncio, resumo diário e curtidas agrupadas passam por aqui |

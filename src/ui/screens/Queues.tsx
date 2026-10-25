@@ -179,7 +179,50 @@ export function Queues({ me }: { me: MeView }) {
           </ul>
         </div>
       ))}
+      <MediaProblems />
       <VacationSettings />
+    </section>
+  );
+}
+
+/** Problems members reported with titles in the Catálogo; "Resolvido" tells whoever reported it. */
+function MediaProblems() {
+  const { backend } = useServices();
+  const problems = useQuery('problems', {}, ['problems']);
+  const [busy, setBusy] = useState(false);
+  const c = strings.catalog;
+
+  async function resolve(id: string) {
+    setBusy(true);
+    const result = await backend.command('problem.resolve', { id });
+    setBusy(false);
+    if (result.ok) problems.reload();
+  }
+
+  if (!problems.data) return null;
+  return (
+    <section>
+      <h2>
+        {c.problems} ({problems.data.length})
+      </h2>
+      {problems.data.length === 0 && <p className="muted">{c.problemsEmpty}</p>}
+      <ul className="list">
+        {problems.data.map((problem) => (
+          <li key={problem.id} className="card problem-item">
+            <Poster path={problem.posterPath} title={problem.title} small />
+            <span className="grow">
+              <strong className="media-title">{problem.title}</strong>
+              <br />
+              {problem.description}
+              <br />
+              <span className="muted">{c.reportedBy(problem.reporter.name, formatDate(problem.createdAt))}</span>
+            </span>
+            <button type="button" className="secondary" disabled={busy} onClick={() => void resolve(problem.id)}>
+              {c.resolve}
+            </button>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

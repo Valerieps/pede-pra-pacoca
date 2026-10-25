@@ -1,5 +1,6 @@
 // The contract between the app and the server: query and command names, inputs and outputs.
 // Types only. The server imports it with `import type`, so nothing here runs on either side.
+import type { CatalogItem } from '../domain/catalog/catalog';
 import type { FeedFilter } from '../domain/feed/feed';
 import type { PhotoChoice } from '../domain/group/profile';
 import type { Role } from '../domain/group/roles';
@@ -119,7 +120,7 @@ export interface FeedEventView {
   readonly likedByMe: boolean;
   /** "Pediu" only: I can still say "Eu também quero" (active, not mine, not joined yet). */
   readonly canJoin?: boolean;
-  /** "Pediu" only: I already said "Eu tamb�m quero" on this active request and can undo it here. */
+  /** "Pediu" only: I already said "Eu também quero" on this active request and can undo it here. */
   readonly joinedByMe?: boolean;
 }
 
@@ -340,6 +341,24 @@ export interface GroupNumbersView {
   readonly farejandoMs: number;
 }
 
+/** A title in the Catálogo (docs/spec/catalogo.md). */
+export interface CatalogItemView extends CatalogItem {
+  /** I reported a problem with it that is still open. */
+  readonly reportedByMe: boolean;
+}
+
+/** An open problem with a title in the library, for the attendants. */
+export interface MediaProblemView {
+  readonly id: string;
+  readonly type: MediaType;
+  readonly tmdbId: number;
+  readonly title: string;
+  readonly posterPath: string | null;
+  readonly description: string;
+  readonly reporter: MemberView;
+  readonly createdAt: string;
+}
+
 export interface Queries {
   me: { input: Record<string, never>; output: MeView };
   members: { input: Record<string, never>; output: MemberListItem[] };
@@ -360,6 +379,9 @@ export interface Queries {
   vacation: { input: Record<string, never>; output: VacationView };
   'group.export': { input: Record<string, never>; output: GroupExport };
   'stats.numbers': { input: { period: StatsPeriod }; output: GroupNumbersView };
+  catalog: { input: Record<string, never>; output: CatalogItemView[] };
+  /** Attendants: the open problems, oldest first. */
+  problems: { input: Record<string, never>; output: MediaProblemView[] };
 }
 
 export interface Commands {
@@ -393,13 +415,17 @@ export interface Commands {
   /** `until` is the return date, "YYYY-MM-DD", or null. */
   'vacation.set': { input: { onVacation: boolean; until: string | null }; output: VacationView };
   'feed.toggleLike': { input: { eventId: string }; output: LikeToggleView };
+  /** Any member, about a title in the Catálogo; one open problem per member per title. */
+  'problem.report': { input: { type: MediaType; tmdbId: number; description: string }; output: null };
+  /** Attendants. */
+  'problem.resolve': { input: { id: string }; output: null };
 }
 
 export type QueryName = keyof Queries;
 export type CommandName = keyof Commands;
 
 /** What changed, pushed to every open app over the live connection so it refetches. */
-export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'requests' | 'notifications' | 'petiscos' | 'vacation';
+export type Topic = 'me' | 'members' | 'invites' | 'feed' | 'requests' | 'notifications' | 'petiscos' | 'vacation' | 'problems';
 
 export interface LiveMessage {
   readonly type: 'changed';
