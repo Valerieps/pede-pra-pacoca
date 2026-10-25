@@ -34,7 +34,7 @@ A ordem de construção dentro da fase 1 fica no [ROADMAP.md](ROADMAP.md).
 
 | Fase | O que entra |
 | --- | --- |
-| 1 | Tudo o que está descrito em `spec/`: convite e login, pedidos, petiscos, filas do atendente, o Paçocast (agente na casa do Cesar que cria os pedidos no Jellyseerr e acompanha o status), feed, notificações, estatísticas e a identidade da Paçoca |
+| 1 | Tudo o que está descrito em `spec/`: convite e login, pedidos, petiscos, filas do atendente, o Paçocast (agente na casa do Cesar que cria os pedidos no Jellyseerr e acompanha o status), feed, notificações, estatísticas, o catálogo e a identidade da Paçoca |
 | 2 | A checagem de duplicidade passa a consultar a biblioteca real do Jellyseerr. Só para orientar o desenho: não é para construir agora |
 
 Fora de escopo: baixar, guardar ou reproduzir mídia; acompanhar temporadas novas de séries (fica com
@@ -53,6 +53,7 @@ o Sonarr); mais de um grupo; chat entre membros; app nas lojas de aplicativos; l
 | [spec/notificacoes.md](spec/notificacoes.md) | Push, caixa de entrada, resumo diário e silêncio |
 | [spec/jellyseerr.md](spec/jellyseerr.md) | O Paçocast, os status do Jellyseerr e a configuração do admin |
 | [spec/estatisticas.md](spec/estatisticas.md) | Números do Grupo: pódios, troféus e métricas da Paçoca |
+| [spec/catalogo.md](spec/catalogo.md) | Catálogo da biblioteca: busca, filtros, lista e grade, reportar problema |
 | [spec/identidade.md](spec/identidade.md) | A voz, os textos e as ilustrações da Paçoca |
 | [spec/criterios-de-aceite.md](spec/criterios-de-aceite.md) | O que precisa ser verdade para a fase 1 estar pronta |
 | [spec/_modelo.md](spec/_modelo.md) | Modelo para um arquivo de feature novo |

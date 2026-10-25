@@ -26,6 +26,9 @@ export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   thanked: 'subject',
   webhook_failed: 'attendants',
   inheritance_offer: 'subject',
+  problem_reported: 'attendants',
+  // Whoever reported the problem.
+  problem_resolved: 'subject',
   daily_digest: 'attendants',
 };
 

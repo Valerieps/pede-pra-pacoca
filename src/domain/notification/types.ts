@@ -25,6 +25,10 @@ export interface NotificationData {
   thanked: { requestId: string; title: string; memberName: string };
   webhook_failed: { detail: string };
   inheritance_offer: { requestId: string; title: string; expiresAt: string };
+  /** Someone reported a problem with a title in the Catálogo. Attendants. */
+  problem_reported: { problemId: string; title: string; memberName: string; description: string };
+  /** The attendant solved the problem I reported. */
+  problem_resolved: { problemId: string; title: string };
   /** Built by the server from `request_new` for attendants who chose the digest. */
   daily_digest: { titles: string[] };
 }
@@ -47,12 +51,14 @@ export const CONFIGURABLE_TYPES = [
   'petisco_expiring',
   'monthly_renewed',
   'inheritance_offer',
+  'problem_reported',
+  'problem_resolved',
 ] as const satisfies readonly NotificationType[];
 
 export type ConfigurableType = (typeof CONFIGURABLE_TYPES)[number];
 
 /** Types only attendants receive; the preferences screen shows them to attendants only. */
-export const ATTENDANT_TYPES: readonly ConfigurableType[] = ['request_new', 'request_pending', 'webhook_failed', 'thanked'];
+export const ATTENDANT_TYPES: readonly ConfigurableType[] = ['request_new', 'request_pending', 'webhook_failed', 'thanked', 'problem_reported'];
 
 /** The switch that controls a type: the digest is the attendant's way of getting `request_new`. */
 export function switchOf(type: NotificationType): ConfigurableType {

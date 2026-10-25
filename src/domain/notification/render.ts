@@ -33,6 +33,8 @@ const RENDER: Renderers = {
   thanked: (d) => ({ title: t.thankedTitle, body: t.thanked(d.memberName, d.title), url: requestUrl(d.requestId) }),
   webhook_failed: (d) => ({ title: t.webhookFailedTitle, body: t.webhookFailed(d.detail), url: '/avisos' }),
   inheritance_offer: (d) => ({ title: t.inheritanceOfferTitle, body: t.inheritanceOffer(d.title), url: requestUrl(d.requestId) }),
+  problem_reported: (d) => ({ title: t.problemReportedTitle, body: t.problemReported(d.memberName, d.title, d.description), url: '/filas' }),
+  problem_resolved: (d) => ({ title: t.problemResolvedTitle, body: t.problemResolved(d.title), url: '/catalogo' }),
   daily_digest: (d) => ({ title: t.dailyDigestTitle, body: t.dailyDigest(d.titles), url: '/avisos' }),
 };
 

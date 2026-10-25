@@ -169,6 +169,7 @@
 .tab-ask .tab-label,
 .tab-long-label,
 .sidebar-name,
+.sidebar-stats,
 .sidebar-inbox,
 .sidebar-manage,
 .sidebar-ask,
@@ -269,6 +270,7 @@
   }
 
   .tab,
+  .sidebar-stats,
   .sidebar-inbox,
   .sidebar-manage {
     flex-direction: row;
@@ -279,6 +281,7 @@
     font-size: var(--font-size-base);
   }
 
+  .sidebar-stats,
   .sidebar-inbox,
   .sidebar-manage {
     display: flex;

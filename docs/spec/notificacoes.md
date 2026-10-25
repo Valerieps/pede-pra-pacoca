@@ -40,6 +40,8 @@ Nenhuma.
 | Obrigada, Paçoca | Atendente que atendeu | Imediato |
 | Falha do Jellyseerr, avisada pelo Paçocast | Atendentes | Imediato |
 | Oferta de herdar um pedido cancelado | Co-solicitante | Imediato |
+| Problema reportado no catálogo (`catalogo.md`) | Atendentes | Imediato |
+| Problema que eu reportei foi resolvido | Quem reportou | Imediato |
 
 - Curtidas chegam agrupadas ("3 pessoas curtiram seu pedido"), no máximo uma notificação por evento a
   cada hora. *(1)*

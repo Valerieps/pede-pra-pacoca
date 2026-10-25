@@ -28,6 +28,8 @@ Nenhuma.
   à mão continuam lá para quando ele estiver desligado ou o Jellyseerr não achar a mídia. *(1)*
 - Em A enviar, eu também posso marcar Cãopleto ou Não foi possível direto, sem passar por
   "Enviado". *(1)*
+- Abaixo das filas ficam os problemas que o grupo reportou no catálogo, para eu marcar como
+  resolvidos (`catalogo.md`). *(1)*
 - Enquanto a Paçoca oferece um pedido cancelado a quem também quer (`pedidos.md`), ele sai das filas
   e eu não mexo nele; ele volta quando alguém fica com ele. *(1)*
   Por quê: ainda não se sabe de quem é o pedido nem qual petisco ele gasta.
