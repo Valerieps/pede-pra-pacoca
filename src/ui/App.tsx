@@ -10,7 +10,7 @@ import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
 import { StatusChip } from './components/StatusChip';
 import { activeTab, inProgress, isInboxPath, isManagePath, manageLinksFor, tabsFor } from './navigation';
-import { Link, navigate, usePath } from './router';
+import { cameFrom, Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
 import { Feed } from './screens/Feed';
@@ -111,7 +111,7 @@ export function App() {
 function Navigation({ me }: { me: MeView }) {
   const path = usePath();
   const tabs = tabsFor();
-  const current = activeTab(path, tabs);
+  const current = activeTab(path, tabs, cameFrom());
   return (
     <nav className="tabs" aria-label={strings.nav.main}>
       <strong className="sidebar-name">{strings.appName}</strong>

@@ -4,8 +4,10 @@ import { useEffect, useState, type AnchorHTMLAttributes, type MouseEvent } from 
 const listeners = new Set<() => void>();
 
 export function navigate(path: string, options: { replace?: boolean } = {}): void {
-  if (options.replace) window.history.replaceState(null, '', path);
-  else window.history.pushState(null, '', path);
+  // The screen I leave travels with the new entry, so a detail screen knows which tab it was opened from.
+  const state = { from: window.location.pathname };
+  if (options.replace) window.history.replaceState(state, '', path);
+  else window.history.pushState(state, '', path);
   listeners.forEach((l) => l());
 }
 
@@ -21,6 +23,12 @@ export function usePath(): string {
     };
   }, []);
   return path;
+}
+
+/** The path I came from in this app, when the browser entry remembers it. */
+export function cameFrom(): string | null {
+  const from = (window.history.state as { from?: unknown } | null)?.from;
+  return typeof from === 'string' ? from : null;
 }
 
 export function Link({ to, ...rest }: { to: string } & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'>) {

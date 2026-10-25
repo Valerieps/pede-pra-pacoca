@@ -49,9 +49,12 @@ export function manageLinksFor(me: MemberRoles): ManageLink[] {
 }
 
 /** The tab a screen belongs to: a request belongs to Pedidos, Petiscos to Perfil. */
-export function activeTab(path: string, tabs: readonly Tab[]): string | null {
+export function activeTab(path: string, tabs: readonly Tab[], from: string | null = null): string | null {
   if (tabs.some((t) => t.path === path)) return path;
-  if (path.startsWith('/pedido/')) return '/meus-pedidos';
+  if (path.startsWith('/pedido/')) {
+    const origin = tabs.find((t) => t.path === from && t.path !== '/pedir' && t.path !== '/perfil');
+    return origin ? origin.path : '/meus-pedidos';
+  }
   if (path === '/petiscos') return '/perfil';
   return null;
 }
