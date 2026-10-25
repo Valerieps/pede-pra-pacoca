@@ -428,8 +428,9 @@ export const strings = {
     navUnread: (n: number) => `Avisos (${n})`,
     title: 'Avisos',
     empty: 'Nenhum aviso. A Paçoca está de orelha em pé.',
+    heading: (n: number) => (n === 1 ? 'A Paçoca trouxe 1 aviso.' : `A Paçoca trouxe ${n} avisos.`),
     markAllRead: 'Marcar todos como lidos',
-    unread: 'Novo',
+    dismiss: 'Já vi',
     preferencesLink: 'Preferências de avisos',
     enableLink: 'Ativar avisos no celular',
 

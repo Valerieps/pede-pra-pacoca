@@ -200,6 +200,14 @@ describe('likes', () => {
     expect(inboxOf('ana')).toMatchObject({ unread: 1, items: [{ type: 'likes', body: 'bia, cesar e dani curtiram seu pedido.' }] });
   });
 
+  it('a seen likes notice leaves the inbox and comes back with the next like', () => {
+    like('bia');
+    service.command('s-ana', 'notifications.markRead', {});
+    expect(inboxOf('ana').items).toEqual([]);
+    like('cesar');
+    expect(inboxOf('ana')).toMatchObject({ unread: 1, items: [{ type: 'likes' }] });
+  });
+
   it('after a quiet hour, the next like goes out at once again', () => {
     like('bia');
     claim();
@@ -222,10 +230,10 @@ describe('inbox', () => {
     const [first] = inboxOf('ana').items;
     const bias = inboxOf('bia').items[0].id;
     expect(service.command('s-ana', 'notifications.markRead', { ids: [first.id, bias] })).toMatchObject({ ok: true, changed: ['notifications'] });
-    expect(inboxOf('ana').unread).toBe(1);
+    expect(inboxOf('ana')).toMatchObject({ unread: 1, items: [{ read: false }] });
     expect(inboxOf('bia').unread).toBe(1);
     service.command('s-ana', 'notifications.markRead', {});
-    expect(inboxOf('ana').unread).toBe(0);
+    expect(inboxOf('ana')).toEqual({ unread: 0, items: [] });
     expect(service.command('s-ana', 'notifications.markRead', { ids: 'all' })).toEqual({ ok: false, error: 'invalid' });
   });
 });
