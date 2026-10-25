@@ -14,5 +14,18 @@
       "Bash(gh pr view:*)",
       "Bash(gh pr checks:*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-main-edits.mjs\""
+          }
+        ]
+      }
+    ]
   }
 }
