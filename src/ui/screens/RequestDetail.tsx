@@ -10,6 +10,8 @@ import { PacocaCelebration } from '../components/PacocaCelebration';
 import { Poster } from '../components/Poster';
 import { SkeletonCards } from '../components/Skeleton';
 import { StatusChip } from '../components/StatusChip';
+import { activeTab, tabsFor } from '../navigation';
+import { cameFrom } from '../router';
 import { useQuery } from '../use-query';
 
 const date = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
@@ -31,6 +33,8 @@ function Detail({ request }: { request: RequestDetailView }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [celebrate, setCelebrate] = useState(false);
   const { viewer } = request;
+  const parentTab = tabsFor().find((t) => t.path === activeTab(window.location.pathname, tabsFor(), cameFrom()));
+  const parent = { label: parentTab?.longLabel ?? strings.nav.myRequests, to: parentTab?.path ?? '/meus-pedidos' };
 
   // The Paçoca celebrates my Cãopleto once per phone, also when it arrives while I look.
   const celebrates = celebratesFulfilled(request);
@@ -58,7 +62,7 @@ function Detail({ request }: { request: RequestDetailView }) {
   return (
     <section>
       {celebrate && <PacocaCelebration text={strings.fulfilled(request.title)} onClose={() => setCelebrate(false)} />}
-      <Breadcrumbs items={[{ label: strings.nav.myRequests, to: '/meus-pedidos' }, { label: request.title }]} />
+      <Breadcrumbs items={[{ label: parent.label, to: parent.to }, { label: request.title }]} />
       <div className="media-header">
         <Poster path={request.posterPath} title={request.title} />
         <div className="media-info">

@@ -52,6 +52,13 @@ describe('activeTab', () => {
     expect(activeTab('/petiscos', tabs)).toBe('/perfil');
   });
 
+  it('marks the tab a request was opened from', () => {
+    expect(activeTab('/pedido/abc', tabs, '/')).toBe('/');
+    expect(activeTab('/pedido/abc', tabs, '/catalogo')).toBe('/catalogo');
+    expect(activeTab('/pedido/abc', tabs, '/pedir')).toBe('/meus-pedidos');
+    expect(activeTab('/pedido/abc', tabs, '/avisos')).toBe('/meus-pedidos');
+  });
+
   it('marks nothing on Avisos or the management screens', () => {
     expect(activeTab('/avisos', tabs)).toBeNull();
     expect(activeTab('/filas', tabs)).toBeNull();
