@@ -63,6 +63,10 @@ Product docs are written in Brazilian Portuguese; ADRs, code and this file in En
 - Business-rule questions found during a task go in one batch, before implementing.
 - When she asks what you think of the app, she wants a frank assessment, including the risks.
 - Verify with the typecheck and unit tests; use the browser only when she asks.
+- Every change starts in a new git worktree, on its own branch cut from `main`; never edit in the
+  main checkout. A session opened on `main` creates one first
+  (`git worktree add .claude/worktrees/<name> -b claude/<name> origin/main`) and works there; the
+  hook in `.claude/settings.json` blocks file edits on `main`.
 - Merge your own PR once its build passes.
 
 ### Fewer rounds, fewer tokens
