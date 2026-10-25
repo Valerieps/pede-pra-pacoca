@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { RequestView } from '../application/api-contract';
 import type { RequestStatus } from '../domain/request/lifecycle';
 import { askDraftVersion, draftFor, submitAskDraft, takeAskDraft } from './ask-draft';
-import { activeTab, inProgress, manageLinksFor, tabsFor } from './navigation';
+import { activeTab, inProgress, isInboxPath, isManagePath, manageLinksFor, tabsFor } from './navigation';
 
 const member = { roles: [] } as const;
 const attendant = { roles: ['attendant'] } as const;
@@ -90,5 +90,16 @@ describe('ask draft', () => {
     expect(askDraftVersion()).toBe(before + 1);
     expect(takeAskDraft()).toEqual({ kind: 'search', query: 'duna' });
     expect(takeAskDraft()).toBeNull();
+  });
+});
+
+describe('isManagePath / isInboxPath', () => {
+  it('keep the gear and the bell highlighted on their sub-screens', () => {
+    expect(isManagePath('/gerenciar')).toBe(true);
+    expect(isManagePath('/gerenciar/petiscos')).toBe(true);
+    expect(isManagePath('/membros')).toBe(true);
+    expect(isManagePath('/perfil')).toBe(false);
+    expect(isInboxPath('/avisos/preferencias')).toBe(true);
+    expect(isInboxPath('/')).toBe(false);
   });
 });

@@ -7,7 +7,7 @@ import { Link } from '../router';
 export function ManageApp({ me }: { me: MeView }) {
   return (
     <section>
-      <h1>{strings.nav.manage}</h1>
+      <h1 className="sr-only">{strings.nav.manage}</h1>
       <nav className="profile-links" aria-label={strings.nav.manage}>
         <ul className="list">
           {manageLinksFor(me).map((link) => (

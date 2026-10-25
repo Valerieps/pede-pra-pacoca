@@ -22,7 +22,7 @@ export function Inbox() {
 
   return (
     <section>
-      <h1>{t.title}</h1>
+      <h1 className="sr-only">{t.title}</h1>
       <div className="row">
         <Link to="/avisos/preferencias">{t.preferencesLink}</Link>
         {push.state() !== 'granted' && <Link to="/avisos/celular">{t.enableLink}</Link>}

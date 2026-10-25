@@ -111,7 +111,7 @@ export function GroupStats() {
 
   return (
     <section className="stack">
-      <h1>{t.groupTitle}</h1>
+      <h1 className="sr-only">{t.groupTitle}</h1>
       <div className="period-switch" role="group" aria-label={t.period}>
         {STATS_PERIODS.map((p) => (
           <button key={p} type="button" aria-pressed={p === period} onClick={() => setPeriod(p)}>

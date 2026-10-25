@@ -1,4 +1,5 @@
 import type { PetiscoMovementView } from '../../application/api-contract';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { strings } from '../../domain/strings';
 import { EmptyState } from '../components/EmptyState';
 import { PetiscoIcon } from '../components/PetiscoIcon';
@@ -18,7 +19,8 @@ export function Petiscos() {
 
   return (
     <section className="stack">
-      <h1>{t.title}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.profile, to: '/perfil' }, { label: t.title }]} />
+      <h1 className="sr-only">{t.title}</h1>
       {statement.error && !data && <p className="notice">{strings.genericError}</p>}
       {data && (
         <>

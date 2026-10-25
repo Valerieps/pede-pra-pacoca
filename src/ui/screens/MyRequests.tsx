@@ -14,7 +14,7 @@ export function MyRequests({ meId }: { meId: string }) {
 
   return (
     <section>
-      <h1>{strings.myRequests.title}</h1>
+      <h1 className="sr-only">{strings.myRequests.title}</h1>
       {mine.error && !mine.data && <p className="notice">{strings.genericError}</p>}
       {!mine.data && !mine.error && <SkeletonCards />}
       {mine.data?.length === 0 && <p className="muted">{strings.myRequests.empty}</p>}

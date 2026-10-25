@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { ApiError, InviteState } from '../../application/api-contract';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
@@ -45,7 +46,8 @@ export function Invites() {
 
   return (
     <section>
-      <h1>{strings.nav.manageInvites}</h1>
+      <Breadcrumbs items={[{ label: strings.nav.manage, to: '/gerenciar' }, { label: strings.nav.manageInvites }]} />
+      <h1 className="sr-only">{strings.nav.manageInvites}</h1>
       <form className="row" onSubmit={submit}>
         <label className="grow">
           <span className="muted">{strings.invites.emailLabel}</span>

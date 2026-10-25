@@ -56,6 +56,16 @@ export function activeTab(path: string, tabs: readonly Tab[]): string | null {
   return null;
 }
 
+/** Gerenciamento do App and every screen under it keep the gear highlighted. */
+export function isManagePath(path: string): boolean {
+  return ['/gerenciar', '/filas', '/membros', '/convites', '/ajustes'].some((p) => path === p || path.startsWith(`${p}/`));
+}
+
+/** Avisos and its sub-screens keep the bell highlighted. */
+export function isInboxPath(path: string): boolean {
+  return path === '/avisos' || path.startsWith('/avisos/');
+}
+
 export const IN_PROGRESS_LIMIT = 5;
 
 /** The right column's requests: the active ones, newest first, at most five. */

@@ -9,7 +9,7 @@ import { Icon } from './components/Icon';
 import { InstallGuide } from './components/InstallGuide';
 import { PetiscoIcon } from './components/PetiscoIcon';
 import { StatusChip } from './components/StatusChip';
-import { activeTab, inProgress, manageLinksFor, tabsFor } from './navigation';
+import { activeTab, inProgress, isInboxPath, isManagePath, manageLinksFor, tabsFor } from './navigation';
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
@@ -251,8 +251,15 @@ function InboxLink({ sidebar = false }: { sidebar?: boolean }) {
   const inbox = useQuery('notifications.inbox', {}, ['notifications']);
   const unread = inbox.data?.unread ?? 0;
   const label = unread > 0 ? strings.notifications.navUnread(unread) : strings.notifications.nav;
+  const here = isInboxPath(usePath());
   return (
-    <Link to="/avisos" className={sidebar ? 'tab sidebar-inbox' : 'bell'} aria-label={label} title={label}>
+    <Link
+      to="/avisos"
+      className={sidebar ? 'tab sidebar-inbox' : 'bell'}
+      aria-label={label}
+      title={label}
+      aria-current={here ? 'page' : undefined}
+    >
       <Icon name="bell" />
       {sidebar && (
         <span className="tab-long-label" aria-hidden="true">
@@ -279,7 +286,7 @@ function ManageLink({ me, sidebar = false }: { me: MeView; sidebar?: boolean }) 
       className={sidebar ? 'tab sidebar-manage' : 'bell'}
       aria-label={label}
       title={label}
-      aria-current={sidebar && path === '/gerenciar' ? 'page' : undefined}
+      aria-current={isManagePath(path) ? 'page' : undefined}
     >
       <Icon name="gear" />
       {sidebar && (

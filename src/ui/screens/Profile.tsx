@@ -66,7 +66,7 @@ export function Profile({
 
   return (
     <section>
-      <h1>{firstAccess ? strings.profile.firstAccessTitle : strings.profile.title}</h1>
+      <h1 className={firstAccess ? undefined : 'sr-only'}>{firstAccess ? strings.profile.firstAccessTitle : strings.profile.title}</h1>
       {firstAccess && <p>{strings.profile.firstAccessIntro}</p>}
       <form className="stack" onSubmit={submit}>
         <label>
