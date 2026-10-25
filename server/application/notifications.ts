@@ -220,9 +220,10 @@ export function pruneOutbox(ctx: Context): void {
 
 // --- Queries and commands ---
 
+/** Only what is still unread: a notice leaves the inbox once seen (the row stays, so likes can revive it). */
 export function inbox(ctx: Context, actor: Member): InboxView {
   const rows = ctx.sql.all<{ id: string; type: NotificationType; data: string; read: number; at: string }>(
-    'SELECT id, type, data, read, at FROM inbox WHERE member_id = ? ORDER BY at DESC, rowid DESC',
+    'SELECT id, type, data, read, at FROM inbox WHERE member_id = ? AND read = 0 ORDER BY at DESC, rowid DESC',
     actor.id,
   );
   const items: InboxItemView[] = rows.map((row) => ({

@@ -14,7 +14,10 @@ Nenhuma.
 
 - Toda notificação é um push e aparece também numa caixa de entrada dentro do app. *(1)*
 - A caixa de entrada guarda meus últimos 100 avisos. Tocar num aviso abre a tela dele e marca como
-  lido; eu também posso marcar todos como lidos. *(1)*
+  lido; eu também posso marcar um como visto sem abrir, ou todos de uma vez. *(1)*
+- A caixa mostra só os avisos que eu ainda não vi: o aviso visto sai da lista na hora. Cada aviso
+  mostra o título e o texto, sem data nem hora. Se alguém curte de novo algo que eu já tinha visto,
+  o aviso das curtidas volta. *(1)*
 - Cada tipo pode ser desligado por mim. Desligado, o aviso não chega de jeito nenhum: nem push, nem
   caixa de entrada. *(1)*
 - Os textos seguem a voz da Paçoca. *(1)*
