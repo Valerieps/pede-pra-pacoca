@@ -24,6 +24,7 @@ import {
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import { announceMonthlyPetiscos, giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
 import { pacocastReport, pacocastWork } from './pacocast';
+import { snoozeStuck, warnStuckRequests } from './stuck-requests';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
   answerOffer,
@@ -95,6 +96,7 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'push.unsubscribe': unsubscribePush,
   'notifications.markRead': markRead,
   'notifications.setPrefs': setPrefs,
+  'notifications.snoozeStuck': snoozeStuck,
   'request.create': createRequest,
   'request.join': joinRequest,
   'request.leave': leaveRequest,
@@ -172,6 +174,7 @@ export class GroupService {
     if (this.ctx.sql.transaction(() => expireOffers(this.ctx))) ['requests', 'feed', 'notifications'].forEach((t) => changed.add(t as Topic));
     if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
     if (this.ctx.sql.transaction(() => announceMonthlyPetiscos(this.ctx))) changed.add('notifications');
+    if (this.ctx.sql.transaction(() => warnStuckRequests(this.ctx))) changed.add('notifications');
     return [...changed];
   }
 

@@ -22,6 +22,7 @@ Um termo, um sentido. Estes nomes valem para os textos da interface e para as do
 - **Jellyseerr:** gerenciador de pedidos que roda na casa do Cesar e repassa ao Sonarr e ao Radarr. (`spec/jellyseerr.md`)
 - **Mídia:** filme ou série, identificada pelo ID do TMDB (exceto no pedido manual). (`spec/pedidos.md`)
 - **Mídia conhecida:** mídia que o Paçocast avisou estar disponível no servidor. (`spec/pedidos.md`, `spec/jellyseerr.md`)
+- **Mídia travada:** pedido há mais de 3 dias em Farejando ou mais de 5 em Parcialmente disponível; avisa os atendentes. (`spec/notificacoes.md`)
 - **Modo férias:** aviso "A Paçoca está dormindo" que o atendente liga quando está ausente. (`spec/atendente.md`)
 - **Nota de atendimento:** texto opcional do atendente ao marcar Cãopleto. (`spec/atendente.md`)
 - **Paçoca:** a cachorrinha do Cesar, mascote e voz do app. (`spec/identidade.md`)

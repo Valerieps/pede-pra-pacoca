@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { InboxItemView } from '../../application/api-contract';
 import type { NotificationType } from '../../domain/notification/types';
+import { MAX_SNOOZE_DAYS, SNOOZE_DAYS } from '../../domain/request/stuck';
 import { strings } from '../../domain/strings';
+import { addDays, localDateKey } from '../../domain/time';
 import { EmptyState } from '../components/EmptyState';
 import { Icon } from '../components/Icon';
 import { SkeletonCards } from '../components/Skeleton';
@@ -30,8 +32,38 @@ const GLYPHS: Record<NotificationType, string> = {
   inheritance_offer: '🎁',
   problem_reported: '🔧',
   problem_resolved: '✨',
+  request_stuck: '🧱',
   daily_digest: '📰',
 };
+
+/** Mídia travada: snooze to 3, 7 or 14 days from today, or to a day the attendant picks. */
+function SnoozeChoices({ onSnooze }: { onSnooze: (day: string) => void }) {
+  const [picking, setPicking] = useState(false);
+  const now = new Date();
+  return (
+    <div className="inbox-snooze" role="group" aria-label={t.snooze.label}>
+      <span className="muted">{t.snooze.label}</span>
+      {SNOOZE_DAYS.map((n) => (
+        <button key={n} type="button" className="chip" onClick={() => onSnooze(localDateKey(addDays(now, n)))}>
+          {t.snooze.days(n)}
+        </button>
+      ))}
+      {picking ? (
+        <input
+          type="date"
+          aria-label={t.snooze.pickLabel}
+          min={localDateKey(addDays(now, 1))}
+          max={localDateKey(addDays(now, MAX_SNOOZE_DAYS))}
+          onChange={(e) => e.target.value && onSnooze(e.target.value)}
+        />
+      ) : (
+        <button type="button" className="chip" onClick={() => setPicking(true)}>
+          {t.snooze.pick}
+        </button>
+      )}
+    </div>
+  );
+}
 
 // The inbox shows only unread notices (docs/spec/notificacoes.md): a seen one leaves at once,
 // without waiting for the live connection to refetch.
@@ -40,11 +72,23 @@ export function Inbox() {
   const push = usePushDevice();
   const inbox = useQuery('notifications.inbox', {}, ['notifications']);
   const [seen, setSeen] = useState<ReadonlySet<string>>(new Set());
+  const [failed, setFailed] = useState(false);
   const items = inbox.data?.items.filter((item) => !seen.has(item.id));
 
   async function markRead(ids?: string[]) {
     setSeen((before) => new Set([...before, ...(ids ?? items?.map((i) => i.id) ?? [])]));
     await backend.command('notifications.markRead', ids ? { ids } : {});
+    inbox.reload();
+  }
+
+  async function snooze(item: InboxItemView, until: string) {
+    setFailed(false);
+    setSeen((before) => new Set([...before, item.id]));
+    const result = await backend.command('notifications.snoozeStuck', { id: item.id, until });
+    if (!result.ok) {
+      setSeen((before) => new Set([...before].filter((id) => id !== item.id)));
+      setFailed(true);
+    }
     inbox.reload();
   }
 
@@ -62,6 +106,7 @@ export function Inbox() {
       </div>
       {inbox.error && !inbox.data && <p className="notice">{strings.genericError}</p>}
       {!inbox.data && !inbox.error && <SkeletonCards poster={false} />}
+      {failed && <p className="notice">{t.snooze.failed}</p>}
       {items?.length === 0 && <EmptyState text={t.empty} />}
       {items && items.length > 0 && (
         <>
@@ -86,6 +131,7 @@ export function Inbox() {
                 <button type="button" className="icon-button inbox-dismiss" aria-label={t.dismiss} title={t.dismiss} onClick={() => void markRead([item.id])}>
                   <Icon name="check" />
                 </button>
+                {item.type === 'request_stuck' && <SnoozeChoices onSnooze={(day) => void snooze(item, day)} />}
               </li>
             ))}
           </ul>

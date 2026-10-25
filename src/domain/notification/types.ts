@@ -1,6 +1,7 @@
 // The notifications and what each one carries (docs/spec/notificacoes.md). Each feature calls the
 // server's `notify` with one of these; the data is stored as is and turned into text only when it
 // is shown (render.ts), so the Paçoca's voice can change without touching stored rows.
+import type { StuckStatus } from '../request/stuck';
 
 /** What each trigger carries. Names are already display names; ids open the right screen. */
 export interface NotificationData {
@@ -29,6 +30,8 @@ export interface NotificationData {
   problem_reported: { problemId: string; title: string; memberName: string; description: string };
   /** The attendant solved the problem I reported. */
   problem_resolved: { problemId: string; title: string };
+  /** Mídia travada: too long in Farejando or Parcialmente disponível. Attendants; snoozable. */
+  request_stuck: { requestId: string; title: string; status: StuckStatus; days: number };
   /** Built by the server from `request_new` for attendants who chose the digest. */
   daily_digest: { titles: string[] };
 }
@@ -53,12 +56,13 @@ export const CONFIGURABLE_TYPES = [
   'inheritance_offer',
   'problem_reported',
   'problem_resolved',
+  'request_stuck',
 ] as const satisfies readonly NotificationType[];
 
 export type ConfigurableType = (typeof CONFIGURABLE_TYPES)[number];
 
 /** Types only attendants receive; the preferences screen shows them to attendants only. */
-export const ATTENDANT_TYPES: readonly ConfigurableType[] = ['request_new', 'request_pending', 'webhook_failed', 'thanked', 'problem_reported'];
+export const ATTENDANT_TYPES: readonly ConfigurableType[] = ['request_new', 'request_pending', 'webhook_failed', 'thanked', 'problem_reported', 'request_stuck'];
 
 /** The switch that controls a type: the digest is the attendant's way of getting `request_new`. */
 export function switchOf(type: NotificationType): ConfigurableType {

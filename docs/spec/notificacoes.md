@@ -42,6 +42,7 @@ Nenhuma.
 | Petiscos mensais renovados | Quem tem petisco mensal | Desligado |
 | Obrigada, Paçoca | Atendente que atendeu | Imediato |
 | Falha do Jellyseerr, avisada pelo Paçocast | Atendentes | Imediato |
+| Mídia travada: mais de 3 dias em Farejando ou mais de 5 em Parcialmente disponível | Atendentes | Verificação diária, às 09:00 |
 | Oferta de herdar um pedido cancelado | Co-solicitante | Imediato |
 | Problema reportado no catálogo (`catalogo.md`) | Atendentes | Imediato |
 | Problema que eu reportei foi resolvido | Quem reportou | Imediato |
@@ -62,5 +63,15 @@ Nenhuma.
   - Eu posso desligar o silêncio. Mudar o silêncio vale também para os avisos que ainda estão
     esperando. *(1)*
 - O atendente em modo férias segue as regras de `atendente.md`. *(1)*
+- A mídia travada é verificada uma vez por dia, às 09:00. Cada mídia travada vira um aviso
+  separado, nunca um aviso só com todas. *(1)*
+  - O tempo conta desde que o pedido entrou no status atual. O aviso sai uma vez só por status:
+    a série que passa de Farejando para Parcialmente disponível pode avisar de novo depois de 5 dias
+    em Parcialmente disponível. *(1)*
+  - No próprio aviso eu escolho uma soneca: 3, 7 ou 14 dias, ou um dia no calendário (até um ano).
+    O aviso sai da caixa e, se no dia da soneca a mídia ainda estiver travada no mesmo status, a
+    verificação daquele dia avisa de novo. *(1)*
+  - A soneca vale para o pedido, não só para mim: com mais de um atendente, a soneca de um vale
+    para todos. *(1)*
 - O aviso de petiscos renovados sai uma vez por mês, no dia 1, com quantos petiscos mensais eu tenho.
   Quem não gasta petisco (atendente) ou tem 0 por mês não recebe. *(1)*
