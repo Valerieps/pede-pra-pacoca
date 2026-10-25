@@ -7,7 +7,10 @@ import {
   DEFAULT_FILTERS,
   filterCatalog,
   groupByGenre,
+  isValidProblem,
+  MAX_PROBLEM_LENGTH,
   normalizeSearch,
+  problemReasonsFor,
   sortCatalog,
   type CatalogItem,
 } from './catalog';
@@ -97,5 +100,21 @@ describe('the filter sheet', () => {
   it('lists every genre A–Z and counts the choices', () => {
     expect(catalogGenres(all)).toEqual(['Ação', 'Aventura', 'Comédia', 'Drama', 'Ficção científica']);
     expect(activeFilterCount({ ...DEFAULT_FILTERS, genres: ['Drama'], decades: ['2010'], query: 'x', type: 'tv' })).toBe(2);
+  });
+});
+
+describe('problem reasons', () => {
+  it('offers "Episódio faltando" only for series', () => {
+    expect(problemReasonsFor('movie')).not.toContain('missing_episode');
+    expect(problemReasonsFor('tv')).toContain('missing_episode');
+  });
+
+  it('needs a reason that fits; the text is optional except for "Outro"', () => {
+    expect(isValidProblem('movie', 'no_subtitles', '')).toBe(true);
+    expect(isValidProblem('movie', null, 'algo')).toBe(false);
+    expect(isValidProblem('movie', 'missing_episode', '')).toBe(false);
+    expect(isValidProblem('tv', 'other', '')).toBe(false);
+    expect(isValidProblem('tv', 'other', 'tela verde')).toBe(true);
+    expect(isValidProblem('tv', 'wont_play', 'x'.repeat(MAX_PROBLEM_LENGTH + 1))).toBe(false);
   });
 });

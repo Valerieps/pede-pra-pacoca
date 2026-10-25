@@ -213,7 +213,7 @@ function MediaProblems() {
             <span className="grow">
               <strong className="media-title">{problem.title}</strong>
               <br />
-              {problem.description}
+              {problem.reason ? c.problemText(c.reasons[problem.reason], problem.description) : problem.description}
               <br />
               <span className="muted">{c.reportedBy(problem.reporter.name, formatDate(problem.createdAt))}</span>
             </span>

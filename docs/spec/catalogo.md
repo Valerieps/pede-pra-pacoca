@@ -12,14 +12,15 @@ alguma mídia está com problema.
 
 - [ ] Como a biblioteca do Plex chega ao app: o Paçocast lê o Plex (ou o Jellyseerr) e manda a
   lista, de quanto em quanto tempo, e de onde vêm as notas (IMDb, TMDB, Rotten Tomatoes).
-- [ ] O card do catálogo abre alguma coisa (o pedido, o IMDb, o Plex)? Hoje ele não abre nada.
 
 ## O que aparece
 
 - O Catálogo mostra tudo o que está na biblioteca do Plex, e não só o que foi pedido pelo app.
   *(1)*
 - Enquanto a biblioteca não é sincronizada, o Catálogo mostra as mídias que o app trouxe: os
-  pedidos do TMDB em Cãopleto ou Parcialmente disponível, sem as notas. *(1)*
+  pedidos do TMDB em Cãopleto ou Parcialmente disponível, com as notas que a página da mídia
+  busca (IMDb, TMDB e Rotten Tomatoes). Uma mídia sem nota guardada, ou com nota de mais de 30
+  dias, busca de novo quando abro o Catálogo. *(1)*
   Por quê: a tela já serve para alguma coisa antes da sincronização.
 - Catálogo vazio mostra a Paçoca dizendo que já já traz a biblioteca toda. *(1)*
 
@@ -46,12 +47,19 @@ alguma mídia está com problema.
   desconhecida não aparece. *(1)*
 - Na grade ficam só os cartazes, três por linha no celular, com a nota do IMDb no canto. Tocar no
   cartaz abre o card da lista. *(1)*
+- Tocar no card abre a página da mídia, igual no feed: o pedido Cãopleto ou Parcialmente disponível
+  mais recente dela. O caminho de volta no topo dessa página leva ao Catálogo. Mídia que nenhum
+  pedido trouxe não abre nada. *(1)*
 
 ## Reportar um problema
 
 - No canto superior direito do card fica um triângulo com exclamação para reportar um problema com
   a mídia (sem legenda, áudio ruim, não abre). Qualquer pessoa do grupo pode reportar. *(1)*
-- Eu escrevo o que está acontecendo, em até 300 caracteres. *(1)*
+- A folha pergunta "O que tem de errado com <mídia>?" e eu escolho um motivo: Não abre / não toca,
+  Sem legenda, Áudio errado, Qualidade ruim, Episódio faltando (só em séries) ou Outro. *(1)*
+- Embaixo eu conto mais, em até 300 caracteres. É opcional, menos em Outro. O botão é "Avisar o
+  Cesar". *(1)*
+- O atendente vê o motivo e o que escrevi. *(1)*
 - Eu tenho no máximo um problema aberto por mídia. Com um aberto, o triângulo fica cinza e avisa
   que a Paçoca já está cuidando. Outra pessoa pode reportar a mesma mídia. *(1)*
 - O aviso vai só para os atendentes (`notificacoes.md`). *(1)*

@@ -140,6 +140,15 @@
   font-weight: 600;
 }
 
+.tab[aria-current='page']:not(.tab-ask) {
+  background: var(--color-brand-soft);
+  border-radius: var(--radius);
+}
+
+.tab-ask[aria-current='page'] .icon {
+  outline: 3px solid var(--color-brand-soft);
+}
+
 /* Pedir: the raised, filled button in the center of the bar */
 .tab-ask {
   color: var(--color-brand);

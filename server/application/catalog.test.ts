@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { CatalogItemView, InboxView, MediaProblemView, MediaView, RequestView } from '../../src/application/api-contract';
+import type { CatalogItemView, ImdbView, InboxView, MediaProblemView, MediaView, RequestView } from '../../src/application/api-contract';
 import { fixedClock, memorySql, sequentialIds } from '../testing/node-sql';
 import { GroupService } from './group-service';
 import type { Sql } from './ports';
@@ -67,8 +67,8 @@ beforeEach(() => {
 });
 
 describe('the catalog', () => {
-  it('lists the titles the app brought in until the library sync arrives, without scores', () => {
-    fulfilled(dune);
+  it('lists the titles the app brought in until the library sync arrives, without scores, opening the request', () => {
+    const request = fulfilled(dune);
     service.command('s-ana', 'request.create', { origin: 'tmdb', type: 'tv', tmdbId: got.tmdbId }, { media: got });
     expect(catalog('s-bia')).toEqual([
       {
@@ -82,9 +82,22 @@ describe('the catalog', () => {
         imdbRating: null,
         tmdbRating: null,
         criticsScore: null,
+        requestId: request.id,
+        scoresKnown: false,
         reportedByMe: false,
       },
     ]);
+  });
+
+  it('keeps the scores the media page looked up, and looks them up again after 30 days', () => {
+    fulfilled(dune);
+    const imdb: ImdbView = { imdbId: 'tt15239678', rating: 8.5, criticsScore: 92, audienceScore: 95, tmdbRating: 8.2, runtime: 166, episodes: null, genres: [] };
+    expect(service.query('s-bia', 'media.imdb', { type: 'movie', tmdbId: dune.tmdbId }, { imdb })).toEqual({ ok: true, value: imdb });
+    expect(catalog('s-bia')[0]).toMatchObject({ imdbRating: 8.5, tmdbRating: 8.2, criticsScore: 92, scoresKnown: true });
+
+    const later = new GroupService(sql, fixedClock('2026-11-25T15:00:00Z'), sequentialIds());
+    const [item] = (later.query('s-bia', 'catalog', {}) as { value: CatalogItemView[] }).value;
+    expect(item).toMatchObject({ imdbRating: 8.5, scoresKnown: false });
   });
 
   it('prefers the synced row, with its scores, over the request', () => {
@@ -99,8 +112,16 @@ describe('the catalog', () => {
     );
     const items = catalog('s-bia');
     expect(items).toHaveLength(2);
-    expect(items.find((i) => i.tmdbId === dune.tmdbId)).toMatchObject({ title: 'Duna: Parte 2', genres: ['Aventura'], imdbRating: 8.5, tmdbRating: 8.2, criticsScore: 92 });
-    expect(items.find((i) => i.tmdbId === 1)).toMatchObject({ type: 'tv', seasons: 3 });
+    expect(items.find((i) => i.tmdbId === dune.tmdbId)).toMatchObject({
+      title: 'Duna: Parte 2',
+      genres: ['Aventura'],
+      imdbRating: 8.5,
+      tmdbRating: 8.2,
+      criticsScore: 92,
+      requestId: expect.any(String),
+      scoresKnown: true,
+    });
+    expect(items.find((i) => i.tmdbId === 1)).toMatchObject({ type: 'tv', seasons: 3, requestId: null });
   });
 });
 
@@ -108,20 +129,28 @@ describe('reporting a problem', () => {
   beforeEach(() => fulfilled(dune));
 
   const report = (session: string, extra: object = {}) =>
-    service.command(session, 'problem.report', { type: 'movie', tmdbId: dune.tmdbId, description: '  Sem legenda  ', ...extra });
+    service.command(session, 'problem.report', { type: 'movie', tmdbId: dune.tmdbId, reason: 'no_subtitles', description: '  some no meio  ', ...extra });
 
   it('any member reports; only the attendants hear of it and see it in Gerenciar pedidos', () => {
     expect(report('s-bia')).toMatchObject({ ok: true, changed: ['problems', 'notifications'] });
     expect(inboxTypes('s-cesar')).toContain('problem_reported');
     expect(inboxTypes('s-ana')).not.toContain('problem_reported');
-    expect(problems('s-cesar')).toMatchObject([{ title: dune.title, description: 'Sem legenda', reporter: { name: 'bia' } }]);
+    expect(problems('s-cesar')).toMatchObject([{ title: dune.title, reason: 'no_subtitles', description: 'some no meio', reporter: { name: 'bia' } }]);
     expect(catalog('s-bia')[0].reportedByMe).toBe(true);
     expect(catalog('s-ana')[0].reportedByMe).toBe(false);
     expect(service.query('s-bia', 'problems', {})).toEqual({ ok: false, error: 'forbidden' });
   });
 
-  it('refuses an empty or long text, a title not in the catalog and a second open report', () => {
-    expect(report('s-bia', { description: '   ' })).toEqual({ ok: false, error: 'invalid' });
+  it('takes a reason without text, except "Outro"', () => {
+    expect(report('s-bia', { reason: 'wont_play', description: '' })).toMatchObject({ ok: true });
+    expect(problems('s-cesar')).toMatchObject([{ reason: 'wont_play', description: '' }]);
+    expect(report('s-ana', { reason: 'other', description: '  ' })).toEqual({ ok: false, error: 'invalid' });
+    expect(report('s-ana', { reason: 'other', description: 'tela verde' })).toMatchObject({ ok: true });
+  });
+
+  it('refuses a missing or unfitting reason, a long text, a title not in the catalog and a second open report', () => {
+    expect(report('s-bia', { reason: undefined })).toEqual({ ok: false, error: 'invalid' });
+    expect(report('s-bia', { reason: 'missing_episode' })).toEqual({ ok: false, error: 'invalid' });
     expect(report('s-bia', { description: 'x'.repeat(301) })).toEqual({ ok: false, error: 'invalid' });
     expect(report('s-bia', { tmdbId: 42 })).toEqual({ ok: false, error: 'not_found' });
     report('s-bia');
