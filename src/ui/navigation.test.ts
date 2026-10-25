@@ -54,7 +54,7 @@ describe('activeTab', () => {
 
   it('marks the tab a request was opened from', () => {
     expect(activeTab('/pedido/abc', tabs, '/')).toBe('/');
-    expect(activeTab('/pedido/abc', tabs, '/numeros')).toBe('/numeros');
+    expect(activeTab('/pedido/abc', tabs, '/catalogo')).toBe('/catalogo');
     expect(activeTab('/pedido/abc', tabs, '/pedir')).toBe('/meus-pedidos');
     expect(activeTab('/pedido/abc', tabs, '/avisos')).toBe('/meus-pedidos');
   });
