@@ -11,7 +11,7 @@ const admin = { roles: ['admin'] } as const;
 describe('tabsFor', () => {
   it('gives everyone the same tabs, with Pedir in the center', () => {
     const tabs = tabsFor();
-    expect(tabs.map((t) => t.path)).toEqual(['/', '/numeros', '/pedir', '/meus-pedidos', '/perfil']);
+    expect(tabs.map((t) => t.path)).toEqual(['/', '/catalogo', '/pedir', '/meus-pedidos', '/perfil']);
     expect(tabs[2].icon).toBe('ask');
   });
 
@@ -42,7 +42,9 @@ describe('activeTab', () => {
   const tabs = tabsFor();
 
   it('marks the tab of its own screen', () => {
-    expect(activeTab('/numeros', tabs)).toBe('/numeros');
+    expect(activeTab('/catalogo', tabs)).toBe('/catalogo');
+    // Números moved to the header: no tab lights up there.
+    expect(activeTab('/numeros', tabs)).toBeNull();
   });
 
   it('marks Pedidos on a request, Perfil on Petiscos', () => {

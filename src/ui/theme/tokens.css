@@ -159,6 +159,13 @@
   /* On a computer: a phone-sized card over the dimmed page */
   --celebration-card-width: 390px;
   --color-backdrop: rgb(36 18 26 / 0.5);
+
+  /* Sheets (filters, the catalog card, reporting a problem): from the bottom on a phone */
+  --sheet-max-width: 480px;
+  --sheet-max-height: 85dvh;
+  /* The catalog grid: posters per row on a phone, then from 600px */
+  --catalog-grid-columns: 3;
+  --catalog-grid-columns-wide: 4;
   --celebration-hop-height: 16px;
   --celebration-duration: 700ms;
   --celebration-hops: 3;

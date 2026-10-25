@@ -13,6 +13,7 @@ import { activeTab, inProgress, isInboxPath, isManagePath, manageLinksFor, tabsF
 import { Link, navigate, usePath } from './router';
 import { usePushDevice } from './push-context';
 import { Ask } from './screens/Ask';
+import { Catalog } from './screens/Catalog';
 import { Feed } from './screens/Feed';
 import { GroupStats } from './screens/GroupStats';
 import { Inbox } from './screens/Inbox';
@@ -89,6 +90,7 @@ export function App() {
     <div className="shell">
       <header className="topbar">
         <strong className="grow">{strings.appName}</strong>
+        <StatsLink />
         <InboxLink />
         <ManageLink me={me.data} />
       </header>
@@ -133,6 +135,7 @@ function Navigation({ me }: { me: MeView }) {
           </span>
         </Link>
       ))}
+      <StatsLink sidebar />
       <InboxLink sidebar />
       <ManageLink me={me} sidebar />
       <Link to={ASK_PATH} className="button sidebar-ask">
@@ -209,6 +212,7 @@ function Screen({ me, onSignOut }: { me: MeView; onSignOut: () => void }) {
   if (path === '/meus-pedidos') return <MyRequests meId={me.id} />;
   const request = /^\/pedido\/([\w-]+)$/.exec(path);
   if (request) return <RequestDetail key={request[1]} id={request[1]} />;
+  if (path === '/catalogo') return <Catalog />;
   if (path === '/numeros') return <GroupStats />;
   if (path === '/perfil') return <Profile key={me.id} me={me} onSignOut={onSignOut} />;
   if (path === '/petiscos') return <Petiscos />;
@@ -243,6 +247,27 @@ function OfflineNotice() {
     <p className="notice" role="status">
       {strings.status.offline}
     </p>
+  );
+}
+
+/** Números do Grupo: a chart in the header, a named link in the computer's sidebar. */
+function StatsLink({ sidebar = false }: { sidebar?: boolean }) {
+  const label = strings.nav.statsLong;
+  return (
+    <Link
+      to="/numeros"
+      className={sidebar ? 'tab sidebar-stats' : 'bell'}
+      aria-label={label}
+      title={label}
+      aria-current={usePath() === '/numeros' ? 'page' : undefined}
+    >
+      <Icon name="stats" />
+      {sidebar && (
+        <span className="tab-long-label" aria-hidden="true">
+          {label}
+        </span>
+      )}
+    </Link>
   );
 }
 

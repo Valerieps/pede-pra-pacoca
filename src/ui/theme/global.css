@@ -1184,3 +1184,207 @@ legend.muted {
     animation: none;
   }
 }
+
+/* The Catálogo (docs/spec/catalogo.md): search, the type chips, Filtros and the order, then the
+   count and the list/grid switch */
+.catalog-search {
+  position: relative;
+  display: block;
+  margin-bottom: var(--space-3);
+}
+
+.catalog-search .icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.catalog-search input {
+  padding-left: calc(var(--space-3) * 2 + var(--icon-size));
+  border-radius: var(--radius-pill);
+}
+
+.catalog-chips {
+  margin-bottom: var(--space-2);
+}
+
+.catalog-chips .icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+.catalog-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.segmented button {
+  display: inline-grid;
+  place-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+}
+
+/* A catalog card: the poster and the title as on the feed, the triangle in the upper right */
+.catalog-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--feed-poster-width) minmax(0, 1fr);
+  align-items: start;
+  justify-content: stretch;
+  padding-right: calc(var(--touch-size) + var(--space-1));
+  background: var(--color-bg);
+}
+
+.catalog-card .poster {
+  width: var(--feed-poster-width);
+}
+
+.catalog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+button.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--touch-size);
+  height: var(--touch-size);
+  padding: 0;
+  background: none;
+  color: var(--color-text-muted);
+}
+
+/* A problem is a warning: the error color, never the brand */
+button.catalog-report {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--color-danger);
+}
+
+button.catalog-report.reported {
+  color: var(--color-text-muted);
+}
+
+.catalog-group-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--catalog-grid-columns), minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 600px) {
+  .catalog-grid {
+    grid-template-columns: repeat(var(--catalog-grid-columns-wide), minmax(0, 1fr));
+  }
+}
+
+button.catalog-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border-radius: var(--radius);
+}
+
+.catalog-tile .poster {
+  width: 100%;
+}
+
+.catalog-tile-score {
+  position: absolute;
+  left: var(--space-1);
+  bottom: var(--space-1);
+}
+
+/* A sheet: the native modal dialog, from the bottom on a phone, centered from 600px */
+.sheet {
+  width: 100%;
+  max-width: var(--sheet-max-width);
+  max-height: var(--sheet-max-height);
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.sheet::backdrop {
+  background: var(--color-backdrop);
+}
+
+@media (min-width: 600px) {
+  .sheet {
+    margin: auto;
+    border-radius: var(--radius-card);
+  }
+}
+
+.sheet-body {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sheet h2 {
+  margin: 0;
+}
+
+.sheet fieldset {
+  gap: var(--space-2);
+}
+
+.sheet .chips {
+  margin-bottom: 0;
+}
+
+.sheet .primary-action {
+  margin-top: 0;
+}
+
+/* Gerenciar pedidos: the open problems with titles in the Catálogo */
+.problem-item {
+  justify-content: flex-start;
+  align-items: flex-start;
+}

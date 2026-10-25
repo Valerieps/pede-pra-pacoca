@@ -190,6 +190,39 @@ export const MIGRATIONS: readonly (readonly string[])[] = [
     `DELETE FROM feedback WHERE thanked_at IS NULL`,
     `UPDATE feedback SET watched_at = NULL, rating = NULL`,
   ],
+  // 6: the Catálogo (docs/spec/catalogo.md). The library sync fills catalog_items (ADR-018);
+  // members report problems with its titles to the attendants.
+  [
+    `CREATE TABLE catalog_items (
+      media_key TEXT PRIMARY KEY,
+      media_type TEXT NOT NULL,
+      tmdb_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      year INTEGER,
+      poster_path TEXT,
+      genres TEXT NOT NULL DEFAULT '[]',
+      seasons INTEGER,
+      imdb_rating REAL,
+      tmdb_rating REAL,
+      critics_score INTEGER,
+      synced_at TEXT NOT NULL
+    )`,
+    `CREATE TABLE media_problems (
+      id TEXT PRIMARY KEY,
+      media_key TEXT NOT NULL,
+      media_type TEXT NOT NULL,
+      tmdb_id INTEGER NOT NULL,
+      title TEXT NOT NULL,
+      poster_path TEXT,
+      member_id TEXT NOT NULL REFERENCES members(id),
+      description TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      resolved_at TEXT,
+      resolved_by TEXT REFERENCES members(id)
+    )`,
+    `CREATE INDEX media_problems_open ON media_problems(resolved_at, created_at)`,
+    `CREATE INDEX media_problems_member ON media_problems(member_id, media_key)`,
+  ],
 ];
 
 export function migrate(sql: Sql): void {

@@ -5,7 +5,7 @@ import { canAttend, canManageGroup, type MemberRoles } from '../domain/group/rol
 import { isActive } from '../domain/request/lifecycle';
 import { strings } from '../domain/strings';
 
-export type TabIcon = 'feed' | 'queues' | 'stats' | 'ask' | 'requests' | 'profile';
+export type TabIcon = 'feed' | 'queues' | 'catalog' | 'ask' | 'requests' | 'profile';
 
 export interface Tab {
   readonly path: string;
@@ -28,7 +28,7 @@ export function tabsFor(): Tab[] {
   const n = strings.nav;
   return [
     tab('/', 'feed', n.feed),
-    tab('/numeros', 'stats', n.stats, n.statsLong),
+    tab('/catalogo', 'catalog', n.catalog),
     tab('/pedir', 'ask', n.ask),
     tab('/meus-pedidos', 'requests', n.myRequestsShort, n.myRequests),
     tab('/perfil', 'profile', n.profile),

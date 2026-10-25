@@ -1,6 +1,7 @@
 // The single entry to the group's data. The Durable Object calls it; every method is synchronous,
 // so a command runs alone and inside one transaction (ADR-006).
 import type { ApiResult, CommandName, Commands, PacocastReportResult, PacocastWork, QueryName, Queries, Topic } from '../../src/application/api-contract';
+import { listCatalog, listProblems, reportProblem, resolveProblem } from './catalog';
 import { failure, QueryError, type CommandResult, type Context } from './context';
 import { createInvite, listInvites, revokeInvite } from './invites';
 import { exportGroup } from './export';
@@ -75,6 +76,8 @@ const QUERIES: { [N in QueryName]: Handler<Queries[N]['output'] | QueryError | n
   'request.detail': requestDetail,
   'stats.numbers': (ctx, _actor, input) => groupNumbers(ctx, input),
   queues: (ctx, actor) => queues(ctx, actor),
+  catalog: (ctx, actor) => listCatalog(ctx, actor),
+  problems: (ctx, actor) => listProblems(ctx, actor),
 };
 
 const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output']>> } = {
@@ -102,6 +105,8 @@ const COMMANDS: { [N in CommandName]: Handler<CommandResult<Commands[N]['output'
   'petiscos.giveCashback': giveCashback,
   'vacation.set': setVacation,
   'feed.toggleLike': toggleLike,
+  'problem.report': reportProblem,
+  'problem.resolve': resolveProblem,
 };
 
 export class GroupService {

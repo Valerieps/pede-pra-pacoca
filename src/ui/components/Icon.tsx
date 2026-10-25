@@ -1,12 +1,18 @@
 // Line icons for the navigation, drawn inline: the app adds no icon dependency (docs/SEGURANCA.md).
 import type { TabIcon } from '../navigation';
 
-export type IconName = TabIcon | 'bell' | 'gear';
+export type IconName = TabIcon | 'bell' | 'gear' | 'stats' | 'alert' | 'list' | 'grid' | 'search' | 'filters';
 
 const PATHS: Record<IconName, string> = {
   feed: 'M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z',
   queues: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
   stats: 'M5 20V12M12 20V5M19 20v-9',
+  catalog: 'M4 5h16v14H4zM8 5v14M16 5v14M4 9.5h4M4 14.5h4M16 9.5h4M16 14.5h4',
+  alert: 'M12 4 2.5 20h19zM12 10v4.5M12 17.5h.01',
+  list: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+  filters: 'M4 7h10M18 7h2M4 17h4M12 17h8M16 5v4M10 15v4',
   ask: 'M12 5v14M5 12h14',
   requests: 'M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 6v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-6zM14 5v14',
   profile: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20a7.5 7.5 0 0 1 15 0',
