@@ -936,6 +936,24 @@ legend.muted {
   font-weight: 600;
 }
 
+.inbox-seen-heading {
+  margin: var(--space-6) 0 var(--space-3);
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.inbox-item-seen {
+  border-left-color: var(--color-border);
+}
+
+.inbox-item-seen .inbox-open {
+  padding-right: var(--space-3);
+}
+
+.inbox-ago {
+  font-size: var(--font-size-small);
+}
+
 .inbox-dismiss:hover {
   color: var(--color-success);
 }

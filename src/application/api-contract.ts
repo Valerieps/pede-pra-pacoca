@@ -140,11 +140,16 @@ export interface InboxItemView {
   readonly url: string;
   readonly read: boolean;
   readonly at: string;
+  /** Mídia travada: the local day ("YYYY-MM-DD") the snooze tells again, while it still can. */
+  readonly snoozedUntil?: string;
 }
 
 export interface InboxView {
+  /** What I have not seen yet. */
   readonly items: readonly InboxItemView[];
   readonly unread: number;
+  /** "Vistos": what I already saw, among my latest notices, newest first. */
+  readonly seen: readonly InboxItemView[];
 }
 
 export interface NotificationSettingsView {

@@ -15,9 +15,13 @@ Nenhuma.
 - Toda notificação é um push e aparece também numa caixa de entrada dentro do app. *(1)*
 - A caixa de entrada guarda meus últimos 100 avisos. Tocar num aviso abre a tela dele e marca como
   lido; eu também posso marcar um como visto sem abrir, ou todos de uma vez. *(1)*
-- A caixa mostra só os avisos que eu ainda não vi: o aviso visto sai da lista na hora. Cada aviso
-  mostra o título e o texto, sem data nem hora. Se alguém curte de novo algo que eu já tinha visto,
-  o aviso das curtidas volta. *(1)*
+- A caixa mostra primeiro os avisos que eu ainda não vi: o aviso visto sai dessa lista na hora. Cada
+  um mostra o título e o texto, sem data nem hora. Se alguém curte de novo algo que eu já tinha
+  visto, o aviso das curtidas volta. *(1)*
+- Abaixo deles fica "Vistos": os avisos que eu já vi, entre os meus últimos 100, do mais novo para o
+  mais antigo, cada um com uma data curta ("hoje", "ontem", "há 3 dias"). Tocar num visto abre a
+  tela dele. *(1)*
+  - Por quê: quero achar um aviso que dispensei, principalmente os que adiei com a soneca.
 - Cada tipo pode ser desligado por mim. Desligado, o aviso não chega de jeito nenhum: nem push, nem
   caixa de entrada. *(1)*
 - Os textos seguem a voz da Paçoca. *(1)*
@@ -73,5 +77,7 @@ Nenhuma.
     verificação daquele dia avisa de novo. *(1)*
   - A soneca vale para o pedido, não só para mim: com mais de um atendente, a soneca de um vale
     para todos. *(1)*
+  - O aviso adiado, em "Vistos", diz o dia em que volta, se a mídia ainda estiver travada no mesmo
+    status. Ali eu posso cancelar a soneca: a verificação do dia seguinte avisa de novo. *(1)*
 - O aviso de petiscos renovados sai uma vez por mês, no dia 1, com quantos petiscos mensais eu tenho.
   Quem não gasta petisco (atendente) ou tem 0 por mês não recebe. *(1)*

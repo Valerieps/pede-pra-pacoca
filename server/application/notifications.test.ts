@@ -223,6 +223,17 @@ describe('inbox', () => {
     expect(inboxOf('ana').items).toHaveLength(INBOX_LIMIT);
   });
 
+  it('keeps what I saw under Vistos, newest first, within the same latest notices', () => {
+    notify(ctx, approved('ana'));
+    clock.set('2026-10-21T16:00:00Z');
+    notify(ctx, { ...approved('ana'), data: { requestId: 'r2', title: 'Alien' } });
+    service.command('s-ana', 'notifications.markRead', {});
+    expect(inboxOf('ana').seen.map((i) => i.body)).toEqual([expect.stringContaining('Alien'), expect.stringContaining('Duna')]);
+
+    for (let i = 0; i < INBOX_LIMIT; i++) notify(ctx, approved('ana'));
+    expect(inboxOf('ana').seen).toHaveLength(0);
+  });
+
   it('marks some or all as read, mine only', () => {
     notify(ctx, approved('ana'));
     notify(ctx, approved('ana'));
@@ -233,7 +244,8 @@ describe('inbox', () => {
     expect(inboxOf('ana')).toMatchObject({ unread: 1, items: [{ read: false }] });
     expect(inboxOf('bia').unread).toBe(1);
     service.command('s-ana', 'notifications.markRead', {});
-    expect(inboxOf('ana')).toEqual({ unread: 0, items: [] });
+    expect(inboxOf('ana')).toMatchObject({ unread: 0, items: [] });
+    expect(inboxOf('ana').seen.map((i) => i.read)).toEqual([true, true]);
     expect(service.command('s-ana', 'notifications.markRead', { ids: 'all' })).toEqual({ ok: false, error: 'invalid' });
   });
 });
