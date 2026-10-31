@@ -12,6 +12,7 @@ import { applyPrefs, parsePrefs, type NotificationPrefs } from '../../src/domain
 import { mergeData, renderNotification } from '../../src/domain/notification/render';
 import { digestTime, inQuietHours, likePushTime, pushTime } from '../../src/domain/notification/schedule';
 import { switchOf, type NotificationData, type NotificationType } from '../../src/domain/notification/types';
+import { localDateKey } from '../../src/domain/time';
 import { failure, nowIso, type CommandResult, type Context } from './context';
 import type { Member } from './members';
 
@@ -220,20 +221,42 @@ export function pruneOutbox(ctx: Context): void {
 
 // --- Queries and commands ---
 
-/** Only what is still unread: a notice leaves the inbox once seen (the row stays, so likes can revive it). */
+/**
+ * Unread notices first; a seen one moves to `seen` (the row stays, so likes can revive it). A seen
+ * Mídia travada notice says the day its snooze tells again.
+ */
 export function inbox(ctx: Context, actor: Member): InboxView {
   const rows = ctx.sql.all<{ id: string; type: NotificationType; data: string; read: number; at: string }>(
-    'SELECT id, type, data, read, at FROM inbox WHERE member_id = ? AND read = 0 ORDER BY at DESC, rowid DESC',
+    'SELECT id, type, data, read, at FROM inbox WHERE member_id = ? ORDER BY at DESC, rowid DESC',
     actor.id,
   );
-  const items: InboxItemView[] = rows.map((row) => ({
-    id: row.id,
-    type: row.type,
-    ...renderNotification(row.type, JSON.parse(row.data) as never),
-    read: row.read === 1,
-    at: row.at,
-  }));
-  return { items, unread: items.filter((i) => !i.read).length };
+  const today = localDateKey(ctx.clock.now());
+  const all: InboxItemView[] = rows.map((row) => {
+    const data = JSON.parse(row.data) as never;
+    const snoozedUntil = row.type === 'request_stuck' ? activeSnooze(ctx, data, today) : null;
+    return {
+      id: row.id,
+      type: row.type,
+      ...renderNotification(row.type, data),
+      read: row.read === 1,
+      at: row.at,
+      ...(snoozedUntil && { snoozedUntil }),
+    };
+  });
+  const items = all.filter((i) => !i.read);
+  return { items, unread: items.length, seen: all.filter((i) => i.read) };
+}
+
+/** The snooze still ahead for a stuck request, if it is still in the status the notice told about. */
+function activeSnooze(ctx: Context, data: NotificationData['request_stuck'], today: string): string | null {
+  const [row] = ctx.sql.all<{ snoozed_until: string }>(
+    `SELECT n.snoozed_until FROM stuck_notices n JOIN requests r ON r.id = n.request_id AND r.status = n.status
+     WHERE n.request_id = ? AND n.status = ? AND n.snoozed_until > ? ORDER BY n.since DESC LIMIT 1`,
+    data.requestId,
+    data.status,
+    today,
+  );
+  return row?.snoozed_until ?? null;
 }
 
 export function markRead(ctx: Context, actor: Member, input: { ids?: unknown }): CommandResult<null> {

@@ -24,8 +24,8 @@ function create(session: string, media: MediaView): RequestView {
 }
 
 const report = (...reports: PacocastReport[]) => service.pacocastReport({ reports });
-const stuck = (session: string): InboxItemView[] =>
-  (service.query(session, 'notifications.inbox', {}) as { value: InboxView }).value.items.filter((i) => i.type === 'request_stuck');
+const inboxOf = (session: string): InboxView => (service.query(session, 'notifications.inbox', {}) as { value: InboxView }).value;
+const stuck = (session: string): InboxItemView[] => inboxOf(session).items.filter((i) => i.type === 'request_stuck');
 
 /** Local (America/Sao_Paulo, UTC-3) wall-clock time to an instant. */
 const at = (day: string, time = '09:00') => clock.set(new Date(`${day}T${time}:00-03:00`).toISOString());
@@ -125,6 +125,26 @@ describe('the snooze', () => {
     at('2026-10-08');
     service.tick();
     expect(stuck('s-cesar').map((i) => i.body)).toEqual(['A Paçoca fareja Duna há 6 dias e nada. Dá uma olhada no Jellyseerr?']);
+  });
+
+  it('shows, in Vistos, the day it tells again, while the media is still stuck there', () => {
+    const item = stuckNotice();
+    const requestId = item.url.slice(item.url.lastIndexOf('/') + 1);
+    service.command('s-cesar', 'notifications.snoozeStuck', { id: item.id, until: '2026-10-08' });
+    const seen = () => inboxOf('s-cesar').seen.filter((i) => i.type === 'request_stuck');
+    expect(seen()).toMatchObject([{ id: item.id, read: true, snoozedUntil: '2026-10-08' }]);
+
+    report({ requestId, state: 'available' });
+    expect(seen()[0].snoozedUntil).toBeUndefined();
+  });
+
+  it('can be cancelled by snoozing to tomorrow: the next check tells again', () => {
+    const item = stuckNotice();
+    service.command('s-cesar', 'notifications.snoozeStuck', { id: item.id, until: '2026-10-20' });
+    expect(service.command('s-cesar', 'notifications.snoozeStuck', { id: item.id, until: '2026-10-06' })).toMatchObject({ ok: true });
+    at('2026-10-06');
+    service.tick();
+    expect(stuck('s-cesar')).toHaveLength(1);
   });
 
   it('only for attendants, on their own notice, to a day after today and within a year', () => {

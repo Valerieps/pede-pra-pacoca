@@ -67,6 +67,12 @@ export function localDateKey(instant: Date): string {
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
+/** Calendar days in the group's calendar from `then` to `now`: 0 the same day, 1 the day before. */
+export function calendarDaysBetween(then: Date, now: Date): number {
+  const utc = (key: string) => Date.UTC(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, Number(key.slice(8, 10)));
+  return Math.round((utc(localDateKey(now)) - utc(localDateKey(then))) / DAY_MS);
+}
+
 /** Whether `value` is a real calendar day written as "YYYY-MM-DD". */
 export function isDateKey(value: unknown): value is string {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;

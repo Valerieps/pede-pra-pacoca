@@ -3,11 +3,12 @@ import type { InboxItemView } from '../../application/api-contract';
 import type { NotificationType } from '../../domain/notification/types';
 import { MAX_SNOOZE_DAYS, SNOOZE_DAYS } from '../../domain/request/stuck';
 import { strings } from '../../domain/strings';
-import { addDays, localDateKey } from '../../domain/time';
+import { addDays, calendarDaysBetween, localDateKey } from '../../domain/time';
 import { EmptyState } from '../components/EmptyState';
 import { Icon } from '../components/Icon';
 import { SkeletonCards } from '../components/Skeleton';
 import { useServices } from '../backend-context';
+import { formatDateKey } from '../format';
 import { usePushDevice } from '../push-context';
 import { Link, navigate } from '../router';
 import { useQuery } from '../use-query';
@@ -65,28 +66,45 @@ function SnoozeChoices({ onSnooze }: { onSnooze: (day: string) => void }) {
   );
 }
 
-// The inbox shows only unread notices (docs/spec/notificacoes.md): a seen one leaves at once,
-// without waiting for the live connection to refetch.
+/** A snoozed Mídia travada notice in Vistos: the day it comes back, and a way to bring it tomorrow. */
+function SnoozedLine({ day, onCancel }: { day: string; onCancel: (tomorrow: string) => void }) {
+  const tomorrow = localDateKey(addDays(new Date(), 1));
+  return (
+    <div className="inbox-snooze">
+      <span className="muted">{t.snooze.returns(day > tomorrow ? formatDateKey(day) : null)}</span>
+      {day > tomorrow && (
+        <button type="button" className="chip" onClick={() => onCancel(tomorrow)}>
+          {t.snooze.cancel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// The inbox shows unread notices first (docs/spec/notificacoes.md): a seen one leaves them at once,
+// without waiting for the live connection to refetch, and shows up under Vistos on the refetch.
 export function Inbox() {
   const { backend } = useServices();
   const push = usePushDevice();
   const inbox = useQuery('notifications.inbox', {}, ['notifications']);
-  const [seen, setSeen] = useState<ReadonlySet<string>>(new Set());
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set());
   const [failed, setFailed] = useState(false);
-  const items = inbox.data?.items.filter((item) => !seen.has(item.id));
+  const items = inbox.data?.items.filter((item) => !hidden.has(item.id));
+  const seen = inbox.data?.seen;
+  const now = new Date();
 
   async function markRead(ids?: string[]) {
-    setSeen((before) => new Set([...before, ...(ids ?? items?.map((i) => i.id) ?? [])]));
+    setHidden((before) => new Set([...before, ...(ids ?? items?.map((i) => i.id) ?? [])]));
     await backend.command('notifications.markRead', ids ? { ids } : {});
     inbox.reload();
   }
 
   async function snooze(item: InboxItemView, until: string) {
     setFailed(false);
-    setSeen((before) => new Set([...before, item.id]));
+    if (!item.read) setHidden((before) => new Set([...before, item.id]));
     const result = await backend.command('notifications.snoozeStuck', { id: item.id, until });
     if (!result.ok) {
-      setSeen((before) => new Set([...before].filter((id) => id !== item.id)));
+      setHidden((before) => new Set([...before].filter((id) => id !== item.id)));
       setFailed(true);
     }
     inbox.reload();
@@ -132,6 +150,28 @@ export function Inbox() {
                   <Icon name="check" />
                 </button>
                 {item.type === 'request_stuck' && <SnoozeChoices onSnooze={(day) => void snooze(item, day)} />}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {seen && seen.length > 0 && (
+        <>
+          <h2 className="inbox-seen-heading">{t.seenHeading}</h2>
+          <ul className="list">
+            {seen.map((item) => (
+              <li key={item.id} className="inbox-item inbox-item-seen">
+                <button type="button" className="inbox-open" onClick={() => navigate(item.url)}>
+                  <span className="inbox-glyph" aria-hidden="true">
+                    {GLYPHS[item.type]}
+                  </span>
+                  <span className="inbox-text">
+                    <strong>{item.title}</strong>
+                    <span>{item.body}</span>
+                    <span className="muted inbox-ago">{t.ago(calendarDaysBetween(new Date(item.at), now))}</span>
+                  </span>
+                </button>
+                {item.snoozedUntil && <SnoozedLine day={item.snoozedUntil} onCancel={(day) => void snooze(item, day)} />}
               </li>
             ))}
           </ul>

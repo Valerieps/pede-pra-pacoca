@@ -449,7 +449,12 @@ export const strings = {
       pick: 'Escolher o dia',
       pickLabel: 'Dia para lembrar de novo',
       failed: 'A Paçoca não conseguiu guardar a soneca. Tenta de novo?',
+      returns: (day: string | null) =>
+        day ? `A Paçoca lembra de novo em ${day}, se ainda estiver travada.` : 'A Paçoca lembra de novo amanhã, se ainda estiver travada.',
+      cancel: 'Cancelar soneca',
     },
+    seenHeading: 'Vistos',
+    ago: (days: number) => (days <= 0 ? 'hoje' : days === 1 ? 'ontem' : `há ${days} dias`),
 
     permission: {
       title: 'Avisos no celular',
