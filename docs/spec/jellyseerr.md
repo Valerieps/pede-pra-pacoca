@@ -23,15 +23,21 @@ Nenhuma.
 
 - A cada 30 a 60 segundos (45 por padrão), o Paçocast pergunta ao Pede o que há na fila A enviar e
   quais pedidos estão em Farejando ou Parcialmente disponível. *(1)*
-- Para cada pedido de A enviar, ele cria o pedido no Jellyseerr com o ID do TMDB e o tipo. Série vai
-  com todas as temporadas. *(1)*
+- Para cada pedido de A enviar, ele primeiro consulta a mídia no Jellyseerr. Se o Jellyseerr já tem
+  a mídia (o Cesar pediu direto lá, ou o pedido chegou lá antes de uma queda), ele só conta ao Pede
+  o status dela, sem pedir de novo. Senão, ou se o último pedido dela lá foi recusado ou falhou, ele
+  cria o pedido no Jellyseerr com o ID do TMDB e o tipo. Série vai com todas as temporadas. *(1)*
+  - Por quê: o Cesar às vezes pede direto no Jellyseerr, e o pedido do Pede tem que acompanhar.
 - Para cada pedido que o Jellyseerr já tem, ele consulta o status da mídia no Jellyseerr. *(1)*
 - Ele conta ao Pede o que achou, e o pedido muda de status sozinho (abaixo). A mudança fica no
   histórico do pedido com o autor "Jellyseerr". *(1)*
 - O mesmo aviso repetido não muda nada de novo. Um pedido que o atendente já fechou à mão fica como
   está. *(1)*
 - Se o Jellyseerr estiver fora do ar, o Paçocast tenta de novo na rodada seguinte, sem mexer no
-  pedido. *(1)*
+  pedido. Um pedido que fica sem resposta não segura os outros da mesma rodada. *(1)*
+- Quando o Paçocast ou a máquina de casa voltam de uma queda, a primeira rodada pega tudo o que
+  esperou: os pedidos de A enviar e os que mudaram no Jellyseerr enquanto isso. O Paçocast volta
+  sozinho sempre que o Docker liga. *(1)*
 - Um pedido que espera a co-solicitante aceitar a herança (`pedidos.md`) não é enviado até alguém
   ficar com ele. *(1)*
 

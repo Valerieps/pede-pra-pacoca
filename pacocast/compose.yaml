@@ -4,7 +4,8 @@ services:
   pacocast:
     build: .
     container_name: pacocast
-    restart: unless-stopped
+    # Comes back by itself whenever Docker starts, even after a power cut or a manual stop.
+    restart: always
     env_file: .env
     # When the Jellyseerr runs in another compose project, join its network instead and use the
     # Jellyseerr's container name in JELLYSEERR_URL.
