@@ -42,7 +42,24 @@ arquivo TypeScript que o Node 24 roda direto, num contêiner Docker.
 - "configuração: o Jellyseerr recusou a chave de API": confira `JELLYSEERR_API_KEY`.
 - Erros de conexão com o Jellyseerr: confira `JELLYSEERR_URL` e a rede do passo 5.
 - Com o Paçocast desligado, nada trava: os pedidos esperam em Solicitado, e o atendente pode marcar
-  tudo à mão nas filas.
+  tudo à mão nas filas. Quando ele volta, a primeira rodada põe tudo em dia, inclusive o que o Cesar
+  pediu direto no Jellyseerr nesse meio-tempo.
+- "N pedido(s) sem resposta do Jellyseerr": o Jellyseerr não respondeu a tempo para esses pedidos;
+  os outros seguem, e esses são tentados de novo na rodada seguinte.
+
+## Depois de uma queda de energia ou de reiniciar a máquina
+
+O `compose.yaml` usa `restart: always`: o Paçocast volta sozinho sempre que o Docker liga. Para isso
+o próprio Docker precisa ligar com a máquina:
+
+- **Linux:** `sudo systemctl enable docker` (uma vez).
+- **Windows ou Mac (Docker Desktop):** Settings → General → marque "Start Docker Desktop when you
+  sign in to your computer". A máquina precisa entrar no usuário sozinha depois de ligar.
+- **Conferir:** `docker ps` mostra o `pacocast` como `Up`, e `docker compose logs --tail 20 pacocast`
+  mostra as rodadas.
+
+Se você instalou antes desta mudança, copie o `compose.yaml` e o `pacocast.ts` novos e rode
+`docker compose up -d --build` uma vez.
 
 ## Atualizar
 
