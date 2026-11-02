@@ -38,6 +38,10 @@ Nenhuma.
 - Quando o Paçocast ou a máquina de casa voltam de uma queda, a primeira rodada pega tudo o que
   esperou: os pedidos de A enviar e os que mudaram no Jellyseerr enquanto isso. O Paçocast volta
   sozinho sempre que o Docker liga. *(1)*
+- Se o Paçocast passa 1 hora sem chamar o Pede, os admins recebem um aviso, com a hora da última
+  chamada. É um aviso só por queda: ele volta a valer depois que o Paçocast chama de novo. Antes da
+  primeira chamada não há aviso. *(1)*
+  - Por quê: o Paçocast já ficou 6 dias fora sem ninguém perceber.
 - Um pedido que espera a co-solicitante aceitar a herança (`pedidos.md`) não é enviado até alguém
   ficar com ele. *(1)*
 

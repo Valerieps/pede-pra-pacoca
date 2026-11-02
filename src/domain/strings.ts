@@ -504,6 +504,7 @@ export const strings = {
         problem_reported: 'Problema reportado no catálogo',
         problem_resolved: 'Meu problema reportado foi resolvido',
         request_stuck: 'Mídia travada',
+        pacocast_offline: 'Paçocast sem dar notícia',
       },
     },
 
@@ -551,6 +552,9 @@ export const strings = {
         status === 'in_jellyseerr'
           ? `A Paçoca fareja ${title} há ${days} dias e nada. Dá uma olhada no Jellyseerr?`
           : `${title} está pela metade há ${days} dias. Dá uma olhada no Jellyseerr?`,
+      pacocastOfflineTitle: 'Paçocast sumiu',
+      /** `day` is "DD/MM", `time` "HH:MM", both local. */
+      pacocastOffline: (day: string, time: string) => `A Paçoca não ouve o Paçocast desde ${day} às ${time}. Dá uma olhada no servidor de casa?`,
       dailyDigestTitle: 'Resumo do dia',
       dailyDigest: (titles: readonly string[]) =>
         titles.length === 1 ? `1 pedido novo hoje: ${titles[0]}.` : `${titles.length} pedidos novos hoje: ${listNames(titles.slice(0, 5))}${titles.length > 5 ? ' e mais' : ''}.`,

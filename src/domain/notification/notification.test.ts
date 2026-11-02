@@ -88,6 +88,10 @@ describe('audience', () => {
     expect(recipients('webhook_failed', facts)).toEqual(['cesar', 'dani']);
   });
 
+  it('sends the Paçocast offline notice to admins, on vacation or not', () => {
+    expect(recipients('pacocast_offline', { ...facts, adminIds: ['dani', 'caio', 'gone'] })).toEqual(['dani', 'caio']);
+  });
+
   it('with every attendant away, only pending requests still reach them', () => {
     const away = { ...facts, attendants: facts.attendants.map((a) => ({ ...a, onVacation: true })) };
     expect(recipients('request_pending', away)).toEqual(['cesar', 'dani']);

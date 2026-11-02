@@ -1,6 +1,7 @@
 // Turns a stored notification into the text and the screen it opens. Used for the push payload
 // and for the inbox, so both always say the same thing.
 import { strings } from '../strings';
+import { localParts } from '../time';
 import type { NotificationData, NotificationType } from './types';
 
 export interface RenderedNotification {
@@ -12,6 +13,13 @@ export interface RenderedNotification {
 
 const t = strings.notifications.push;
 const requestUrl = (id: string) => `/pedido/${encodeURIComponent(id)}`;
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+function pacocastOffline(since: string): string {
+  const p = localParts(new Date(since));
+  return t.pacocastOffline(`${pad(p.day)}/${pad(p.month)}`, `${pad(p.hour)}:${pad(p.minute)}`);
+}
 
 type Renderers = { [T in NotificationType]: (data: NotificationData[T]) => RenderedNotification };
 
@@ -36,6 +44,7 @@ const RENDER: Renderers = {
   problem_reported: (d) => ({ title: t.problemReportedTitle, body: t.problemReported(d.memberName, d.title, d.description), url: '/filas' }),
   problem_resolved: (d) => ({ title: t.problemResolvedTitle, body: t.problemResolved(d.title), url: '/catalogo' }),
   request_stuck: (d) => ({ title: t.requestStuckTitle, body: t.requestStuck(d.title, d.status, d.days), url: requestUrl(d.requestId) }),
+  pacocast_offline: (d) => ({ title: t.pacocastOfflineTitle, body: pacocastOffline(d.since), url: '/avisos' }),
   daily_digest: (d) => ({ title: t.dailyDigestTitle, body: t.dailyDigest(d.titles), url: '/avisos' }),
 };
 

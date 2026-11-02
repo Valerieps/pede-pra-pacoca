@@ -254,7 +254,7 @@ describe('preferences', () => {
   it('shows the defaults, the push key and whether the attendant types apply', () => {
     expect(service.query('s-ana', 'notifications.settings', {})).toMatchObject({
       ok: true,
-      value: { pushPublicKey: 'public-key', attendant: false, prefs: { newRequests: 'digest', digestTime: '20:00', quietHours: { start: '23:00', end: '08:00' } } },
+      value: { pushPublicKey: 'public-key', attendant: false, admin: false, prefs: { newRequests: 'digest', digestTime: '20:00', quietHours: { start: '23:00', end: '08:00' } } },
     });
     expect(service.query('s-cesar', 'notifications.settings', {})).toMatchObject({ ok: true, value: { attendant: true } });
   });

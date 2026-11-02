@@ -6,7 +6,7 @@
 // 'notifications' to the command's `changed` topics. It writes in the command's transaction.
 import { PUSH_SERVICE_ORIGINS } from '../../network-policy';
 import type { InboxItemView, InboxView, NotificationSettingsView, PushSubscriptionInput } from '../../src/application/api-contract';
-import { canAttend, isAttendant, normalizeRoles } from '../../src/domain/group/roles';
+import { canAttend, isAdmin, isAttendant, normalizeRoles } from '../../src/domain/group/roles';
 import { recipients, type Attendant } from '../../src/domain/notification/audience';
 import { applyPrefs, parsePrefs, type NotificationPrefs } from '../../src/domain/notification/preferences';
 import { mergeData, renderNotification } from '../../src/domain/notification/render';
@@ -122,8 +122,10 @@ export function notify<T extends TriggerType>(ctx: Context, notice: Notice<T>): 
   const attendants: Attendant[] = members
     .filter((m) => isAttendant({ roles: normalizeRoles(JSON.parse(m.roles) as string[]) }))
     .map((m) => ({ id: m.id, onVacation: m.vacation === 1 }));
+  const adminIds = members.filter((m) => isAdmin({ roles: normalizeRoles(JSON.parse(m.roles) as string[]) })).map((m) => m.id);
   const ids = recipients(notice.type, {
     attendants,
+    adminIds,
     activeMemberIds: members.map((m) => m.id),
     requesterId: notice.requesterId,
     coRequesterIds: notice.coRequesterIds,
@@ -270,7 +272,7 @@ export function markRead(ctx: Context, actor: Member, input: { ids?: unknown }):
 }
 
 export function notificationSettings(ctx: Context, actor: Member, pushPublicKey: string | null): NotificationSettingsView {
-  return { prefs: prefsOf(ctx, actor.id), pushPublicKey, attendant: canAttend(actor) };
+  return { prefs: prefsOf(ctx, actor.id), pushPublicKey, attendant: canAttend(actor), admin: isAdmin(actor) };
 }
 
 export function setPrefs(ctx: Context, actor: Member, input: Record<string, unknown>): CommandResult<NotificationPrefs> {

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import type { NotificationPrefs } from '../../domain/notification/preferences';
-import { ATTENDANT_TYPES, CONFIGURABLE_TYPES } from '../../domain/notification/types';
+import { ADMIN_TYPES, ATTENDANT_TYPES, CONFIGURABLE_TYPES } from '../../domain/notification/types';
 import { strings } from '../../domain/strings';
 import { useServices } from '../backend-context';
 import { useQuery } from '../use-query';
@@ -12,15 +12,17 @@ export function NotificationPreferences() {
   const settings = useQuery('notifications.settings', {}, ['notifications']);
   if (!settings.data) return settings.error ? <p className="notice">{strings.genericError}</p> : null;
   // Keyed by the saved value, so a change from another phone resets the form.
-  return <PreferencesForm key={JSON.stringify(settings.data.prefs)} saved={settings.data.prefs} attendant={settings.data.attendant} />;
+  return <PreferencesForm key={JSON.stringify(settings.data.prefs)} saved={settings.data.prefs} attendant={settings.data.attendant} admin={settings.data.admin} />;
 }
 
-function PreferencesForm({ saved, attendant }: { saved: NotificationPrefs; attendant: boolean }) {
+function PreferencesForm({ saved, attendant, admin }: { saved: NotificationPrefs; attendant: boolean; admin: boolean }) {
   const { backend } = useServices();
   const [prefs, setPrefs] = useState(saved);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const types = CONFIGURABLE_TYPES.filter((type) => attendant || !ATTENDANT_TYPES.includes(type));
+  const types = CONFIGURABLE_TYPES.filter(
+    (type) => (attendant || !ATTENDANT_TYPES.includes(type)) && (admin || !ADMIN_TYPES.includes(type)),
+  );
   const quiet = prefs.quietHours;
 
   async function submit(event: FormEvent) {
