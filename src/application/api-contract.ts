@@ -158,6 +158,8 @@ export interface NotificationSettingsView {
   readonly pushPublicKey: string | null;
   /** Whether the attendant-only types apply to me. */
   readonly attendant: boolean;
+  /** Whether the admin-only types apply to me. */
+  readonly admin: boolean;
 }
 
 /** A browser's push subscription, keys in base64url (PushSubscription.getKey). */

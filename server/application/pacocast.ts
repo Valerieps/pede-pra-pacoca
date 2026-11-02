@@ -4,7 +4,9 @@
 import type { PacocastItem, PacocastReportResult, PacocastWork } from '../../src/application/api-contract';
 import { actionFor, isJellyseerrState, type JellyseerrState } from '../../src/domain/request/jellyseerr';
 import { transition } from '../../src/domain/request/lifecycle';
+import { readConfig, writeConfig } from './config';
 import { nowIso, type CommandResult, type Context } from './context';
+import { notify } from './notifications';
 import { applyEffects, findRequest, openOffer, setStatus, stateOf, type RequestRow } from './requests';
 
 /** The actor recorded in `request_transitions` and `petisco_movements`. */
@@ -12,6 +14,27 @@ export const JELLYSEERR_ACTOR = 'jellyseerr';
 /** At most this many requests per list and reports per call; the rest come in the next round. */
 export const PACOCAST_BATCH = 50;
 const MAX_DETAIL = 200;
+/** After this long without a call, the admins hear that the Paçocast is offline. */
+export const PACOCAST_SILENCE_MS = 60 * 60 * 1000;
+
+/** Every authenticated call counts as a sign of life. */
+function seen(ctx: Context): void {
+  writeConfig(ctx, 'pacocastLastSeen', nowIso(ctx));
+}
+
+/**
+ * Job for `tick()`: tells the admins once per silence when the Paçocast has not called for an
+ * hour. Nothing before its first call, so a group without the agent hears nothing. Returns whether
+ * anyone was told.
+ */
+export function warnPacocastOffline(ctx: Context): boolean {
+  const lastSeen = readConfig(ctx, 'pacocastLastSeen', null);
+  if (!lastSeen || readConfig(ctx, 'pacocastOfflineWarned', null) === lastSeen) return false;
+  if (ctx.clock.now().getTime() - new Date(lastSeen).getTime() < PACOCAST_SILENCE_MS) return false;
+  writeConfig(ctx, 'pacocastOfflineWarned', lastSeen);
+  notify(ctx, { type: 'pacocast_offline', data: { since: lastSeen } });
+  return true;
+}
 
 const items = (rows: readonly RequestRow[]): PacocastItem[] =>
   rows.filter((r) => r.tmdb_id !== null).map((r) => ({ id: r.id, mediaType: r.media_type, tmdbId: r.tmdb_id as number }));
@@ -21,6 +44,7 @@ const items = (rows: readonly RequestRow[]): PacocastItem[] =>
  * already has, to follow. A request being offered to its co-requesters waits, as in the queues.
  */
 export function pacocastWork(ctx: Context): PacocastWork {
+  seen(ctx);
   const toSend = ctx.sql.all<RequestRow>(
     `SELECT * FROM requests WHERE status = 'approved' AND origin = 'tmdb'
        AND id NOT IN (SELECT request_id FROM inheritance_offers WHERE state = 'pending')
@@ -75,6 +99,7 @@ function apply(ctx: Context, row: RequestRow, report: Report): boolean {
  * request closed by hand meanwhile) are skipped, so the agent may repeat itself safely.
  */
 export function pacocastReport(ctx: Context, input: { reports?: unknown }): CommandResult<PacocastReportResult> {
+  seen(ctx);
   const reports = readReports(input.reports);
   if (!reports) return { ok: false, error: 'invalid' };
   let applied = 0;

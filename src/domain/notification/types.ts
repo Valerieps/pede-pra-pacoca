@@ -32,6 +32,8 @@ export interface NotificationData {
   problem_resolved: { problemId: string; title: string };
   /** Mídia travada: too long in Farejando or Parcialmente disponível. Attendants; snoozable. */
   request_stuck: { requestId: string; title: string; status: StuckStatus; days: number };
+  /** The Paçocast has not called for an hour; `since` is its last call (ISO). Admins. */
+  pacocast_offline: { since: string };
   /** Built by the server from `request_new` for attendants who chose the digest. */
   daily_digest: { titles: string[] };
 }
@@ -57,12 +59,16 @@ export const CONFIGURABLE_TYPES = [
   'problem_reported',
   'problem_resolved',
   'request_stuck',
+  'pacocast_offline',
 ] as const satisfies readonly NotificationType[];
 
 export type ConfigurableType = (typeof CONFIGURABLE_TYPES)[number];
 
 /** Types only attendants receive; the preferences screen shows them to attendants only. */
 export const ATTENDANT_TYPES: readonly ConfigurableType[] = ['request_new', 'request_pending', 'webhook_failed', 'thanked', 'problem_reported', 'request_stuck'];
+
+/** Types only admins receive; the preferences screen shows them to admins only. */
+export const ADMIN_TYPES: readonly ConfigurableType[] = ['pacocast_offline'];
 
 /** The switch that controls a type: the digest is the attendant's way of getting `request_new`. */
 export function switchOf(type: NotificationType): ConfigurableType {

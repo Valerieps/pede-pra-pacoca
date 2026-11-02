@@ -23,7 +23,7 @@ import {
 } from './notifications';
 import { listMembers, me, memberForSession, setRoles, signIn, signOut, updateProfile, type GoogleProfile, type Member, type SignInResult } from './members';
 import { announceMonthlyPetiscos, giveBonus, giveCashback, petiscoSettings, petiscoStatement, setCashback, setMemberMonthly, setMonthly, warnExpiringPetiscos } from './petiscos';
-import { pacocastReport, pacocastWork } from './pacocast';
+import { pacocastReport, pacocastWork, warnPacocastOffline } from './pacocast';
 import { snoozeStuck, warnStuckRequests } from './stuck-requests';
 import type { Clock, IdGenerator, Sql } from './ports';
 import {
@@ -175,6 +175,7 @@ export class GroupService {
     if (this.ctx.sql.transaction(() => warnExpiringPetiscos(this.ctx))) changed.add('notifications');
     if (this.ctx.sql.transaction(() => announceMonthlyPetiscos(this.ctx))) changed.add('notifications');
     if (this.ctx.sql.transaction(() => warnStuckRequests(this.ctx))) changed.add('notifications');
+    if (this.ctx.sql.transaction(() => warnPacocastOffline(this.ctx))) changed.add('notifications');
     return [...changed];
   }
 

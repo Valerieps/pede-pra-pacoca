@@ -3,12 +3,13 @@ import type { NotificationType } from './types';
 
 /**
  * - attendants: members with the attendant role
+ * - admins: members with the admin role, on vacation or not
  * - requester: whoever made the request
  * - requesters: the requester and the co-requesters
  * - subject: the one person the notice is about (event author, petisco owner, thanked attendant,
  *   co-requester offered the inheritance, member whose monthly petiscos renewed)
  */
-export type Audience = 'attendants' | 'requester' | 'requesters' | 'subject';
+export type Audience = 'attendants' | 'admins' | 'requester' | 'requesters' | 'subject';
 
 export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   request_new: 'attendants',
@@ -30,6 +31,7 @@ export const AUDIENCE: Readonly<Record<NotificationType, Audience>> = {
   // Whoever reported the problem.
   problem_resolved: 'subject',
   request_stuck: 'attendants',
+  pacocast_offline: 'admins',
   daily_digest: 'attendants',
 };
 
@@ -41,6 +43,7 @@ export interface Attendant {
 /** The people around a notice; the server reads them from the database. */
 export interface AudienceFacts {
   readonly attendants: readonly Attendant[];
+  readonly adminIds?: readonly string[];
   readonly activeMemberIds: readonly string[];
   readonly requesterId?: string | null;
   readonly coRequesterIds?: readonly string[];
@@ -66,6 +69,9 @@ export function recipients(type: NotificationType, facts: AudienceFacts): string
   switch (AUDIENCE[type]) {
     case 'attendants':
       ids = attendantsFor(type, facts.attendants);
+      break;
+    case 'admins':
+      ids = [...(facts.adminIds ?? [])];
       break;
     case 'requester':
       ids = facts.requesterId ? [facts.requesterId] : [];

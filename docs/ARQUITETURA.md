@@ -118,7 +118,9 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
 - **Cron a cada 5 minutos:** `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
   `outbox` (respeitando silêncio e agrupamento), resumo diário, aviso de 7 dias, prazo das ofertas
   de herança, fim das férias na data de volta, limpeza de sessões vencidas e, no dia 1, o aviso de
-  petiscos renovados (uma vez por mês, guardado em `config.monthlyRenewalAnnounced`). A renovação em
+  petiscos renovados (uma vez por mês, guardado em `config.monthlyRenewalAnnounced`) e o aviso de
+  Paçocast sem dar notícia (cada chamada dele grava `config.pacocastLastSeen`; o aviso sai uma vez
+  por silêncio, guardado em `config.pacocastOfflineWarned`). A renovação em
   si não precisa de job: a cota é do mês.
 - **Exportar:** a consulta `group.export` (só admin) devolve todas as tabelas, menos `sessions`,
   `push_subscriptions` e as chaves de `config` com segredo; o app monta o arquivo no navegador.

@@ -34,6 +34,7 @@ const GLYPHS: Record<NotificationType, string> = {
   problem_reported: '🔧',
   problem_resolved: '✨',
   request_stuck: '🧱',
+  pacocast_offline: '📡',
   daily_digest: '📰',
 };
 

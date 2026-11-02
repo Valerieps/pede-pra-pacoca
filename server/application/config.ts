@@ -11,6 +11,10 @@ export interface ConfigValues {
   monthlyRenewalAnnounced: string | null;
   /** The last local day ("YYYY-MM-DD") the Mídia travada check ran. */
   stuckCheckDay: string | null;
+  /** The Paçocast's last call (ISO); null until it first calls. */
+  pacocastLastSeen: string | null;
+  /** The last call an offline notice was sent for: one notice per silence. */
+  pacocastOfflineWarned: string | null;
 }
 
 export function readConfig<K extends keyof ConfigValues>(ctx: Context, key: K, fallback: ConfigValues[K]): ConfigValues[K] {
