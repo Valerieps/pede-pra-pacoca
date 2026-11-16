@@ -39,3 +39,5 @@ deploys, two origins); Firebase (ADR-004, superseded).
 Push encryption and large reports are the likely first to hit it; the fix is the US$ 5 Workers Paid
 plan, not a redesign. The data cannot be browsed in a dashboard as with D1: an admin export is on
 the roadmap.
+
+**Update (2026-11-16):** the cron no longer lives in this Worker. The `cron-central` Worker, shared by all the owner's apps, fires every 5 minutes and calls this Worker's `Cron.tick()` entrypoint (`server/entry/worker.ts`) through a service binding; it runs the same `runCron` and so `Group.tick()`. `wrangler.jsonc` keeps `"triggers": { "crons": [] }` on purpose: removing the key would leave the old schedule set in Cloudflare.

@@ -24,7 +24,7 @@ app (celular) ──POST /api/query|command──► Worker ──RPC──► G
      ▲                                       ▲   ▲                │
      └──────── WebSocket /api/live ──────────┘   │                │ "mudou: feed, invites…"
                                                  │                ▼
-Paçocast ──GET work / POST report──► Worker   cron 5 min ──┘   todos os apps abertos refazem a consulta
+Paçocast ──GET work / POST report──► Worker   cron-central ┘   todos os apps abertos refazem a consulta
    │
    └──► Jellyseerr (na casa do Cesar)
 ```
@@ -115,7 +115,7 @@ Tabelas do SQLite do `Group` (`server/application/schema.ts`). Datas em ISO 8601
   `outbox` com `deliver_after` (silêncio, resumo, curtidas agrupadas) na mesma transação. Depois do
   comando, e no cron, o `Group` pega o que venceu, marca como enviado e manda o Web Push; as
   inscrições que o serviço de push dá como mortas (404/410) saem. Ver ADR-011.
-- **Cron a cada 5 minutos:** `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
+- **Cron a cada 5 minutos:** o Worker `cron-central` (fora deste repositório) chama a entrada `Cron.tick()` deste Worker por service binding; ela roda `Group.tick()` vê o que venceu no fuso de São Paulo: entrega do
   `outbox` (respeitando silêncio e agrupamento), resumo diário, aviso de 7 dias, prazo das ofertas
   de herança, fim das férias na data de volta, limpeza de sessões vencidas e, no dia 1, o aviso de
   petiscos renovados (uma vez por mês, guardado em `config.monthlyRenewalAnnounced`) e o aviso de
