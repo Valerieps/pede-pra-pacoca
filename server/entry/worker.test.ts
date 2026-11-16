@@ -29,10 +29,8 @@ describe('cron', () => {
     expect(tick).toHaveBeenCalledOnce();
   });
 
-  it('scheduled() does the same as runCron', async () => {
-    const { env, tick } = fakeEnv();
-    await worker.scheduled!({}, env, {});
-    expect(tick).toHaveBeenCalledOnce();
+  it('has no scheduled handler any more', () => {
+    expect((worker as { scheduled?: unknown }).scheduled).toBeUndefined();
   });
 
   it('Cron.tick does the same as runCron', async () => {

@@ -1,4 +1,4 @@
-// Cloudflare Worker: the app's files, the API, the live connection and the cron (ADR-006).
+// Cloudflare Worker: the app's files, the API, the live connection and the `Cron` entrypoint (ADR-006).
 // Secrets are not here: set GOOGLE_CLIENT_SECRET, BOOTSTRAP_ADMIN_EMAILS, TMDB_API_KEY, OMDB_API_KEY and the Web
 // Push keys (VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT; `npm run vapid:keys` makes the pair) with
 // `npx wrangler secret put <NAME>`, and locally in .dev.vars (see .dev.vars.example).
@@ -18,8 +18,9 @@
   },
   // Never edit a shipped migration; add the next tag.
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Group"] }],
-  // One cron for every time-based job; the rules decide what is due in America/Sao_Paulo.
-  "triggers": { "crons": ["*/5 * * * *"] },
+  // No cron here: the `cron-central` Worker calls `Cron.tick` every 5 minutes through a service binding. The
+  // empty list is deliberate: deleting this key would NOT remove the schedule already set in Cloudflare.
+  "triggers": { "crons": [] },
   "vars": {
     "GOOGLE_CLIENT_ID": "625557632408-gnlmrs1vh8ahpcvhae138en02r7qbhe0.apps.googleusercontent.com"
   },
