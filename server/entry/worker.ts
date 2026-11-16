@@ -179,7 +179,7 @@ async function api(request: Request, env: Env, url: URL): Promise<Response> {
   return result.ok ? json({ value: result.value }) : json({ error: result.error }, STATUS[result.error]);
 }
 
-/** The time-based jobs: what the Worker's own cron and the central cron's `Cron.tick` both run. */
+/** The time-based jobs, run by `Cron.tick` (the central cron Worker, every 5 minutes). */
 export async function runCron(env: Env, _ctx: ExecutionContext): Promise<void> {
   await group(env).tick();
 }
@@ -196,9 +196,5 @@ export default {
     const url = new URL(request.url);
     if (url.pathname.startsWith('/api/')) return api(request, env, url);
     return env.ASSETS.fetch(request);
-  },
-
-  async scheduled(_controller, env, ctx): Promise<void> {
-    await runCron(env, ctx);
   },
 } satisfies ExportedHandler<Env>;
